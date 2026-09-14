@@ -252,13 +252,15 @@ function renderActions(state) {
     const sliderMax = maxTo;
     raiseSlider.min = String(sliderMin);
     raiseSlider.max = String(sliderMax);
+    raiseAmountEl.min = String(sliderMin);
+    raiseAmountEl.max = String(sliderMax);
     raiseTarget = Math.min(sliderMax, Math.max(sliderMin, sliderMin));
     raiseSlider.value = String(raiseTarget);
-    raiseAmountEl.textContent = formatChips(raiseTarget);
+    raiseAmountEl.value = String(raiseTarget);
     raiseRow.hidden = false;
 
     raiseBtn.addEventListener('click', () => {
-      const amount = Number(raiseSlider.value);
+      const amount = clampRaise(Number(raiseAmountEl.value));
       if (amount >= hero.stack + hero.bet) {
         game.actHero({ type: 'allin', amount: hero.stack });
       } else {
@@ -324,10 +326,37 @@ function render(state) {
 
 const game = new PokerGame(render);
 
-raiseSlider.addEventListener('input', () => {
-  raiseTarget = Number(raiseSlider.value);
-  raiseAmountEl.textContent = formatChips(raiseTarget);
+function clampRaise(n) {
+  const min = Number(raiseSlider.min) || 0;
+  const max = Number(raiseSlider.max) || 0;
+  if (!Number.isFinite(n)) return min;
+  return Math.min(max, Math.max(min, Math.round(n)));
+}
+
+function syncRaiseFromSlider() {
+  raiseTarget = clampRaise(Number(raiseSlider.value));
+  raiseSlider.value = String(raiseTarget);
+  raiseAmountEl.value = String(raiseTarget);
+}
+
+function syncRaiseFromInput() {
+  raiseTarget = clampRaise(Number(raiseAmountEl.value));
+  raiseSlider.value = String(raiseTarget);
+  raiseAmountEl.value = String(raiseTarget);
+}
+
+raiseSlider.addEventListener('input', syncRaiseFromSlider);
+
+raiseAmountEl.addEventListener('input', () => {
+  // live-clamp typed value without fighting the caret too hard
+  const raw = Number(raiseAmountEl.value);
+  if (raiseAmountEl.value === '' || Number.isNaN(raw)) return;
+  raiseTarget = clampRaise(raw);
+  raiseSlider.value = String(raiseTarget);
 });
+
+raiseAmountEl.addEventListener('change', syncRaiseFromInput);
+raiseAmountEl.addEventListener('blur', syncRaiseFromInput);
 
 btnReset.addEventListener('click', () => {
   if (stateBusy()) return;
@@ -341,6 +370,11 @@ function stateBusy() {
 }
 
 document.addEventListener('keydown', (e) => {
+  // Don't steal keys while typing a raise amount
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) {
+    return;
+  }
   if (!lastState?.heroTurn) return;
   const k = e.key.toLowerCase();
   if (k === 'f') game.actHero({ type: 'fold' });

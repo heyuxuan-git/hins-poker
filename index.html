@@ -34,8 +34,17 @@
 
     <main class="stage">
       <div class="table-wrap">
-        <div class="table" aria-hidden="true">
-          <div class="felt-pattern"></div>
+        <div class="table-rail">
+          <div class="table">
+            <div class="felt-pattern"></div>
+          </div>
+        </div>
+        <div class="dealer-well" aria-hidden="true">
+          <div class="dealer-figure">
+            <span class="dealer-head"></span>
+            <span class="dealer-body"></span>
+            <span class="dealer-label">DEALER</span>
+          </div>
         </div>
 
         <div class="board" id="board" aria-label="公共牌"></div>
@@ -66,9 +75,20 @@
           min="0"
           max="2000"
           value="40"
-          aria-label="加注金额"
+          aria-label="加注金额滑条"
         />
-        <span class="raise-amount" id="raise-amount">40</span>
+        <label class="raise-amount-wrap" for="raise-amount">
+          <input
+            type="number"
+            id="raise-amount"
+            class="raise-amount"
+            min="0"
+            max="2000"
+            value="40"
+            inputmode="numeric"
+            aria-label="加注金额"
+          />
+        </label>
       </div>
       <div class="actions" id="actions"></div>
     </footer>
