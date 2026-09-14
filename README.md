@@ -2,6 +2,8 @@
 
 参考 sohoo poker 质感的浏览器德州扑克：深绿台面、金色 VIP 装饰、4 人桌（你 + 3 名 AI）。
 
+**在线试玩**：https://heyuxuan-git.github.io/sohoo-poker/
+
 ## 玩法
 
 - 无限注德州扑克（NLHE）
@@ -36,10 +38,5 @@ python3 -m http.server 5173
 
 ## 部署
 
-已通过 GitHub Pages 部署。若自行部署：
-
-```bash
-gh repo create sohoo-poker --public --source=. --push
-gh api repos/<user>/sohoo-poker/pages -X POST \
-  -f source[branch]=main -f source[path]=/
-```
+仓库：https://github.com/heyuxuan-git/sohoo-poker  
+Pages：https://heyuxuan-git.github.io/sohoo-poker/
