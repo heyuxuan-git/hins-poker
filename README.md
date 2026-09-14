@@ -1,6 +1,6 @@
 # Sohoo Poker · 德州扑克小游戏
 
-参考 sohoo poker 质感的浏览器德州扑克：深绿台面、金色 VIP 装饰、4 人桌（你 + 3 名 AI）。
+参考 sohoo poker 质感的浏览器德州扑克：跑道形深绿台面、金色 VIP 装饰、6 人桌（你 + 5 名 AI）。
 
 **在线试玩**：https://heyuxuan-git.github.io/sohoo-poker/
 

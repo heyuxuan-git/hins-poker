@@ -175,19 +175,20 @@ button:focus-visible {
 }
 
 .table-wrap {
-  width: min(920px, 100%);
+  width: min(980px, 100%);
   position: relative;
   margin: 0 auto;
-  aspect-ratio: 16 / 10;
-  max-height: min(62vh, 560px);
+  aspect-ratio: 16 / 9;
+  max-height: min(58vh, 540px);
 }
 
 .table {
   position: absolute;
   inset: 0;
-  border-radius: 50% / 46%;
+  /* Stadium / racetrack: straight long sides + semicircular ends */
+  border-radius: 999px;
   background:
-    radial-gradient(ellipse at 50% 42%, var(--felt-glow) 0%, var(--felt) 42%, var(--felt-deep) 78%, #031a12 100%);
+    radial-gradient(ellipse at 50% 40%, var(--felt-glow) 0%, var(--felt) 48%, var(--felt-deep) 82%, #031a12 100%);
   box-shadow:
     inset 0 0 60px rgba(0, 0, 0, 0.35),
     inset 0 10px 30px rgba(255, 255, 255, 0.04),
@@ -200,9 +201,9 @@ button:focus-visible {
 .table::before {
   content: "";
   position: absolute;
-  inset: 12%;
-  border-radius: 50%;
-  border: 1px solid rgba(240, 215, 140, 0.12);
+  inset: 10% 5%;
+  border-radius: 999px;
+  border: 1px solid rgba(240, 215, 140, 0.14);
   pointer-events: none;
 }
 
@@ -392,28 +393,55 @@ button:focus-visible {
   filter: grayscale(0.4);
 }
 
+/* 6-max racetrack seat map */
 .seat.bottom {
   left: 50%;
-  bottom: -10px;
+  bottom: -8px;
   transform: translateX(-50%);
+  z-index: 8;
+}
+
+.seat.bottom-left {
+  left: 16%;
+  bottom: 2%;
+  z-index: 7;
 }
 
 .seat.left {
-  left: 2%;
-  top: 50%;
+  left: 0.5%;
+  top: 42%;
   transform: translateY(-50%);
+  z-index: 7;
 }
 
-.seat.top {
-  left: 50%;
-  top: -4px;
-  transform: translateX(-50%);
+.seat.top-left {
+  left: 14%;
+  top: 2%;
+  z-index: 7;
+}
+
+.seat.top-right {
+  right: 14%;
+  top: 2%;
+  z-index: 7;
 }
 
 .seat.right {
-  right: 2%;
-  top: 50%;
+  right: 0.5%;
+  top: 42%;
   transform: translateY(-50%);
+  z-index: 7;
+}
+
+.seat.thinking .player-chip {
+  border-color: rgba(140, 200, 255, 0.65);
+  box-shadow:
+    0 0 0 1px rgba(140, 200, 255, 0.35),
+    0 0 18px rgba(100, 170, 255, 0.25);
+}
+
+.seat.thinking .player-action {
+  color: #9ec9ff;
 }
 
 .seat-cards {
@@ -486,6 +514,10 @@ button:focus-visible {
   font-size: 9px;
   font-weight: 800;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.dealer-btn[hidden] {
+  display: none !important;
 }
 
 .player-stack {
@@ -576,7 +608,7 @@ button:focus-visible {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-  max-width: 720px;
+  max-width: 760px;
   width: 100%;
   margin: 0 auto;
 }
@@ -609,6 +641,12 @@ button:focus-visible {
   background: linear-gradient(180deg, #2a3340, #1a222c);
   border-color: rgba(255, 255, 255, 0.08);
   color: #c5d0dc;
+}
+
+.btn-allin {
+  background: linear-gradient(180deg, #5a2a1c, #3a1810);
+  border-color: rgba(255, 120, 80, 0.35);
+  color: #ffd0c0;
 }
 
 .btn-check {
@@ -701,13 +739,13 @@ button:focus-visible {
   }
 
   .table-wrap {
-    aspect-ratio: 1 / 1.05;
-    max-height: min(70vh, 520px);
-    width: min(100%, 520px);
+    aspect-ratio: 5 / 4;
+    max-height: min(68vh, 500px);
+    width: min(100%, 560px);
   }
 
   .table {
-    border-radius: 44% / 42%;
+    border-radius: 999px;
     box-shadow:
       inset 0 0 40px rgba(0, 0, 0, 0.35),
       0 0 0 7px #1a2430,
@@ -717,7 +755,7 @@ button:focus-visible {
   }
 
   .seat {
-    width: 104px;
+    width: 96px;
   }
 
   .seat.left {
@@ -726,6 +764,21 @@ button:focus-visible {
 
   .seat.right {
     right: 0;
+  }
+
+  .seat.top-left {
+    left: 6%;
+    top: 0;
+  }
+
+  .seat.top-right {
+    right: 6%;
+    top: 0;
+  }
+
+  .seat.bottom-left {
+    left: 6%;
+    bottom: 0;
   }
 
   .actions {

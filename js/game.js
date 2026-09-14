@@ -5,17 +5,21 @@ import { decideAiAction } from './ai.js';
 const STARTING_STACK = 2000;
 const SMALL_BLIND = 10;
 const BIG_BLIND = 20;
+const AI_THINK_MIN = 900;
+const AI_THINK_VAR = 800;
 
-const PERSONALITIES = ['balanced', 'aggressive', 'tight'];
+const PERSONALITIES = ['balanced', 'aggressive', 'tight', 'maniac', 'tight', 'aggressive'];
 
 export class PokerGame {
   constructor(onUpdate) {
     this.onUpdate = onUpdate || (() => {});
     this.players = [
       { id: 0, name: '你', stack: STARTING_STACK, isHero: true, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'bottom' },
-      { id: 1, name: '阿凯', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'left', personality: 'aggressive' },
-      { id: 2, name: '林姐', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'top', personality: 'tight' },
-      { id: 3, name: '老周', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'right', personality: 'balanced' },
+      { id: 1, name: '阿凯', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'right', personality: 'aggressive' },
+      { id: 2, name: '林姐', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'top-right', personality: 'tight' },
+      { id: 3, name: '老周', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'top-left', personality: 'balanced' },
+      { id: 4, name: '小美', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'left', personality: 'maniac' },
+      { id: 5, name: '陈哥', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'bottom-left', personality: 'tight' },
     ];
     this.handNumber = 0;
     this.button = 0;
@@ -81,6 +85,7 @@ export class PokerGame {
         allIn: p.allIn,
         isButton: p.id === this.button,
         isCurrent: p.id === this.currentPlayer,
+        isThinking: !!p.isThinking,
         seat: p.seat,
         lastAction: p.lastAction || null,
         handName: p.handName || null,
@@ -142,6 +147,7 @@ export class PokerGame {
       p.acted = false;
       p.lastAction = null;
       p.handName = null;
+      p.isThinking = false;
     }
 
     // Post blinds
@@ -243,8 +249,11 @@ export class PokerGame {
         return;
       }
 
-      // AI turn
-      await this.sleep(550 + Math.random() * 450);
+      // AI turn — show a short "thinking" beat before acting
+      player.isThinking = true;
+      this.emit();
+      await this.sleep(AI_THINK_MIN + Math.random() * AI_THINK_VAR);
+      player.isThinking = false;
       const toCall = this.currentBet - player.bet;
       const action = decideAiAction(player.cards, {
         toCall,
@@ -254,7 +263,7 @@ export class PokerGame {
         community: this.community,
         betThisStreet: player.bet,
         bigBlind: BIG_BLIND,
-      }, player.personality || PERSONALITIES[player.id % 3]);
+      }, player.personality || PERSONALITIES[player.id % PERSONALITIES.length]);
 
       this.applyAction(player, action);
       this.emit();

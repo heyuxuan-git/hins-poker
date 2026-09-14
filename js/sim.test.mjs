@@ -35,8 +35,8 @@ async function playHands(n) {
     }
     const total = game.players.reduce((s, p) => s + p.stack, 0);
     console.log(`hand ${i + 1}: phase=${game.phase} pot=${game.pot} stacks=${game.players.map(p => p.stack).join(',')} total=${total} msg=${game.message}`);
-    if (total !== 8000) {
-      console.error('CHIP LEAK: total should be 8000, got', total);
+    if (total !== 12000) {
+      console.error('CHIP LEAK: total should be 12000, got', total);
       process.exitCode = 1;
       return;
     }
@@ -64,7 +64,7 @@ game.startHand().then(async () => {
   }
   const total = game.players.reduce((s, p) => s + p.stack, 0);
   console.log('first hand:', game.phase, 'total chips', total, game.message);
-  if (total !== 8000) {
+  if (total !== 12000) {
     console.error('CHIP LEAK on first hand');
     process.exitCode = 1;
   }
@@ -84,7 +84,7 @@ game.startHand().then(async () => {
       }
       const t = game.players.reduce((s, p) => s + p.stack, 0);
       console.log(`hand ${i + 2}: ${game.phase} total=${t}`);
-      if (t !== 8000) {
+      if (t !== 12000) {
         console.error('CHIP LEAK', t);
         process.exitCode = 1;
         break;

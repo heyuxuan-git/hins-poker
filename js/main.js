@@ -1,12 +1,11 @@
 import { PokerGame } from './game.js';
 import { cardDisplay } from './deck.js';
 
-const seatIds = {
-  bottom: document.getElementById('seat-bottom'),
-  left: document.getElementById('seat-left'),
-  top: document.getElementById('seat-top'),
-  right: document.getElementById('seat-right'),
-};
+const SEAT_KEYS = ['bottom', 'right', 'top-right', 'top-left', 'left', 'bottom-left'];
+
+const seatEls = Object.fromEntries(
+  SEAT_KEYS.map((key) => [key, document.getElementById(`seat-${key}`)]),
+);
 
 const boardEl = document.getElementById('board');
 const potAmountEl = document.getElementById('pot-amount');
@@ -22,87 +21,180 @@ const btnReset = document.getElementById('btn-reset');
 let lastState = null;
 let raiseTarget = 40;
 
+/** Cached DOM per seat so we never wipe/rebuild on every action */
+const seatCache = new Map();
+const boardCache = [];
+let actionsSignature = '';
+let winBannerKey = '';
+
 function formatChips(n) {
   return Number(n).toLocaleString('zh-CN');
 }
 
-function renderCard(card, { small = false } = {}) {
-  if (!card) return '';
-  if (card.hidden) {
-    return '<div class="pcard back" aria-label="暗牌"></div>';
-  }
-  const d = cardDisplay(card);
-  return `
-    <div class="pcard ${d.isRed ? 'red' : ''}" aria-label="${d.rank}${d.suit}">
-      <div class="corner"><span>${d.rank}</span><span>${d.suit}</span></div>
-      <div class="center">${d.suit}</div>
-    </div>
-  `;
+function cardKey(card) {
+  if (!card) return 'empty';
+  if (card.hidden) return 'back';
+  return card.id || `${card.rank}${card.suit}`;
 }
 
-function renderBoard(community) {
-  const slots = [];
-  for (let i = 0; i < 5; i++) {
-    const c = community[i];
-    if (c) {
-      slots.push(renderCard(c));
-    } else {
-      slots.push('<div class="card-slot"></div>');
-    }
+function buildCardEl(card) {
+  if (!card) return null;
+  if (card.hidden) {
+    const el = document.createElement('div');
+    el.className = 'pcard back';
+    el.setAttribute('aria-label', '暗牌');
+    return el;
   }
-  boardEl.innerHTML = slots.join('');
+  const d = cardDisplay(card);
+  const el = document.createElement('div');
+  el.className = `pcard${d.isRed ? ' red' : ''}`;
+  el.setAttribute('aria-label', `${d.rank}${d.suit}`);
+  el.innerHTML = `
+    <div class="corner"><span>${d.rank}</span><span>${d.suit}</span></div>
+    <div class="center">${d.suit}</div>
+  `;
+  return el;
+}
+
+function ensureSeatScaffold(el) {
+  let cache = seatCache.get(el);
+  if (cache) return cache;
+
+  el.innerHTML = `
+    <div class="seat-cards"></div>
+    <div class="player-chip">
+      <div class="player-name">
+        <span class="dealer-btn" title="庄家" hidden>D</span>
+        <span class="player-name-text"></span>
+      </div>
+      <div class="player-stack"></div>
+      <div class="player-bet"></div>
+      <div class="player-action"></div>
+      <div class="hand-tag"></div>
+    </div>
+  `;
+
+  cache = {
+    cards: el.querySelector('.seat-cards'),
+    name: el.querySelector('.player-name-text'),
+    dealer: el.querySelector('.dealer-btn'),
+    stack: el.querySelector('.player-stack'),
+    bet: el.querySelector('.player-bet'),
+    action: el.querySelector('.player-action'),
+    hand: el.querySelector('.hand-tag'),
+    cardEls: [],
+    cardKeys: [],
+  };
+  seatCache.set(el, cache);
+  return cache;
+}
+
+function syncCards(container, cache, cards) {
+  const keys = (cards || []).map(cardKey);
+  const same =
+    keys.length === cache.cardKeys.length &&
+    keys.every((k, i) => k === cache.cardKeys[i]);
+
+  if (same) return;
+
+  cache.cardKeys = keys;
+  container.innerHTML = '';
+  cache.cardEls = keys.map((_, i) => {
+    const node = buildCardEl(cards[i]);
+    container.appendChild(node);
+    return node;
+  });
 }
 
 function renderSeat(el, player, state) {
   if (!el) return;
-  const cardsHtml = (player.cards || []).map((c) => renderCard(c)).join('');
+  const cache = ensureSeatScaffold(el);
   const isWinner = (state.winners || []).some((w) => w.id === player.id);
+
+  const layout = el.dataset.seat || '';
   const classes = ['seat'];
-  // keep layout class from DOM
-  const layout = el.dataset.seat;
   if (layout) classes.push(layout);
   if (player.folded) classes.push('folded');
   if (player.isCurrent) classes.push('current');
   if (isWinner) classes.push('winner');
+  if (player.isThinking) classes.push('thinking');
+  const nextClass = classes.join(' ');
+  if (el.className !== nextClass) el.className = nextClass;
 
-  el.className = classes.join(' ');
-  el.innerHTML = `
-    <div class="seat-cards">${cardsHtml}</div>
-    <div class="player-chip">
-      <div class="player-name">
-        ${player.isButton ? '<span class="dealer-btn" title="庄家">D</span>' : ''}
-        <span>${player.name}</span>
-      </div>
-      <div class="player-stack">${formatChips(player.stack)}</div>
-      <div class="player-bet">${player.bet > 0 ? `下注 ${formatChips(player.bet)}` : ''}</div>
-      <div class="player-action">${player.lastAction || ''}</div>
-      ${player.handName ? `<div class="hand-tag">${player.handName}</div>` : ''}
-    </div>
-  `;
+  syncCards(cache.cards, cache, player.cards);
+
+  if (cache.name.textContent !== player.name) cache.name.textContent = player.name;
+  if (cache.dealer.hidden === !!player.isButton) cache.dealer.hidden = !player.isButton;
+
+  const stackText = formatChips(player.stack);
+  if (cache.stack.textContent !== stackText) cache.stack.textContent = stackText;
+
+  const betText = player.bet > 0 ? `下注 ${formatChips(player.bet)}` : '';
+  if (cache.bet.textContent !== betText) cache.bet.textContent = betText;
+
+  const actionText = player.lastAction || '';
+  if (cache.action.textContent !== actionText) cache.action.textContent = actionText;
+
+  const handText = player.handName || '';
+  if (cache.hand.textContent !== handText) cache.hand.textContent = handText;
+}
+
+function renderBoard(community) {
+  for (let i = 0; i < 5; i++) {
+    const card = community[i];
+    const key = cardKey(card);
+    const existing = boardCache[i];
+    if (!existing || existing.key === key) continue;
+
+    const node = card ? buildCardEl(card) : document.createElement('div');
+    if (!card) node.className = 'card-slot';
+    if (existing.node.parentNode === boardEl) {
+      boardEl.replaceChild(node, existing.node);
+    } else {
+      boardEl.replaceChild(node, boardEl.children[i] || existing.node);
+    }
+    boardCache[i] = { key, node };
+  }
+}
+
+function initBoardSlots() {
+  boardEl.innerHTML = '';
+  boardCache.length = 0;
+  for (let i = 0; i < 5; i++) {
+    const node = document.createElement('div');
+    node.className = 'card-slot';
+    boardEl.appendChild(node);
+    boardCache[i] = { key: 'empty', node };
+  }
 }
 
 function renderActions(state) {
+  const hero = state.players[0];
+  const toCall = state.toCall || 0;
+  const signature = [
+    state.phase,
+    state.heroTurn ? 1 : 0,
+    state.phase === 'idle' || state.phase === 'handover' ? 'start' : '',
+    state.phase === 'showdown' ? 'showdown' : '',
+    state.heroTurn ? (toCall === 0 ? 'check' : `call:${toCall}`) : '',
+    state.heroTurn && state.players[0].stack ? `stack:${state.players[0].stack}` : '',
+    state.heroTurn ? `min:${state.minRaiseTo}|max:${state.maxRaiseTo}|cbet:${state.currentBet}` : '',
+  ].join('|');
+
+  if (signature === actionsSignature) return;
+  actionsSignature = signature;
+
   actionsEl.innerHTML = '';
   raiseRow.hidden = true;
 
   const idle = state.phase === 'idle';
   const handover = state.phase === 'handover';
 
-  if (idle) {
+  if (idle || handover) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'action-btn btn-start';
-    btn.textContent = '发牌 · 开始新局';
-    btn.addEventListener('click', () => game.startHand());
-    actionsEl.appendChild(btn);
-    return;
-  }
-
-  if (handover) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'action-btn btn-start';
-    btn.textContent = '下一局';
+    btn.textContent = idle ? '发牌 · 开始新局' : '下一局';
     btn.addEventListener('click', () => game.startHand());
     actionsEl.appendChild(btn);
     return;
@@ -111,17 +203,18 @@ function renderActions(state) {
   if (!state.heroTurn) {
     const wait = document.createElement('div');
     wait.className = 'waiting';
-    wait.textContent =
-      state.phase === 'showdown' ? '摊牌中…' : '等待对手行动…';
+    const thinkingName = state.players.find((p) => p.isThinking)?.name;
+    if (thinkingName) {
+      wait.textContent = `${thinkingName} 思考中…`;
+    } else {
+      wait.textContent = state.phase === 'showdown' ? '摊牌中…' : '等待对手行动…';
+    }
     actionsEl.appendChild(wait);
     return;
   }
 
-  const toCall = state.toCall || 0;
-  const hero = state.players[0];
   const canCheck = toCall === 0;
 
-  // Fold
   const fold = document.createElement('button');
   fold.type = 'button';
   fold.className = 'action-btn btn-fold';
@@ -129,11 +222,10 @@ function renderActions(state) {
   fold.addEventListener('click', () => game.actHero({ type: 'fold' }));
   actionsEl.appendChild(fold);
 
-  // Check / Call
   const checkCall = document.createElement('button');
   checkCall.type = 'button';
-  checkCall.className = 'action-btn btn-check';
   if (canCheck) {
+    checkCall.className = 'action-btn btn-check';
     checkCall.textContent = '过牌';
     checkCall.addEventListener('click', () => game.actHero({ type: 'check' }));
   } else {
@@ -145,7 +237,6 @@ function renderActions(state) {
   }
   actionsEl.appendChild(checkCall);
 
-  // Raise
   const minTo = state.minRaiseTo || 0;
   const maxTo = state.maxRaiseTo || 0;
   const canRaise = maxTo > (state.currentBet || 0) && hero.stack > toCall;
@@ -157,8 +248,6 @@ function renderActions(state) {
   raiseBtn.disabled = !canRaise;
 
   if (canRaise) {
-    const min = Math.max(minTo, toCall + hero.bet + game.bigBlind);
-    // minRaiseTo is absolute bet-to amount including already posted
     const sliderMin = Math.min(minTo, maxTo);
     const sliderMax = maxTo;
     raiseSlider.min = String(sliderMin);
@@ -180,14 +269,10 @@ function renderActions(state) {
 
   actionsEl.appendChild(raiseBtn);
 
-  // All-in quick button if stack is the interesting move
   if (hero.stack > 0 && hero.stack > toCall) {
     const allIn = document.createElement('button');
     allIn.type = 'button';
-    allIn.className = 'action-btn btn-fold';
-    allIn.style.background = 'linear-gradient(180deg, #5a2a1c, #3a1810)';
-    allIn.style.borderColor = 'rgba(255,120,80,0.35)';
-    allIn.style.color = '#ffd0c0';
+    allIn.className = 'action-btn btn-allin';
     allIn.textContent = `全下 ${formatChips(hero.stack)}`;
     allIn.addEventListener('click', () => game.actHero({ type: 'allin', amount: hero.stack }));
     actionsEl.appendChild(allIn);
@@ -195,10 +280,20 @@ function renderActions(state) {
 }
 
 function renderWinBanner(state) {
+  const key =
+    state.phase === 'handover' && state.winners?.length
+      ? `${state.winners[0].id}:${state.winners[0].amount}:${state.winners[0].handName || ''}`
+      : '';
+
+  if (key === winBannerKey) return;
+  winBannerKey = key;
   winBannerSlot.innerHTML = '';
-  if (state.phase !== 'handover' || !state.winners?.length) return;
+  if (!key) return;
+
   const w = state.winners[0];
-  const label = w.handName ? `${w.name} · ${w.handName} +${formatChips(w.amount)}` : `${w.name} +${formatChips(w.amount)}`;
+  const label = w.handName
+    ? `${w.name} · ${w.handName} +${formatChips(w.amount)}`
+    : `${w.name} +${formatChips(w.amount)}`;
   const div = document.createElement('div');
   div.className = 'win-banner';
   div.textContent = label;
@@ -207,14 +302,20 @@ function renderWinBanner(state) {
 
 function render(state) {
   lastState = state;
-  potAmountEl.textContent = formatChips(state.pot);
-  handNumEl.textContent = state.handNumber > 0 ? String(state.handNumber) : '—';
-  toastEl.textContent = state.message || '';
+
+  const potText = formatChips(state.pot);
+  if (potAmountEl.textContent !== potText) potAmountEl.textContent = potText;
+
+  const handText = state.handNumber > 0 ? String(state.handNumber) : '—';
+  if (handNumEl.textContent !== handText) handNumEl.textContent = handText;
+
+  const msg = state.message || '';
+  if (toastEl.textContent !== msg) toastEl.textContent = msg;
 
   renderBoard(state.community || []);
 
   for (const p of state.players) {
-    renderSeat(seatIds[p.seat], p, state);
+    renderSeat(seatEls[p.seat], p, state);
   }
 
   renderActions(state);
@@ -230,6 +331,8 @@ raiseSlider.addEventListener('input', () => {
 
 btnReset.addEventListener('click', () => {
   if (stateBusy()) return;
+  actionsSignature = '';
+  winBannerKey = '';
   game.resetTournament();
 });
 
@@ -237,7 +340,6 @@ function stateBusy() {
   return lastState && !['idle', 'handover'].includes(lastState.phase);
 }
 
-// Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
   if (!lastState?.heroTurn) return;
   const k = e.key.toLowerCase();
@@ -252,4 +354,5 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+initBoardSlots();
 game.emit();
