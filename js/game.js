@@ -1,0 +1,589 @@
+import { createDeck, shuffle } from './deck.js';
+import { evaluateHand, compareEval } from './evaluator.js';
+import { decideAiAction } from './ai.js';
+
+const STARTING_STACK = 2000;
+const SMALL_BLIND = 10;
+const BIG_BLIND = 20;
+
+const PERSONALITIES = ['balanced', 'aggressive', 'tight'];
+
+export class PokerGame {
+  constructor(onUpdate) {
+    this.onUpdate = onUpdate || (() => {});
+    this.players = [
+      { id: 0, name: '你', stack: STARTING_STACK, isHero: true, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'bottom' },
+      { id: 1, name: '阿凯', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'left', personality: 'aggressive' },
+      { id: 2, name: '林姐', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'top', personality: 'tight' },
+      { id: 3, name: '老周', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'right', personality: 'balanced' },
+    ];
+    this.handNumber = 0;
+    this.button = 0;
+    this.phase = 'idle'; // idle | preflop | flop | turn | river | showdown | handover
+    this.deck = [];
+    this.community = [];
+    this.pot = 0;
+    this.currentBet = 0;
+    this.minRaise = BIG_BLIND;
+    this.currentPlayer = null;
+    this.lastAction = null;
+    this.winners = [];
+    this.handResults = [];
+    this.message = '准备开始新一局';
+    this.dealerName = '';
+    this.animationQueue = [];
+    this.heroActionLocked = false;
+    this.sidePots = [];
+    this.showdownReveal = false;
+  }
+
+  get bigBlind() {
+    return BIG_BLIND;
+  }
+
+  isHeroTurn() {
+    return this.phase !== 'idle' &&
+      this.phase !== 'showdown' &&
+      this.phase !== 'handover' &&
+      this.currentPlayer === 0 &&
+      !this.players[0].folded &&
+      !this.players[0].allIn &&
+      this.players[0].stack > 0;
+  }
+
+  activePlayers() {
+    return this.players.filter((p) => !p.folded);
+  }
+
+  playersCanAct() {
+    return this.players.filter((p) => !p.folded && !p.allIn && p.stack > 0);
+  }
+
+  emit() {
+    this.onUpdate(this.snapshot());
+  }
+
+  snapshot() {
+    return {
+      players: this.players.map((p) => ({
+        id: p.id,
+        name: p.name,
+        stack: p.stack,
+        isHero: p.isHero,
+        cards: p.isHero || this.phase === 'showdown' || this.showdownReveal
+          ? p.cards
+          : p.folded
+            ? []
+            : p.cards.map(() => ({ hidden: true })),
+        bet: p.bet,
+        totalBet: p.totalBet,
+        folded: p.folded,
+        allIn: p.allIn,
+        isButton: p.id === this.button,
+        isCurrent: p.id === this.currentPlayer,
+        seat: p.seat,
+        lastAction: p.lastAction || null,
+        handName: p.handName || null,
+      })),
+      community: this.community,
+      pot: this.pot,
+      phase: this.phase,
+      message: this.message,
+      handNumber: this.handNumber,
+      smallBlind: SMALL_BLIND,
+      bigBlind: BIG_BLIND,
+      currentPlayer: this.currentPlayer,
+      heroTurn: this.isHeroTurn(),
+      lastAction: this.lastAction,
+      winners: this.winners,
+      showdownReveal: this.showdownReveal || this.phase === 'showdown',
+      canCheck: this.isHeroTurn() && this.players[0].bet === this.currentBet,
+      toCall: this.isHeroTurn() ? Math.max(0, this.currentBet - this.players[0].bet) : 0,
+      minRaiseTo: this.isHeroTurn()
+        ? Math.min(this.players[0].stack + this.players[0].bet, this.currentBet + this.minRaise)
+        : 0,
+      maxRaiseTo: this.isHeroTurn() ? this.players[0].stack + this.players[0].bet : 0,
+      heroStack: this.players[0].stack,
+      bigBlind: BIG_BLIND,
+    };
+  }
+
+  async startHand() {
+    if (this.players.every((p) => p.stack <= 0)) {
+      // Reset tournament
+      for (const p of this.players) p.stack = STARTING_STACK;
+      this.handNumber = 0;
+      this.button = 0;
+      this.message = '筹码已重置，新牌局开始';
+    }
+
+    // Move button
+    do {
+      this.button = (this.button + 1) % this.players.length;
+    } while (this.players[this.button].stack <= 0);
+
+    this.handNumber += 1;
+    this.community = [];
+    this.pot = 0;
+    this.currentBet = 0;
+    this.minRaise = BIG_BLIND;
+    this.winners = [];
+    this.handResults = [];
+    this.showdownReveal = false;
+    this.phase = 'preflop';
+    this.deck = shuffle(createDeck());
+
+    for (const p of this.players) {
+      p.cards = [];
+      p.bet = 0;
+      p.totalBet = 0;
+      p.folded = p.stack <= 0;
+      p.allIn = false;
+      p.acted = false;
+      p.lastAction = null;
+      p.handName = null;
+    }
+
+    // Post blinds
+    const sbIndex = this.nextOccupied(this.button);
+    const bbIndex = this.nextOccupied(sbIndex);
+    this.postBlind(this.players[sbIndex], SMALL_BLIND, '小盲');
+    this.postBlind(this.players[bbIndex], BIG_BLIND, '大盲');
+    this.currentBet = Math.max(SMALL_BLIND, BIG_BLIND, this.players[sbIndex].bet, this.players[bbIndex].bet);
+    this.minRaise = BIG_BLIND;
+
+    // Deal hole cards
+    for (let round = 0; round < 2; round++) {
+      for (let i = 0; i < this.players.length; i++) {
+        const seat = this.nextOccupied(this.button + i);
+        if (!this.players[seat].folded) {
+          this.players[seat].cards.push(this.deck.pop());
+        }
+      }
+    }
+
+    this.message = `第 ${this.handNumber} 局 · ${this.players[sbIndex].name} 小盲 ${SMALL_BLIND} / ${this.players[bbIndex].name} 大盲 ${BIG_BLIND}`;
+    this.emit();
+    await this.sleep(600);
+
+    // Preflop action starts after BB
+    this.currentPlayer = this.nextOccupied(bbIndex);
+    this.beginBettingRound();
+    this.emit();
+    await this.runBettingRound();
+  }
+
+  beginBettingRound() {
+    for (const p of this.players) {
+      if (!p.folded && !p.allIn) p.acted = false;
+    }
+  }
+
+  postBlind(player, amount, label) {
+    const post = Math.min(amount, player.stack);
+    player.stack -= post;
+    player.bet += post;
+    player.totalBet += post;
+    player.lastAction = label;
+    if (player.stack === 0) player.allIn = true;
+    this.pot += post;
+  }
+
+  nextOccupied(from) {
+    for (let n = 1; n <= this.players.length; n++) {
+      const i = (from + n) % this.players.length;
+      if (this.players[i].stack > 0) return i;
+    }
+    return (from + 1) % this.players.length;
+  }
+
+  nextToAct(from) {
+    for (let n = 1; n <= this.players.length; n++) {
+      const i = (from + n) % this.players.length;
+      const p = this.players[i];
+      if (!p.folded && !p.allIn && p.stack > 0) return i;
+    }
+    return null;
+  }
+
+  sleep(ms) {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  async runBettingRound() {
+    const actors = this.playersCanAct();
+    if (actors.length === 0) {
+      await this.advanceStreet();
+      return;
+    }
+
+    let safety = 0;
+    while (safety++ < 200) {
+      const canAct = this.playersCanAct();
+      if (canAct.length <= 1 && this.activePlayers().length <= 1) break;
+
+      // Check if betting round complete
+      if (this.isBettingComplete()) break;
+
+      if (this.currentPlayer == null) {
+        this.currentPlayer = this.nextToAct(this.button);
+        if (this.currentPlayer == null) break;
+      }
+
+      const player = this.players[this.currentPlayer];
+      if (player.folded || player.allIn || player.stack === 0) {
+        this.currentPlayer = this.nextToAct(this.currentPlayer);
+        continue;
+      }
+
+      this.emit();
+
+      if (player.isHero) {
+        // Wait for hero action via act()
+        return;
+      }
+
+      // AI turn
+      await this.sleep(550 + Math.random() * 450);
+      const toCall = this.currentBet - player.bet;
+      const action = decideAiAction(player.cards, {
+        toCall,
+        minRaise: this.currentBet + this.minRaise,
+        pot: this.pot,
+        stack: player.stack,
+        community: this.community,
+        betThisStreet: player.bet,
+        bigBlind: BIG_BLIND,
+      }, player.personality || PERSONALITIES[player.id % 3]);
+
+      this.applyAction(player, action);
+      this.emit();
+
+      if (this.activePlayers().length === 1) {
+        await this.finishHand();
+        return;
+      }
+
+      this.currentPlayer = this.nextToAct(this.currentPlayer);
+      // If we wrapped and everyone acted, next check will break
+      if (this.currentPlayer == null) break;
+    }
+
+    if (this.phase === 'idle' || this.phase === 'showdown' || this.phase === 'handover') return;
+    await this.advanceStreet();
+  }
+
+  isBettingComplete() {
+    const canAct = this.playersCanAct();
+    if (canAct.length === 0) return true;
+    if (canAct.length === 1 && this.activePlayers().length === 1) return true;
+
+    // Everyone who can act has acted, and all bets equal (or all-in)
+    for (const p of canAct) {
+      if (!p.acted) return false;
+      if (p.bet !== this.currentBet) return false;
+    }
+    return true;
+  }
+
+  applyAction(player, action) {
+    if (action.type === 'fold') {
+      player.folded = true;
+      player.acted = true;
+      player.lastAction = '弃牌';
+      this.lastAction = { player: player.name, type: 'fold' };
+      return;
+    }
+
+    if (action.type === 'check') {
+      player.acted = true;
+      player.lastAction = '过牌';
+      this.lastAction = { player: player.name, type: 'check' };
+      return;
+    }
+
+    if (action.type === 'call') {
+      const need = this.currentBet - player.bet;
+      const pay = Math.min(need, player.stack);
+      player.stack -= pay;
+      player.bet += pay;
+      player.totalBet += pay;
+      this.pot += pay;
+      if (player.stack === 0) player.allIn = true;
+      player.acted = true;
+      player.lastAction = pay === 0 ? '过牌' : `跟注 ${pay}`;
+      this.lastAction = { player: player.name, type: 'call', amount: pay };
+      return;
+    }
+
+    if (action.type === 'raise' || action.type === 'allin') {
+      let target;
+      if (action.type === 'allin') {
+        target = player.bet + player.stack;
+      } else {
+        target = Math.max(action.amount, this.currentBet + this.minRaise);
+        target = Math.min(target, player.bet + player.stack);
+      }
+
+      const pay = target - player.bet;
+      if (pay <= 0) {
+        // Treat as call
+        this.applyAction(player, { type: 'call' });
+        return;
+      }
+
+      const raiseBy = target - this.currentBet;
+      player.stack -= pay;
+      player.bet = target;
+      player.totalBet += pay;
+      this.pot += pay;
+      if (player.stack === 0) player.allIn = true;
+
+      if (raiseBy >= this.minRaise || player.allIn) {
+        this.minRaise = Math.max(this.minRaise, raiseBy);
+        this.currentBet = target;
+        // Re-open action for others
+        for (const p of this.players) {
+          if (p.id !== player.id && !p.folded && !p.allIn) p.acted = false;
+        }
+      } else {
+        // All-in raise that's too small still increases current bet if larger
+        if (target > this.currentBet) {
+          this.currentBet = target;
+        }
+      }
+
+      player.acted = true;
+      player.lastAction = player.allIn ? `全下 ${target}` : `加注到 ${target}`;
+      this.lastAction = { player: player.name, type: 'raise', amount: target };
+      return;
+    }
+  }
+
+  /** Called when hero clicks an action button */
+  actHero(action) {
+    if (!this.isHeroTurn()) return;
+    const hero = this.players[0];
+    this.applyAction(hero, action);
+    this.emit();
+
+    if (this.activePlayers().length === 1) {
+      this.finishHand();
+      return;
+    }
+
+    this.currentPlayer = this.nextToAct(0);
+    // Continue the round asynchronously
+    setTimeout(() => {
+      this.runBettingRound();
+    }, 100);
+  }
+
+  async advanceStreet() {
+    // Collect bets already in pot; reset street bets
+    for (const p of this.players) {
+      p.bet = 0;
+      p.acted = false;
+      p.lastAction = p.folded ? p.lastAction : null;
+    }
+    this.currentBet = 0;
+    this.minRaise = BIG_BLIND;
+
+    const stillStanding = this.activePlayers();
+    if (stillStanding.length <= 1) {
+      await this.finishHand();
+      return;
+    }
+
+    // If only all-in players remain besides maybe one who already matched, run out board
+    const canContinue = this.playersCanAct();
+
+    if (this.phase === 'preflop') {
+      this.phase = 'flop';
+      this.community.push(this.deck.pop(), this.deck.pop(), this.deck.pop());
+      this.message = `翻牌 · 底池 ${this.pot}`;
+      this.emit();
+      await this.sleep(700);
+    } else if (this.phase === 'flop') {
+      this.phase = 'turn';
+      this.community.push(this.deck.pop());
+      this.message = `转牌 · 底池 ${this.pot}`;
+      this.emit();
+      await this.sleep(700);
+    } else if (this.phase === 'turn') {
+      this.phase = 'river';
+      this.community.push(this.deck.pop());
+      this.message = `河牌 · 底池 ${this.pot}`;
+      this.emit();
+      await this.sleep(700);
+    } else if (this.phase === 'river') {
+      await this.showdown();
+      return;
+    }
+
+    // No more betting if fewer than 2 can act
+    if (canContinue.length < 2) {
+      // Burn remaining cards to river then showdown
+      while (this.community.length < 5) {
+        this.community.push(this.deck.pop());
+        this.emit();
+        await this.sleep(400);
+      }
+      this.phase = 'river';
+      await this.showdown();
+      return;
+    }
+
+    // First to act postflop: next after button
+    this.currentPlayer = this.nextToAct(this.button);
+    if (this.currentPlayer == null) {
+      await this.advanceStreet();
+      return;
+    }
+
+    this.beginBettingRound();
+    this.emit();
+    await this.runBettingRound();
+  }
+
+  async showdown() {
+    this.phase = 'showdown';
+    this.showdownReveal = true;
+    this.message = '摊牌';
+    this.currentPlayer = null;
+
+    for (const p of this.activePlayers()) {
+      const evalResult = evaluateHand([...p.cards, ...this.community]);
+      p.handName = evalResult.name;
+      p.evalResult = evalResult;
+    }
+
+    this.emit();
+    await this.sleep(1200);
+    await this.finishHand();
+  }
+
+  async finishHand() {
+    this.phase = 'showdown';
+    this.showdownReveal = true;
+    this.currentPlayer = null;
+
+    const contenders = this.activePlayers();
+
+    if (contenders.length === 1) {
+      const winner = contenders[0];
+      // Uncalled portion returns - simple: award full pot
+      winner.stack += this.pot;
+      this.winners = [{ id: winner.id, name: winner.name, amount: this.pot, handName: null }];
+      this.message = `${winner.name} 赢得底池 ${this.pot}（其余弃牌）`;
+      this.phase = 'handover';
+      this.emit();
+      return;
+    }
+
+    // Evaluate all contenders
+    for (const p of contenders) {
+      p.evalResult = evaluateHand([...p.cards, ...this.community]);
+      p.handName = p.evalResult.name;
+    }
+
+    // Sort by hand strength
+    const ranked = contenders
+      .map((p) => ({ p, ev: p.evalResult }))
+      .sort((a, b) => compareEval(b.ev, a.ev));
+
+    // Simple pot award (handle ties). Side pots simplified by totalBet.
+    this.awardWithSidePots(contenders);
+
+    this.phase = 'handover';
+    this.emit();
+  }
+
+  awardWithSidePots(contenders) {
+    // Build pots from totalBet levels
+    const levels = [...new Set(this.players.filter((p) => p.totalBet > 0).map((p) => p.totalBet))].sort((a, b) => a - b);
+
+    if (levels.length === 0) {
+      const best = contenders.reduce((a, b) => (compareEval(b.evalResult, a.evalResult) > 0 ? b : a));
+      best.stack += this.pot;
+      this.winners = [{ id: best.id, name: best.name, amount: this.pot, handName: best.handName }];
+      this.message = `${best.name} 以 ${best.handName} 赢得 ${this.pot}`;
+      return;
+    }
+
+    let prev = 0;
+    let awarded = 0;
+    const winCounts = new Map();
+
+    for (const level of levels) {
+      let potAmount = 0;
+      for (const p of this.players) {
+        const contrib = Math.min(p.totalBet, level) - Math.min(p.totalBet, prev);
+        if (contrib > 0) potAmount += contrib;
+      }
+      prev = level;
+
+      // Eligible contenders who contributed at least `level`
+      const eligible = contenders.filter((p) => p.totalBet >= level);
+      if (eligible.length === 0 || potAmount <= 0) continue;
+
+      let best = eligible[0];
+      for (const p of eligible) {
+        if (compareEval(p.evalResult, best.evalResult) > 0) best = p;
+      }
+      const tied = eligible.filter((p) => compareEval(p.evalResult, best.evalResult) === 0);
+      const share = Math.floor(potAmount / tied.length);
+      let remainder = potAmount - share * tied.length;
+
+      for (const w of tied) {
+        const amt = share + (remainder > 0 ? 1 : 0);
+        if (remainder > 0) remainder--;
+        w.stack += amt;
+        awarded += amt;
+        winCounts.set(w.id, (winCounts.get(w.id) || 0) + amt);
+      }
+    }
+
+    // Any leftover chips (shouldn't happen often)
+    const leftover = this.pot - awarded;
+    if (leftover > 0 && contenders.length > 0) {
+      const best = contenders.reduce((a, b) => (compareEval(b.evalResult, a.evalResult) > 0 ? b : a));
+      best.stack += leftover;
+      winCounts.set(best.id, (winCounts.get(best.id) || 0) + leftover);
+    }
+
+    this.winners = [...winCounts.entries()].map(([id, amount]) => {
+      const p = this.players.find((x) => x.id === id);
+      return { id, name: p.name, amount, handName: p.handName };
+    });
+
+    const main = this.winners.slice().sort((a, b) => b.amount - a.amount)[0];
+    if (main) {
+      this.message = `${main.name} 以 ${main.handName || '大牌'} 赢得 ${main.amount}`;
+    }
+  }
+
+  resetTournament() {
+    for (const p of this.players) {
+      p.stack = STARTING_STACK;
+      p.cards = [];
+      p.bet = 0;
+      p.totalBet = 0;
+      p.folded = false;
+      p.allIn = false;
+      p.acted = false;
+      p.lastAction = null;
+      p.handName = null;
+    }
+    this.handNumber = 0;
+    this.button = 0;
+    this.community = [];
+    this.pot = 0;
+    this.phase = 'idle';
+    this.winners = [];
+    this.showdownReveal = false;
+    this.message = '筹码已重置';
+    this.currentPlayer = null;
+    this.emit();
+  }
+}

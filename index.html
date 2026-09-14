@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#070b10" />
+  <meta name="description" content="Sohoo 风格德州扑克小游戏 — 与三位 AI 同桌对战" />
+  <title>Sohoo Poker · 德州扑克</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">S</div>
+        <div class="brand-text">
+          <div class="brand-title">Sohoo Poker</div>
+          <div class="brand-sub">No-Limit Hold'em</div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="meta-item">
+          <span class="meta-label">手牌</span>
+          <span class="meta-value" id="hand-num">—</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">盲注</span>
+          <span class="meta-value" id="blinds">10 / 20</span>
+        </div>
+        <button class="btn-ghost" id="btn-reset" type="button">重置筹码</button>
+      </div>
+    </header>
+
+    <main class="stage">
+      <div class="table-wrap">
+        <div class="table" aria-hidden="true">
+          <div class="felt-pattern"></div>
+        </div>
+
+        <div class="board" id="board" aria-label="公共牌"></div>
+        <div class="pot" id="pot">
+          <div class="pot-label">底池</div>
+          <div class="pot-amount" id="pot-amount">0</div>
+          <div class="pot-chips" aria-hidden="true"></div>
+        </div>
+        <div id="win-banner-slot"></div>
+
+        <!-- seats injected -->
+        <div class="seat top" data-seat="top" id="seat-top"></div>
+        <div class="seat left" data-seat="left" id="seat-left"></div>
+        <div class="seat right" data-seat="right" id="seat-right"></div>
+        <div class="seat bottom" data-seat="bottom" id="seat-bottom"></div>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+
+    <footer class="action-bar">
+      <div class="raise-row" id="raise-row" hidden>
+        <input
+          type="range"
+          id="raise-slider"
+          min="0"
+          max="2000"
+          value="40"
+          aria-label="加注金额"
+        />
+        <span class="raise-amount" id="raise-amount">40</span>
+      </div>
+      <div class="actions" id="actions"></div>
+    </footer>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
