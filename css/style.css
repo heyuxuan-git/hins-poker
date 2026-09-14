@@ -170,14 +170,14 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 18px 12px 0;
+  padding: 28px 12px 0;
   position: relative;
 }
 
 .table-wrap {
   width: min(1040px, 100%);
   position: relative;
-  margin: 0 auto;
+  margin: 12px auto 0;
   /* Longer straight runs so it reads as a racetrack, not an oval */
   aspect-ratio: 21 / 10;
   max-height: min(56vh, 520px);
@@ -398,17 +398,17 @@ button:focus-visible {
   filter: grayscale(0.4);
 }
 
-/* 6-max racetrack seat map — long edges + curved ends */
-.seat.bottom {
-  left: 50%;
-  bottom: -8px;
-  transform: translateX(-50%);
-  z-index: 8;
+/* 6-max racetrack — even spacing along the track.
+   Hero (你) sits bottom-right, directly under 林姐 (top-right). */
+.seat.top-left {
+  left: 20%;
+  top: 0;
+  z-index: 7;
 }
 
-.seat.bottom-left {
-  left: 22%;
-  bottom: 4%;
+.seat.top-right {
+  right: 20%;
+  top: 0;
   z-index: 7;
 }
 
@@ -419,23 +419,27 @@ button:focus-visible {
   z-index: 7;
 }
 
-.seat.top-left {
-  left: 22%;
-  top: 2%;
-  z-index: 7;
-}
-
-.seat.top-right {
-  right: 22%;
-  top: 2%;
-  z-index: 7;
-}
-
 .seat.right {
   right: 1.5%;
   top: 50%;
   transform: translateY(-50%);
   z-index: 7;
+}
+
+.seat.bottom-left {
+  left: 20%;
+  bottom: -6px;
+  z-index: 7;
+}
+
+.seat.bottom-right {
+  right: 20%;
+  bottom: -6px;
+  z-index: 8;
+}
+
+.seat.bottom-right .player-chip {
+  border-color: rgba(212, 175, 55, 0.4);
 }
 
 .seat.thinking .player-chip {
@@ -461,7 +465,7 @@ button:focus-visible {
   height: clamp(50px, 7.4vw, 68px);
 }
 
-.seat.bottom .seat-cards .pcard {
+.seat.bottom-right .seat-cards .pcard {
   width: clamp(38px, 5.8vw, 50px);
   height: clamp(56px, 8.5vw, 72px);
 }
@@ -772,17 +776,22 @@ button:focus-visible {
   }
 
   .seat.top-left {
-    left: 14%;
+    left: 12%;
     top: 0;
   }
 
   .seat.top-right {
-    right: 14%;
+    right: 12%;
     top: 0;
   }
 
   .seat.bottom-left {
-    left: 14%;
+    left: 12%;
+    bottom: 0;
+  }
+
+  .seat.bottom-right {
+    right: 12%;
     bottom: 0;
   }
 

@@ -1,7 +1,7 @@
 import { PokerGame } from './game.js';
 import { cardDisplay } from './deck.js';
 
-const SEAT_KEYS = ['bottom', 'right', 'top-right', 'top-left', 'left', 'bottom-left'];
+const SEAT_KEYS = ['bottom-right', 'bottom-left', 'left', 'top-left', 'top-right', 'right'];
 
 const seatEls = Object.fromEntries(
   SEAT_KEYS.map((key) => [key, document.getElementById(`seat-${key}`)]),
