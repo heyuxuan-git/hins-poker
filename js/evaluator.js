@@ -106,26 +106,33 @@ function evaluateFive(cards) {
   return { rank: HAND_RANKS.HIGH_CARD, kickers: ranks };
 }
 
-/** Evaluate best 5-card hand from 5-7 cards */
+/** Evaluate best 5-card hand from 5-7 cards. Also returns the actual best 5 cards. */
 export function evaluateHand(cards) {
   if (cards.length < 5) {
-    return { rank: HAND_RANKS.HIGH_CARD, kickers: cards.map((c) => RANK_VALUES[c.rank]).sort((a, b) => b - a), name: '高牌' };
+    return {
+      rank: HAND_RANKS.HIGH_CARD,
+      kickers: cards.map((c) => RANK_VALUES[c.rank]).sort((a, b) => b - a),
+      name: '高牌',
+      bestCards: cards.slice(),
+    };
   }
 
   if (cards.length === 5) {
     const evalResult = evaluateFive(cards);
-    return { ...evalResult, name: HAND_NAMES[evalResult.rank] };
+    return { ...evalResult, name: HAND_NAMES[evalResult.rank], bestCards: cards.slice() };
   }
 
   let best = null;
+  let bestFive = null;
   for (const combo of COMBOS_5) {
     const five = combo.map((i) => cards[i]);
     const evalResult = evaluateFive(five);
     if (!best || compareEval(evalResult, best) > 0) {
       best = evalResult;
+      bestFive = five;
     }
   }
-  return { ...best, name: HAND_NAMES[best.rank] };
+  return { ...best, name: HAND_NAMES[best.rank], bestCards: bestFive };
 }
 
 /** Positive if a > b, negative if a < b, 0 if tie */

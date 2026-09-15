@@ -2,6 +2,12 @@
 
 All notable changes to **hin's poker**.
 
+## v2.2 — 2026-09-15
+
+### Added
+- Phone portrait layout: vertical racetrack (semicircles top/bottom), dealer on the left, hero bottom-center, one top / two per side
+- Winner's best five cards shown as small playing cards after showdown
+
 ## v2.1 — 2026-09-15
 
 ### Changed

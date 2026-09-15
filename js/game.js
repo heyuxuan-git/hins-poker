@@ -544,7 +544,13 @@ export class PokerGame {
     if (levels.length === 0) {
       const best = contenders.reduce((a, b) => (compareEval(b.evalResult, a.evalResult) > 0 ? b : a));
       best.stack += this.pot;
-      this.winners = [{ id: best.id, name: best.name, amount: this.pot, handName: best.handName }];
+      this.winners = [{
+        id: best.id,
+        name: best.name,
+        amount: this.pot,
+        handName: best.handName,
+        bestCards: best.evalResult?.bestCards || [],
+      }];
       this.message = `${best.name} 以 ${best.handName} 赢得 ${this.pot}`;
       return;
     }
@@ -592,7 +598,13 @@ export class PokerGame {
 
     this.winners = [...winCounts.entries()].map(([id, amount]) => {
       const p = this.players.find((x) => x.id === id);
-      return { id, name: p.name, amount, handName: p.handName };
+      return {
+        id,
+        name: p.name,
+        amount,
+        handName: p.handName,
+        bestCards: p.evalResult?.bestCards || [],
+      };
     });
 
     const main = this.winners.slice().sort((a, b) => b.amount - a.amount)[0];

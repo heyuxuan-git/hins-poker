@@ -310,24 +310,40 @@ function renderActions(state) {
 }
 
 function renderWinBanner(state) {
-  const key =
-    state.phase === 'handover' && state.winners?.length
-      ? `${state.winners[0].id}:${state.winners[0].amount}:${state.winners[0].handName || ''}`
-      : '';
+  const primary = state.phase === 'handover' && state.winners?.length ? state.winners[0] : null;
+  const cardsKey = primary?.bestCards?.map((c) => c.id).join(',') || '';
+  const key = primary
+    ? `${primary.id}:${primary.amount}:${primary.handName || ''}:${cardsKey}`
+    : '';
 
   if (key === winBannerKey) return;
   winBannerKey = key;
   winBannerSlot.innerHTML = '';
-  if (!key) return;
+  if (!primary) return;
 
-  const w = state.winners[0];
-  const label = w.handName
-    ? `${w.name} · ${w.handName} +${formatChips(w.amount)}`
-    : `${w.name} +${formatChips(w.amount)}`;
-  const div = document.createElement('div');
-  div.className = 'win-banner';
-  div.textContent = label;
-  winBannerSlot.appendChild(div);
+  const wrap = document.createElement('div');
+  wrap.className = 'win-panel';
+
+  const label = primary.handName
+    ? `${primary.name} · ${primary.handName} +${formatChips(primary.amount)}`
+    : `${primary.name} +${formatChips(primary.amount)}`;
+  const title = document.createElement('div');
+  title.className = 'win-banner';
+  title.textContent = label;
+  wrap.appendChild(title);
+
+  const best = primary.bestCards || [];
+  if (best.length >= 5) {
+    const row = document.createElement('div');
+    row.className = 'win-cards';
+    row.setAttribute('aria-label', '获胜五张牌');
+    for (const c of best) {
+      row.appendChild(buildCardEl(c, { board: false }));
+    }
+    wrap.appendChild(row);
+  }
+
+  winBannerSlot.appendChild(wrap);
 }
 
 function render(state) {
