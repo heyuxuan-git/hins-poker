@@ -16,45 +16,70 @@
 4. **空位会自动补齐 AI**，人齐不齐都能开
 5. 房主点「发牌」开始；大家轮流行动
 
-## 联机服务
+## 联机服务（免绑卡方案）
 
-静态站需要连一个 WebSocket 房间服务。本地开发：
+静态页要连一个 WebSocket 房间服务。**下面两条都不用绑信用卡。**
+
+### 方案 A：本机 + Cloudflare 隧道（最快，约 1 分钟）
+
+1. 本机启动房间服务：
 
 ```bash
 npm install
-npm run server          # 默认 :8787
-npm start               # 另开终端，静态页 :5173
+npm run server          # 监听 :8787
 ```
 
-浏览器打开 `http://127.0.0.1:5173` 即可连本机 `:8787`。
+2. 另开终端，用 Cloudflare 免费隧道把端口暴露到公网（**不用注册、不用绑卡**）：
 
-### 免费公网部署（Render）
+```bash
+# macOS
+brew install cloudflared
+# Windows：去 https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/ 下载
 
-仓库已带 `render.yaml`，可一键建站：
-
-1. 打开 [Render Blueprint](https://dashboard.render.com/blueprints)  
-   或直接用按钮（登录 GitHub 后）：
-
-   [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/heyuxuan-git/hins-poker)
-
-2. 确认服务名（例如 `hins-poker-ws`），等 Build 完成  
-3. 得到地址，例如 `https://hins-poker-ws.onrender.com`  
-4. 用下面链接开黑（把域名换成你的）：
-
-```
-https://heyuxuan-git.github.io/hins-poker/?ws=wss://hins-poker-ws.onrender.com
+cloudflared tunnel --url http://127.0.0.1:8787
 ```
 
-说明：
-- `?ws=` 会覆盖默认 WebSocket 地址
-- Render **免费层**闲置会休眠，第一次打开可能要等 30 秒左右；和朋友约好前可先自己访问一次 `/health` 唤醒
-- 健康检查：`https://你的服务/health` 应返回 `{"ok":true,...}`
+3. 终端会打印类似：
 
-手动建 Web Service 也可以：
-- Root：仓库根目录
-- Build：`npm ci`
-- Start：`node server/index.js`
-- Health Check Path：`/health`
+```
+https://xxxx-xxxx.trycloudflare.com
+```
+
+4. 把这个 **wss** 地址拼进页面，发给朋友：
+
+```
+https://heyuxuan-git.github.io/hins-poker/?ws=wss://xxxx-xxxx.trycloudflare.com
+```
+
+5. 你自己用同一链接即可。**电脑别休眠、别关掉 `npm run server` 和 cloudflared。**
+
+### 方案 B：Deno Deploy 常驻（不用绑卡、可长期挂着）
+
+1. 打开 https://dash.deno.com → 用 GitHub 登录 → **New Project**
+2. 选仓库 `heyuxuan-git/hins-poker`，入口文件填：
+
+```
+server/deno.ts
+```
+
+3. 部署完成后得到 `https://你的项目.deno.dev`
+4. 开黑链接：
+
+```
+https://heyuxuan-git.github.io/hins-poker/?ws=wss://你的项目.deno.dev/ws
+```
+
+（注意结尾 `/ws`，Deno 版路由在 `/ws`。）
+
+本地也可试 Deno 版：
+
+```bash
+deno run --allow-net server/deno.ts
+```
+
+### 方案 C：Render（需要绑卡）
+
+若你愿意绑卡，仓库仍带 `render.yaml`，可走 Blueprint。免费层闲置会休眠。
 
 ## 本地跑前端
 
@@ -71,7 +96,8 @@ npm start
 | `js/ai.js` | AI 策略 |
 | `js/net.js` | 房间客户端 + 空位补 AI |
 | `js/main.js` | 大厅 / 牌桌渲染 |
-| `server/index.js` | WebSocket 房间转发 |
+| `server/index.js` | WebSocket 房间转发（Node） |
+| `server/deno.ts` | 同上（Deno Deploy 免绑卡） |
 
 ## 版本
 
