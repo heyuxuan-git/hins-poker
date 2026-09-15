@@ -5,8 +5,8 @@ import { decideAiAction } from './ai.js';
 const STARTING_STACK = 2000;
 const SMALL_BLIND = 10;
 const BIG_BLIND = 20;
-const AI_THINK_MIN = 900;
-const AI_THINK_VAR = 800;
+const AI_THINK_MIN = 1400;
+const AI_THINK_VAR = 1200;
 
 const PERSONALITIES = ['balanced', 'aggressive', 'tight', 'maniac', 'tight', 'aggressive'];
 
@@ -176,18 +176,19 @@ export class PokerGame {
     this.currentBet = Math.max(SMALL_BLIND, BIG_BLIND, this.players[sbIndex].bet, this.players[bbIndex].bet);
     this.minRaise = BIG_BLIND;
 
-    // Deal 2 cards to each seated player — one at a time for animation
+    // Deal 2 cards to each seated player — slow, elegant cascade
     for (let round = 0; round < 2; round++) {
       for (const seat of seated) {
         this.players[seat].cards.push(this.deck.pop());
         this.emit();
-        await this.sleep(95);
+        await this.sleep(160);
       }
+      await this.sleep(120);
     }
 
     this.message = `第 ${this.handNumber} 局 · ${this.players[sbIndex].name} 小盲 ${SMALL_BLIND} / ${this.players[bbIndex].name} 大盲 ${BIG_BLIND}`;
     this.emit();
-    await this.sleep(450);
+    await this.sleep(650);
 
     // Preflop action starts after BB
     this.currentPlayer = this.nextOccupied(bbIndex);
@@ -279,6 +280,8 @@ export class PokerGame {
         stack: player.stack,
         community: this.community,
         betThisStreet: player.bet,
+        streetBet: player.bet,
+        currentBet: this.currentBet,
         bigBlind: BIG_BLIND,
       }, player.personality || PERSONALITIES[player.id % PERSONALITIES.length]);
 
@@ -428,29 +431,29 @@ export class PokerGame {
       this.phase = 'flop';
       this.message = `翻牌 · 底池 ${this.pot}`;
       this.emit();
-      await this.sleep(280);
+      await this.sleep(420);
       for (let i = 0; i < 3; i++) {
         this.community.push(this.deck.pop());
         this.emit();
-        await this.sleep(200);
+        await this.sleep(320);
       }
-      await this.sleep(350);
+      await this.sleep(500);
     } else if (this.phase === 'flop') {
       this.phase = 'turn';
       this.message = `转牌 · 底池 ${this.pot}`;
       this.emit();
-      await this.sleep(280);
+      await this.sleep(420);
       this.community.push(this.deck.pop());
       this.emit();
-      await this.sleep(450);
+      await this.sleep(650);
     } else if (this.phase === 'turn') {
       this.phase = 'river';
       this.message = `河牌 · 底池 ${this.pot}`;
       this.emit();
-      await this.sleep(280);
+      await this.sleep(420);
       this.community.push(this.deck.pop());
       this.emit();
-      await this.sleep(450);
+      await this.sleep(650);
     } else if (this.phase === 'river') {
       await this.showdown();
       return;

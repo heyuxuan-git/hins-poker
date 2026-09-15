@@ -1,6 +1,8 @@
 # hin's poker · 德州扑克小游戏
 
-**v2.0** — 跑道形深绿台面、宽软包边、角色头像座位、筹码堆下注展示，6 人桌（你 + 5 名 AI）。
+**v2.1** — 跑道形深绿台面、宽软包边、角色头像座位、筹码堆下注展示，6 人桌（你 + 5 名 AI）。
+
+版本记录见 [CHANGELOG.md](./CHANGELOG.md)。
 
 **在线试玩**：https://heyuxuan-git.github.io/hins-poker/
 
