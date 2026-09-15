@@ -2,7 +2,7 @@
 
 **v1.0** — 跑道形深绿台面、金色软包边、6 人桌（你 + 5 名 AI）的浏览器德州扑克。
 
-**在线试玩**：https://heyuxuan-git.github.io/sohoo-poker/
+**在线试玩**：https://heyuxuan-git.github.io/hins-poker/
 
 ## 玩法
 
@@ -39,5 +39,5 @@ python3 -m http.server 5173
 
 ## 部署
 
-仓库：https://github.com/heyuxuan-git/sohoo-poker  
-Pages：https://heyuxuan-git.github.io/sohoo-poker/
+仓库：https://github.com/heyuxuan-git/hins-poker  
+Pages：https://heyuxuan-git.github.io/hins-poker/
