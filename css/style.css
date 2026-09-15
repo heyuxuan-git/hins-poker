@@ -178,6 +178,118 @@ button:focus-visible {
   transform: scale(0.97);
 }
 
+/* ===== Lobby ===== */
+.lobby {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background:
+    radial-gradient(900px 500px at 50% 0%, #142033 0%, var(--ink) 55%, #030508 100%);
+}
+
+.lobby-card {
+  width: min(420px, 100%);
+  padding: 28px 22px 24px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(18, 26, 36, 0.96), rgba(8, 12, 18, 0.98));
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.lobby-mark {
+  margin: 0 auto 10px;
+}
+
+.lobby-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--gold-hi);
+  letter-spacing: 0.04em;
+}
+
+.lobby-sub {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.lobby-block {
+  margin-top: 22px;
+  text-align: left;
+}
+
+.lobby-block h2 {
+  font-size: 13px;
+  color: var(--cream);
+  margin-bottom: 10px;
+  letter-spacing: 0.06em;
+}
+
+.lobby-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.lobby-field[hidden] {
+  display: none !important;
+}
+
+.lobby-field span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.lobby-field input {
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: rgba(7, 11, 16, 0.9);
+  color: var(--cream);
+  padding: 0 12px;
+  font-size: 16px;
+  outline: none;
+}
+
+.lobby-field input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+}
+
+.lobby-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.lobby-row .action-btn {
+  min-height: 48px;
+}
+
+.lobby-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.lobby-error {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #ff8f8f;
+}
+
+.app[hidden],
+#lobby[hidden] {
+  display: none !important;
+}
+
 /* ===== Stage ===== */
 .stage {
   flex: 1;

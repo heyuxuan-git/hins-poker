@@ -15,17 +15,18 @@ const PERSONALITIES = ['balanced', 'aggressive', 'tight', 'maniac', 'tight', 'ag
 export class PokerGame {
   constructor(onUpdate) {
     this.onUpdate = onUpdate || (() => {});
+    this.heroSeat = 0;
     this.players = [
-      { id: 0, name: '你', stack: STARTING_STACK, isHero: true, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'bottom-right', avatar: 'hero' },
-      { id: 1, name: '陈哥', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'bottom-left', personality: 'tight', avatar: 'chen' },
-      { id: 2, name: '小美', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'left', personality: 'maniac', avatar: 'mei' },
-      { id: 3, name: '老周', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'top-left', personality: 'balanced', avatar: 'zhou' },
-      { id: 4, name: '林姐', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'top-right', personality: 'tight', avatar: 'lin' },
-      { id: 5, name: '阿凯', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'right', personality: 'aggressive', avatar: 'kai' },
+      { id: 0, name: '你', stack: STARTING_STACK, isHero: true, isAI: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'bottom-right', avatar: 'hero' },
+      { id: 1, name: '陈哥', stack: STARTING_STACK, isHero: false, isAI: true, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'bottom-left', personality: 'tight', avatar: 'chen' },
+      { id: 2, name: '小美', stack: STARTING_STACK, isHero: false, isAI: true, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'left', personality: 'maniac', avatar: 'mei' },
+      { id: 3, name: '老周', stack: STARTING_STACK, isHero: false, isAI: true, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'top-left', personality: 'balanced', avatar: 'zhou' },
+      { id: 4, name: '林姐', stack: STARTING_STACK, isHero: false, isAI: true, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'top-right', personality: 'tight', avatar: 'lin' },
+      { id: 5, name: '阿凯', stack: STARTING_STACK, isHero: false, isAI: true, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'right', personality: 'aggressive', avatar: 'kai' },
     ];
     this.handNumber = 0;
     this.button = 0;
-    this.phase = 'idle'; // idle | preflop | flop | turn | river | showdown | handover
+    this.phase = 'idle';
     this.deck = [];
     this.community = [];
     this.pot = 0;
@@ -36,25 +37,58 @@ export class PokerGame {
     this.winners = [];
     this.handResults = [];
     this.message = '准备开始新一局';
-    this.dealerName = '';
-    this.animationQueue = [];
-    this.heroActionLocked = false;
-    this.sidePots = [];
     this.showdownReveal = false;
+  }
+
+  /** Rebind seats for multiplayer (humans + AI fillers). */
+  setPlayers(descriptors, heroSeat = 0) {
+    const SEAT_KEYS = ['bottom-right', 'bottom-left', 'left', 'top-left', 'top-right', 'right'];
+    this.heroSeat = heroSeat;
+    this.players = descriptors.map((d, i) => ({
+      id: i,
+      name: d.name,
+      stack: STARTING_STACK,
+      isHero: i === heroSeat,
+      isAI: !!d.isAI,
+      cards: [],
+      bet: 0,
+      totalBet: 0,
+      folded: false,
+      allIn: false,
+      acted: false,
+      seat: SEAT_KEYS[i] || `seat-${i}`,
+      personality: d.personality || null,
+      avatar: d.avatar || 'hero',
+      isHuman: !d.isAI,
+    }));
+    this.handNumber = 0;
+    this.button = 0;
+    this.phase = 'idle';
+    this.community = [];
+    this.pot = 0;
+    this.currentPlayer = null;
+    this.winners = [];
+    this.showdownReveal = false;
+    this.message = '准备开始新一局';
   }
 
   get bigBlind() {
     return BIG_BLIND;
   }
 
+  hero() {
+    return this.players[this.heroSeat] || this.players[0];
+  }
+
   isHeroTurn() {
+    const h = this.hero();
     return this.phase !== 'idle' &&
       this.phase !== 'showdown' &&
       this.phase !== 'handover' &&
-      this.currentPlayer === 0 &&
-      !this.players[0].folded &&
-      !this.players[0].allIn &&
-      this.players[0].stack > 0;
+      this.currentPlayer === this.heroSeat &&
+      !h.folded &&
+      !h.allIn &&
+      h.stack > 0;
   }
 
   activePlayers() {
@@ -66,17 +100,28 @@ export class PokerGame {
   }
 
   emit() {
-    this.onUpdate(this.snapshot());
+    this.onUpdate(this.snapshot(this.heroSeat));
   }
 
-  snapshot() {
+  snapshot(viewerSeat = this.heroSeat) {
+    const viewer = this.players[viewerSeat] || this.players[0];
+    const heroTurn =
+      this.phase !== 'idle' &&
+      this.phase !== 'showdown' &&
+      this.phase !== 'handover' &&
+      this.currentPlayer === viewerSeat &&
+      !viewer.folded &&
+      !viewer.allIn &&
+      viewer.stack > 0;
+
     return {
       players: this.players.map((p) => ({
         id: p.id,
         name: p.name,
         stack: p.stack,
-        isHero: p.isHero,
-        cards: p.isHero || this.phase === 'showdown' || this.showdownReveal
+        isHero: p.id === viewerSeat,
+        isAI: !!p.isAI,
+        cards: p.id === viewerSeat || this.phase === 'showdown' || this.showdownReveal
           ? p.cards
           : p.folded
             ? []
@@ -101,18 +146,19 @@ export class PokerGame {
       smallBlind: SMALL_BLIND,
       bigBlind: BIG_BLIND,
       currentPlayer: this.currentPlayer,
-      heroTurn: this.isHeroTurn(),
+      heroTurn,
       lastAction: this.lastAction,
       winners: this.winners,
       showdownReveal: this.showdownReveal || this.phase === 'showdown',
-      canCheck: this.isHeroTurn() && this.players[0].bet === this.currentBet,
-      toCall: this.isHeroTurn() ? Math.max(0, this.currentBet - this.players[0].bet) : 0,
-      minRaiseTo: this.isHeroTurn()
-        ? Math.min(this.players[0].stack + this.players[0].bet, this.currentBet + this.minRaise)
+      canCheck: heroTurn && viewer.bet === this.currentBet,
+      toCall: heroTurn ? Math.max(0, this.currentBet - viewer.bet) : 0,
+      minRaiseTo: heroTurn
+        ? Math.min(viewer.stack + viewer.bet, this.currentBet + this.minRaise)
         : 0,
-      maxRaiseTo: this.isHeroTurn() ? this.players[0].stack + this.players[0].bet : 0,
-      heroStack: this.players[0].stack,
+      maxRaiseTo: heroTurn ? viewer.stack + viewer.bet : 0,
+      heroStack: viewer.stack,
       bigBlind: BIG_BLIND,
+      viewerSeat,
     };
   }
 
@@ -264,8 +310,8 @@ export class PokerGame {
 
       this.emit();
 
-      if (player.isHero) {
-        // Wait for hero action via act()
+      // Local hero or remote human — wait for their action
+      if (!player.isAI) {
         return;
       }
 
@@ -405,10 +451,10 @@ export class PokerGame {
     }
   }
 
-  /** Called when hero clicks an action button */
+  /** Called when local hero clicks an action button */
   actHero(action) {
     if (!this.isHeroTurn()) return;
-    const hero = this.players[0];
+    const hero = this.hero();
     this.applyAction(hero, action);
     this.emit();
 
@@ -417,8 +463,26 @@ export class PokerGame {
       return;
     }
 
-    this.currentPlayer = this.nextToAct(0);
-    // Continue the round asynchronously
+    this.currentPlayer = this.nextToAct(this.heroSeat);
+    setTimeout(() => {
+      this.runBettingRound();
+    }, 100);
+  }
+
+  /** Host receives a remote human action */
+  actRemote(seat, action) {
+    if (this.currentPlayer !== seat) return;
+    const player = this.players[seat];
+    if (!player || player.isAI || player.folded || player.allIn) return;
+    this.applyAction(player, action);
+    this.emit();
+
+    if (this.activePlayers().length === 1) {
+      this.finishHand();
+      return;
+    }
+
+    this.currentPlayer = this.nextToAct(seat);
     setTimeout(() => {
       this.runBettingRound();
     }, 100);

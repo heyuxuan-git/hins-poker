@@ -1,5 +1,6 @@
 import { PokerGame } from './game.js';
 import { cardDisplay } from './deck.js';
+import { NetClient, buildSeatPlan, defaultWsUrl } from './net.js';
 
 const SEAT_KEYS = ['bottom-right', 'bottom-left', 'left', 'top-left', 'top-right', 'right'];
 
@@ -223,7 +224,7 @@ function renderActions(state) {
     btn.type = 'button';
     btn.className = 'action-btn btn-start';
     btn.textContent = idle ? '发牌 · 开始新局' : '下一局';
-    btn.addEventListener('click', () => game.startHand());
+    btn.addEventListener('click', () => doStart());
     actionsEl.appendChild(btn);
     return;
   }
@@ -247,7 +248,7 @@ function renderActions(state) {
   fold.type = 'button';
   fold.className = 'action-btn btn-fold';
   fold.textContent = '弃牌';
-  fold.addEventListener('click', () => game.actHero({ type: 'fold' }));
+  fold.addEventListener('click', () => doAction({ type: 'fold' }));
   actionsEl.appendChild(fold);
 
   const checkCall = document.createElement('button');
@@ -255,12 +256,12 @@ function renderActions(state) {
   if (canCheck) {
     checkCall.className = 'action-btn btn-check';
     checkCall.textContent = '过牌';
-    checkCall.addEventListener('click', () => game.actHero({ type: 'check' }));
+    checkCall.addEventListener('click', () => doAction({ type: 'check' }));
   } else {
     checkCall.className = 'action-btn btn-call';
     const pay = Math.min(toCall, hero.stack);
     checkCall.textContent = `跟注 ${formatChips(pay)}`;
-    checkCall.addEventListener('click', () => game.actHero({ type: 'call' }));
+    checkCall.addEventListener('click', () => doAction({ type: 'call' }));
     if (hero.stack <= 0) checkCall.disabled = true;
   }
   actionsEl.appendChild(checkCall);
@@ -292,9 +293,9 @@ function renderActions(state) {
     raiseBtn.addEventListener('click', () => {
       const amount = clampRaise(Number(raiseAmountEl.value));
       if (amount >= hero.stack + hero.bet) {
-        game.actHero({ type: 'allin', amount: hero.stack });
+        doAction({ type: 'allin', amount: hero.stack });
       } else {
-        game.actHero({ type: 'raise', amount });
+        doAction({ type: 'raise', amount });
       }
     });
   }
@@ -306,7 +307,7 @@ function renderActions(state) {
     allIn.type = 'button';
     allIn.className = 'action-btn btn-allin';
     allIn.textContent = `全下 ${formatChips(hero.stack)}`;
-    allIn.addEventListener('click', () => game.actHero({ type: 'allin', amount: hero.stack }));
+    allIn.addEventListener('click', () => doAction({ type: 'allin', amount: hero.stack }));
     actionsEl.appendChild(allIn);
   }
 }
@@ -370,7 +371,100 @@ function render(state) {
   renderWinBanner(state);
 }
 
-const game = new PokerGame(render);
+/* ===== Modes: solo | host | guest ===== */
+let mode = 'solo';
+let net = null;
+let mySeat = 0;
+let roomCode = null;
+let humanSeats = new Set([0]);
+let remoteState = null;
+
+const game = new PokerGame((state) => {
+  if (mode === 'guest') {
+    // Guests only render host-synced state
+    return;
+  }
+  render(state);
+  if (mode === 'host') {
+    // Fan-out personalized snapshots to each human
+    for (const seat of humanSeats) {
+      net?.send({ type: 'state', code: roomCode, state: game.snapshot(seat), toSeat: seat });
+    }
+    // Host still shows own view via render above
+  }
+});
+
+function applyRemoteState(state) {
+  remoteState = state;
+  render(state);
+}
+
+function showGame() {
+  document.getElementById('lobby').hidden = true;
+  document.getElementById('game-app').hidden = false;
+}
+
+function showLobby() {
+  document.getElementById('lobby').hidden = false;
+  document.getElementById('game-app').hidden = true;
+  const badge = document.getElementById('room-badge');
+  if (badge) badge.hidden = true;
+}
+
+function setRoomBadge(code) {
+  const badge = document.getElementById('room-badge');
+  const el = document.getElementById('room-code');
+  if (!badge || !el) return;
+  if (!code) {
+    badge.hidden = true;
+    return;
+  }
+  badge.hidden = false;
+  el.textContent = code;
+}
+
+function doAction(action) {
+  if (mode === 'guest') {
+    net?.sendAction(action);
+    return;
+  }
+  game.actHero(action);
+}
+
+function doStart() {
+  if (mode === 'guest') return; // only host starts
+  if (mode === 'host') net?.send({ type: 'start', code: roomCode });
+  game.startHand();
+}
+
+function enterSolo() {
+  mode = 'solo';
+  net?.close();
+  net = null;
+  roomCode = null;
+  mySeat = 0;
+  humanSeats = new Set([0]);
+  game.heroSeat = 0;
+  setRoomBadge(null);
+  document.getElementById('brand-sub').textContent = "No-Limit Hold'em";
+  showGame();
+  game.emit();
+}
+
+function applySeatPlan(roster) {
+  const plan = buildSeatPlan(roster, mySeat);
+  humanSeats = new Set(plan.filter((p) => p.kind === 'human').map((p) => p.id));
+  const desc = plan.map((p) => ({
+    name: p.name,
+    isAI: p.kind === 'ai',
+    personality: p.personality || null,
+    avatar: p.avatar,
+  }));
+  game.setPlayers(desc, mySeat);
+  actionsSignature = '';
+  winBannerKey = '';
+  game.emit();
+}
 
 const CHIP_UNIT = 10;
 
@@ -410,8 +504,10 @@ raiseAmountEl.addEventListener('blur', syncRaiseFromInput);
 
 btnReset.addEventListener('click', () => {
   if (stateBusy()) return;
+  if (mode === 'guest') return;
   actionsSignature = '';
   winBannerKey = '';
+  if (mode === 'host') net?.send({ type: 'reset', code: roomCode });
   game.resetTournament();
 });
 
@@ -427,10 +523,10 @@ document.addEventListener('keydown', (e) => {
   }
   if (!lastState?.heroTurn) return;
   const k = e.key.toLowerCase();
-  if (k === 'f') game.actHero({ type: 'fold' });
+  if (k === 'f') doAction({ type: 'fold' });
   if (k === 'c') {
-    if (lastState.toCall === 0) game.actHero({ type: 'check' });
-    else game.actHero({ type: 'call' });
+    if (lastState.toCall === 0) doAction({ type: 'check' });
+    else doAction({ type: 'call' });
   }
   if (k === 'r') {
     const btn = actionsEl.querySelector('.btn-raise');
@@ -438,5 +534,151 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+/* ===== Lobby ===== */
+const lobbyName = document.getElementById('lobby-name');
+const lobbyCodeInput = document.getElementById('lobby-code');
+const joinCodeField = document.getElementById('join-code-field');
+const lobbyError = document.getElementById('lobby-error');
+const lobbyHint = document.getElementById('lobby-hint');
+const btnLeave = document.getElementById('btn-leave');
+
+function lobbyNameVal() {
+  return (lobbyName.value || '').trim().slice(0, 12) || null;
+}
+
+function showLobbyError(msg) {
+  if (!msg) {
+    lobbyError.hidden = true;
+    lobbyError.textContent = '';
+    return;
+  }
+  lobbyError.hidden = false;
+  lobbyError.textContent = msg;
+}
+
+document.getElementById('btn-solo').addEventListener('click', () => enterSolo());
+
+document.getElementById('btn-create').addEventListener('click', async () => {
+  showLobbyError('');
+  try {
+    net = new NetClient({
+      onMessage: handleNetMessage,
+      onStatus: () => {},
+    });
+    await net.connect(defaultWsUrl());
+    mode = 'host';
+    net.create(lobbyNameVal() || '房主');
+  } catch (err) {
+    showLobbyError(err.message || '联机失败');
+    net = null;
+  }
+});
+
+document.getElementById('btn-join').addEventListener('click', async () => {
+  showLobbyError('');
+  if (joinCodeField.hidden) {
+    joinCodeField.hidden = false;
+    lobbyCodeInput.focus();
+    return;
+  }
+  const code = (lobbyCodeInput.value || '').trim().toUpperCase();
+  if (code.length < 4) {
+    showLobbyError('请输入房间码');
+    return;
+  }
+  try {
+    net = new NetClient({
+      onMessage: handleNetMessage,
+      onStatus: () => {},
+    });
+    await net.connect(defaultWsUrl());
+    mode = 'guest';
+    net.join(code, lobbyNameVal() || '玩家');
+  } catch (err) {
+    showLobbyError(err.message || '联机失败');
+    net = null;
+  }
+});
+
+btnLeave.addEventListener('click', () => {
+  net?.close();
+  net = null;
+  mode = 'solo';
+  roomCode = null;
+  showLobby();
+});
+
+function handleNetMessage(msg) {
+  if (msg.type === 'created') {
+    roomCode = msg.code;
+    mySeat = msg.seat;
+    mode = 'host';
+    setRoomBadge(roomCode);
+    lobbyHint.textContent = `把房间码 ${roomCode} 发给朋友。空位自动补 AI。`;
+    document.getElementById('brand-sub').textContent = `联机 · 房间 ${roomCode}`;
+    applySeatPlan(msg.roster);
+    showGame();
+    return;
+  }
+
+  if (msg.type === 'joined') {
+    roomCode = msg.code;
+    mySeat = msg.seat;
+    mode = 'guest';
+    setRoomBadge(roomCode);
+    document.getElementById('brand-sub').textContent = `联机 · 房间 ${roomCode}`;
+    // Show waiting table until host syncs
+    applySeatPlan(msg.roster);
+    showGame();
+    return;
+  }
+
+  if (msg.type === 'player_join' || msg.type === 'player_leave') {
+    if (mode === 'host' && (game.phase === 'idle' || game.phase === 'handover')) {
+      applySeatPlan(msg.roster);
+    }
+    return;
+  }
+
+  if (msg.type === 'need_sync' && mode === 'host') {
+    net?.send({
+      type: 'state',
+      code: roomCode,
+      state: game.snapshot(msg.seat),
+      toSeat: msg.seat,
+    });
+    return;
+  }
+
+  if (msg.type === 'state') {
+    if (mode === 'guest' && (msg.toSeat == null || msg.toSeat === mySeat)) {
+      applyRemoteState(msg.state);
+    }
+    return;
+  }
+
+  if (msg.type === 'action' && mode === 'host') {
+    game.actRemote(msg.seat, msg.action);
+    return;
+  }
+
+  if (msg.type === 'start' && mode === 'guest') {
+    // Host will stream state; nothing to run
+    return;
+  }
+
+  if (msg.type === 'error') {
+    showLobbyError(msg.message || '出错了');
+    return;
+  }
+
+  if (msg.type === 'disconnected' || msg.type === 'room_closed') {
+    showLobbyError('连接已断开');
+    net = null;
+    mode = 'solo';
+    showLobby();
+  }
+}
+
 initBoardSlots();
-game.emit();
+showLobby();

@@ -1,45 +1,65 @@
-# hin's poker · 德州扑克小游戏
+# hin's poker · 德州扑克
 
-**v2.2** — 桌面横向跑道 + 手机竖屏纵向跑道，胜者展示最佳五张牌。
+**v3.0** — 单机练习 + 和朋友远程联机（房间码），空位自动补齐 AI，最多 6 人一桌。
 
-版本记录见 [CHANGELOG.md](./CHANGELOG.md)。
-
-**在线试玩**：https://heyuxuan-git.github.io/hins-poker/
+**静态页**：https://heyuxuan-git.github.io/hins-poker/
 
 ## 玩法
 
-- 无限注德州扑克（NLHE）
-- 起始筹码 2000，盲注 10 / 20
-- 五名 AI：陈哥 / 小美 / 老周 / 林姐 / 阿凯（不同风格）
-- 底栏操作：弃牌 / 过牌·跟注 / 加注 / 全下
-- 加注可用滑条拖动，也可在右侧数字框手动输入
-- 键盘：`F` 弃牌 · `C` 过牌或跟注 · `R` 加注
+### 单机
+打开页面 →「开始练习」→ 和 5 名 AI 对战。
 
-## 本地运行
+### 和朋友远程玩（5–6 人）
+1. 部署/启动联机服务（见下）后，打开页面
+2. 填昵称 → **创建房间**，把 6 位房间码发给朋友
+3. 朋友选「加入房间」输入房间码即可
+4. **空位会自动补齐 AI**，人齐不齐都能开
+5. 房主点「发牌」开始；大家轮流行动
 
-任意静态服务器即可（ES Module）：
+## 联机服务
+
+静态站需要连一个 WebSocket 房间服务。本地开发：
 
 ```bash
-cd sohoo-poker
-python3 -m http.server 5173
+npm install
+npm run server          # 默认 :8787
+npm start               # 另开终端，静态页 :5173
 ```
 
-打开 <http://localhost:5173>。
+浏览器打开 `http://127.0.0.1:5173` 即可连本机 `:8787`。
+
+### 免费公网部署（推荐 Render / Railway 免费层）
+
+1. 把本仓库推到 GitHub
+2. 在 [Render](https://render.com) 新建 **Web Service**
+   - Build：`npm install`
+   - Start：`npm run server`
+   - 环境变量 `PORT` 会自动注入（代码已读 `process.env.PORT`）
+3. 得到 `https://xxx.onrender.com` 后，前端访问：
+
+```
+https://heyuxuan-git.github.io/hins-poker/?ws=wss://xxx.onrender.com
+```
+
+（`?ws=` 会覆盖默认 WebSocket 地址。）
+
+## 本地跑前端
+
+```bash
+npm start
+# http://localhost:5173
+```
 
 ## 技术
 
-纯静态前端，无构建步骤：
-
-| 文件 | 职责 |
+| 路径 | 职责 |
 |------|------|
-| `js/deck.js` | 牌组与洗牌 |
-| `js/evaluator.js` | 七选五牌力评估 |
-| `js/ai.js` | AI 行动决策 |
-| `js/game.js` | 牌局状态机 |
-| `js/main.js` | 界面渲染与交互 |
-| `css/style.css` | 视觉样式 |
+| `js/game.js` | 牌局状态机（房主权威） |
+| `js/ai.js` | AI 策略 |
+| `js/net.js` | 房间客户端 + 空位补 AI |
+| `js/main.js` | 大厅 / 牌桌渲染 |
+| `server/index.js` | WebSocket 房间转发 |
 
-## 部署
+## 版本
 
-仓库：https://github.com/heyuxuan-git/hins-poker  
-Pages：https://heyuxuan-git.github.io/hins-poker/
+见 [CHANGELOG.md](./CHANGELOG.md) 与 [Releases](https://github.com/heyuxuan-git/hins-poker/releases)。
