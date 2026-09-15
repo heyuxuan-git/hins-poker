@@ -198,15 +198,21 @@ function initBoardSlots() {
 }
 
 function renderActions(state) {
-  const hero = state.players[0];
+  const viewerSeat = state.viewerSeat ?? 0;
+  const hero =
+    state.players.find((p) => p.isHero) ||
+    state.players.find((p) => p.id === viewerSeat) ||
+    state.players[0];
   const toCall = state.toCall || 0;
+  const isHost = mode !== 'guest';
   const signature = [
+    mode,
     state.phase,
     state.heroTurn ? 1 : 0,
-    state.phase === 'idle' || state.phase === 'handover' ? 'start' : '',
+    state.phase === 'idle' || state.phase === 'handover' ? (isHost ? 'start' : 'wait') : '',
     state.phase === 'showdown' ? 'showdown' : '',
     state.heroTurn ? (toCall === 0 ? 'check' : `call:${toCall}`) : '',
-    state.heroTurn && state.players[0].stack ? `stack:${state.players[0].stack}` : '',
+    state.heroTurn && hero?.stack ? `stack:${hero.stack}` : '',
     state.heroTurn ? `min:${state.minRaiseTo}|max:${state.maxRaiseTo}|cbet:${state.currentBet}` : '',
   ].join('|');
 
@@ -220,6 +226,13 @@ function renderActions(state) {
   const handover = state.phase === 'handover';
 
   if (idle || handover) {
+    if (!isHost) {
+      const wait = document.createElement('div');
+      wait.className = 'waiting';
+      wait.textContent = idle ? '等待房主发牌…' : '等待房主开始下一局…';
+      actionsEl.appendChild(wait);
+      return;
+    }
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'action-btn btn-start';

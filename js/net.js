@@ -88,7 +88,7 @@ export class NetClient {
 
   sendAction(action) {
     if (!this.code) return;
-    this.send({ type: 'action', action });
+    this.send({ type: 'action', code: this.code, action });
   }
 
   sendState(state) {
