@@ -1045,6 +1045,90 @@ button:focus-visible {
   z-index: 15;
 }
 
+/* ===== Action timer ===== */
+.action-timer {
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.action-timer[hidden] {
+  display: none !important;
+}
+
+.action-timer-num {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--gold-hi);
+  min-width: 32px;
+  font-variant-numeric: tabular-nums;
+}
+
+.action-timer-num.urgent {
+  color: #ff8f8f;
+}
+
+.action-timer-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.action-timer-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--gold), var(--gold-hi));
+  transform-origin: left center;
+  transition: transform 0.2s linear;
+}
+
+.action-timer-fill.urgent {
+  background: linear-gradient(90deg, #c23b22, #ff8f8f);
+}
+
+/* Quick raise presets */
+.quick-raises {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.quick-raises[hidden] {
+  display: none !important;
+}
+
+.quick-btn {
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  background: rgba(15, 23, 32, 0.9);
+  color: var(--gold-hi);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.quick-btn:hover {
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.quick-btn:active {
+  transform: scale(0.97);
+}
+
 .raise-row {
   display: flex;
   align-items: center;

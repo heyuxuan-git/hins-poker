@@ -18,6 +18,10 @@ const raiseAmountEl = document.getElementById('raise-amount');
 const handNumEl = document.getElementById('hand-num');
 const winBannerSlot = document.getElementById('win-banner-slot');
 const btnReset = document.getElementById('btn-reset');
+const actionTimerEl = document.getElementById('action-timer');
+const actionTimerNum = document.getElementById('action-timer-num');
+const actionTimerFill = document.getElementById('action-timer-fill');
+const quickRaisesEl = document.getElementById('quick-raises');
 
 let lastState = null;
 let raiseTarget = 40;
@@ -30,6 +34,15 @@ let winBannerKey = '';
 
 function formatChips(n) {
   return Number(n).toLocaleString('zh-CN');
+}
+
+/** Display all amounts as big blinds, e.g. 12.5bb */
+function formatBb(n, bb) {
+  const unit = Number(bb) || 20;
+  const v = Number(n) / unit;
+  if (!Number.isFinite(v)) return formatChips(n);
+  if (Number.isInteger(v)) return `${v}bb`;
+  return `${v.toFixed(1)}bb`;
 }
 
 function cardKey(card) {
@@ -149,19 +162,24 @@ function renderSeat(el, player, state) {
   if (cache.name.textContent !== player.name) cache.name.textContent = player.name;
   if (cache.dealer.hidden === !!player.isButton) cache.dealer.hidden = !player.isButton;
 
-  const stackText = formatChips(player.stack);
+  const stackText = formatBb(player.stack, state.bigBlind);
   if (cache.stack.textContent !== stackText) cache.stack.textContent = stackText;
 
   const hasBet = player.bet > 0;
   if (cache.betRow.hidden === hasBet) cache.betRow.hidden = !hasBet;
   if (hasBet) {
-    const betText = formatChips(player.bet);
+    const betText = formatBb(player.bet, state.bigBlind);
     if (cache.bet.textContent !== betText) cache.bet.textContent = betText;
     const chips = Math.min(4, Math.max(1, Math.ceil(player.bet / 50)));
     cache.chipStack.dataset.tier = String(chips);
   }
 
-  const actionText = player.lastAction || '';
+  const actionText = (player.lastAction || '').replace(/\s+\d+(\.\d+)?$/, (m) => {
+    // convert trailing chip number in action labels to bb when possible
+    const n = Number(m.trim());
+    if (!Number.isFinite(n) || n <= 0) return m;
+    return ` ${formatBb(n, state.bigBlind)}`;
+  });
   if (cache.action.textContent !== actionText) cache.action.textContent = actionText;
 
   const handText = player.handName || '';
@@ -221,6 +239,8 @@ function renderActions(state) {
 
   actionsEl.innerHTML = '';
   raiseRow.hidden = true;
+  actionTimerEl.hidden = true;
+  quickRaisesEl.hidden = true;
 
   const idle = state.phase === 'idle';
   const handover = state.phase === 'handover';
@@ -243,6 +263,9 @@ function renderActions(state) {
   }
 
   if (!state.heroTurn) {
+    actionTimerEl.hidden = true;
+    quickRaisesEl.hidden = true;
+    quickRaisesEl.innerHTML = '';
     const wait = document.createElement('div');
     wait.className = 'waiting';
     const thinkingName = state.players.find((p) => p.isThinking)?.name;
@@ -256,6 +279,7 @@ function renderActions(state) {
   }
 
   const canCheck = toCall === 0;
+  const bb = state.bigBlind || 20;
 
   const fold = document.createElement('button');
   fold.type = 'button';
@@ -273,7 +297,7 @@ function renderActions(state) {
   } else {
     checkCall.className = 'action-btn btn-call';
     const pay = Math.min(toCall, hero.stack);
-    checkCall.textContent = `跟注 ${formatChips(pay)}`;
+    checkCall.textContent = `跟注 ${formatBb(pay, bb)}`;
     checkCall.addEventListener('click', () => doAction({ type: 'call' }));
     if (hero.stack <= 0) checkCall.disabled = true;
   }
@@ -286,7 +310,7 @@ function renderActions(state) {
   const raiseBtn = document.createElement('button');
   raiseBtn.type = 'button';
   raiseBtn.className = 'action-btn btn-raise';
-  raiseBtn.textContent = canRaise ? '加注' : '加注（不可）';
+  raiseBtn.textContent = canRaise ? `加注 ${formatBb(raiseTarget || minTo, bb)}` : '加注（不可）';
   raiseBtn.disabled = !canRaise;
 
   if (canRaise) {
@@ -303,6 +327,34 @@ function renderActions(state) {
     raiseAmountEl.value = String(raiseTarget);
     raiseRow.hidden = false;
 
+    // Quick presets: ½ pot / ⅔ pot / pot / 3bb / min
+    const pot = state.pot || 0;
+    const presets = [
+      { label: '最小加注', amount: minTo },
+      { label: '½ pot', amount: state.currentBet + Math.round(pot * 0.5) },
+      { label: '⅔ pot', amount: state.currentBet + Math.round(pot * 0.67) },
+      { label: '底池', amount: state.currentBet + pot },
+      { label: '3bb', amount: state.currentBet + bb * 3 },
+      { label: '4bb', amount: state.currentBet + bb * 4 },
+    ];
+    quickRaisesEl.hidden = false;
+    quickRaisesEl.innerHTML = '';
+    for (const p of presets) {
+      const amount = clampRaise(p.amount);
+      if (amount < sliderMin && amount !== sliderMin) continue;
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'quick-btn';
+      b.textContent = `${p.label} · ${formatBb(amount, bb)}`;
+      b.addEventListener('click', () => {
+        raiseTarget = clampRaise(amount);
+        raiseSlider.value = String(raiseTarget);
+        raiseAmountEl.value = String(raiseTarget);
+        raiseBtn.textContent = `加注 ${formatBb(raiseTarget, bb)}`;
+      });
+      quickRaisesEl.appendChild(b);
+    }
+
     raiseBtn.addEventListener('click', () => {
       const amount = clampRaise(Number(raiseAmountEl.value));
       if (amount >= hero.stack + hero.bet) {
@@ -311,6 +363,9 @@ function renderActions(state) {
         doAction({ type: 'raise', amount });
       }
     });
+  } else {
+    quickRaisesEl.hidden = true;
+    quickRaisesEl.innerHTML = '';
   }
 
   actionsEl.appendChild(raiseBtn);
@@ -319,7 +374,7 @@ function renderActions(state) {
     const allIn = document.createElement('button');
     allIn.type = 'button';
     allIn.className = 'action-btn btn-allin';
-    allIn.textContent = `全下 ${formatChips(hero.stack)}`;
+    allIn.textContent = `全下 ${formatBb(hero.stack, bb)}`;
     allIn.addEventListener('click', () => doAction({ type: 'allin', amount: hero.stack }));
     actionsEl.appendChild(allIn);
   }
@@ -341,8 +396,8 @@ function renderWinBanner(state) {
   wrap.className = 'win-panel';
 
   const label = primary.handName
-    ? `${primary.name} · ${primary.handName} +${formatChips(primary.amount)}`
-    : `${primary.name} +${formatChips(primary.amount)}`;
+    ? `${primary.name} · ${primary.handName} +${formatBb(primary.amount, state.bigBlind)}`
+    : `${primary.name} +${formatBb(primary.amount, state.bigBlind)}`;
   const title = document.createElement('div');
   title.className = 'win-banner';
   title.textContent = label;
@@ -362,10 +417,28 @@ function renderWinBanner(state) {
   winBannerSlot.appendChild(wrap);
 }
 
+function updateActionTimer(state) {
+  if (!state.heroTurn || !state.actionDeadline) {
+    actionTimerEl.hidden = true;
+    return;
+  }
+  actionTimerEl.hidden = false;
+  const left = Math.max(0, state.actionDeadline - Date.now());
+  const secs = Math.ceil(left / 1000);
+  if (actionTimerNum.textContent !== String(secs)) {
+    actionTimerNum.textContent = String(secs);
+  }
+  const ratio = left / 30000;
+  actionTimerFill.style.transform = `scaleX(${Math.max(0, Math.min(1, ratio))})`;
+  const urgent = secs <= 8;
+  actionTimerNum.classList.toggle('urgent', urgent);
+  actionTimerFill.classList.toggle('urgent', urgent);
+}
+
 function render(state) {
   lastState = state;
 
-  const potText = formatChips(state.pot);
+  const potText = formatBb(state.pot, state.bigBlind);
   if (potAmountEl.textContent !== potText) potAmountEl.textContent = potText;
 
   const handText = state.handNumber > 0 ? String(state.handNumber) : '—';
@@ -382,7 +455,13 @@ function render(state) {
 
   renderActions(state);
   renderWinBanner(state);
+  updateActionTimer(state);
 }
+
+// Smooth countdown between state emits
+setInterval(() => {
+  if (lastState) updateActionTimer(lastState);
+}, 200);
 
 /* ===== Modes: solo | host | guest ===== */
 let mode = 'solo';

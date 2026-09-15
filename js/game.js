@@ -9,6 +9,7 @@ const BIG_BLIND = 20;
 const CHIP_UNIT = 10;
 const AI_THINK_MIN = 1400;
 const AI_THINK_VAR = 1200;
+export const ACTION_TIMEOUT_MS = 30000;
 
 const PERSONALITIES = ['balanced', 'aggressive', 'tight', 'maniac', 'tight', 'aggressive'];
 
@@ -70,6 +71,40 @@ export class PokerGame {
     this.winners = [];
     this.showdownReveal = false;
     this.message = '准备开始新一局';
+    this.actionDeadline = null;
+    this._actionTimer = null;
+  }
+
+  clearActionClock() {
+    if (this._actionTimer) {
+      clearTimeout(this._actionTimer);
+      this._actionTimer = null;
+    }
+    this.actionDeadline = null;
+  }
+
+  /** 30s auto check/fold for humans (hero or remote) */
+  armActionClock(player) {
+    this.clearActionClock();
+    if (!player || player.isAI) return;
+    this.actionDeadline = Date.now() + ACTION_TIMEOUT_MS;
+    this._actionTimer = setTimeout(() => {
+      if (this.currentPlayer !== player.id) return;
+      if (player.folded || player.allIn) return;
+      const toCall = this.currentBet - player.bet;
+      const action = toCall <= 0 ? { type: 'check' } : { type: 'fold' };
+      this.message = `${player.name} 超时，自动${toCall <= 0 ? '过牌' : '弃牌'}`;
+      this.applyAction(player, action);
+      this.emit();
+      if (this.activePlayers().length === 1) {
+        this.finishHand();
+        return;
+      }
+      this.currentPlayer = this.nextToAct(player.id);
+      setTimeout(() => {
+        this.runBettingRound();
+      }, 80);
+    }, ACTION_TIMEOUT_MS + 80);
   }
 
   get bigBlind() {
@@ -147,6 +182,10 @@ export class PokerGame {
       bigBlind: BIG_BLIND,
       currentPlayer: this.currentPlayer,
       heroTurn,
+      actionDeadline: this.actionDeadline,
+      actionTimeLeft: this.actionDeadline
+        ? Math.max(0, this.actionDeadline - Date.now())
+        : 0,
       lastAction: this.lastAction,
       winners: this.winners,
       showdownReveal: this.showdownReveal || this.phase === 'showdown',
@@ -312,6 +351,8 @@ export class PokerGame {
 
       // Local hero or remote human — wait for their action
       if (!player.isAI) {
+        this.armActionClock(player);
+        this.emit();
         return;
       }
 
@@ -455,6 +496,7 @@ export class PokerGame {
   actHero(action) {
     if (!this.isHeroTurn()) return;
     const hero = this.hero();
+    this.clearActionClock();
     this.applyAction(hero, action);
     this.emit();
 
@@ -474,6 +516,7 @@ export class PokerGame {
     if (this.currentPlayer !== seat) return;
     const player = this.players[seat];
     if (!player || player.isAI || player.folded || player.allIn) return;
+    this.clearActionClock();
     this.applyAction(player, action);
     this.emit();
 
@@ -489,6 +532,7 @@ export class PokerGame {
   }
 
   async advanceStreet() {
+    this.clearActionClock();
     // Collect bets already in pot; reset street bets
     for (const p of this.players) {
       p.bet = 0;
@@ -582,6 +626,7 @@ export class PokerGame {
   }
 
   async finishHand() {
+    this.clearActionClock();
     this.phase = 'showdown';
     this.showdownReveal = true;
     this.currentPlayer = null;
@@ -694,6 +739,7 @@ export class PokerGame {
   }
 
   resetTournament() {
+    this.clearActionClock();
     for (const p of this.players) {
       p.stack = STARTING_STACK;
       p.cards = [];
