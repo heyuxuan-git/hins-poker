@@ -152,9 +152,16 @@ const PROFILE = {
   },
 };
 
+const CHIP_UNIT = 10;
+
+function snap10(n) {
+  return Math.round(n / CHIP_UNIT) * CHIP_UNIT;
+}
+
 function clampRaiseTo(amount, minRaise, stack, streetBet) {
   // amount is "raise-to" target on this street (absolute)
-  const target = Math.max(minRaise, Math.round(amount));
+  let target = snap10(Math.max(minRaise, amount));
+  if (target < minRaise) target = Math.ceil(minRaise / CHIP_UNIT) * CHIP_UNIT;
   return Math.min(stack + streetBet, target);
 }
 

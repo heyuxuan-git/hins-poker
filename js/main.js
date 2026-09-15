@@ -276,13 +276,15 @@ function renderActions(state) {
   raiseBtn.disabled = !canRaise;
 
   if (canRaise) {
-    const sliderMin = Math.min(minTo, maxTo);
-    const sliderMax = maxTo;
+    const sliderMin = Math.ceil(Math.min(minTo, maxTo) / CHIP_UNIT) * CHIP_UNIT;
+    const sliderMax = Math.floor(maxTo / CHIP_UNIT) * CHIP_UNIT;
     raiseSlider.min = String(sliderMin);
-    raiseSlider.max = String(sliderMax);
+    raiseSlider.max = String(Math.max(sliderMin, sliderMax));
+    raiseSlider.step = String(CHIP_UNIT);
     raiseAmountEl.min = String(sliderMin);
-    raiseAmountEl.max = String(sliderMax);
-    raiseTarget = Math.min(sliderMax, Math.max(sliderMin, sliderMin));
+    raiseAmountEl.max = String(Math.max(sliderMin, sliderMax));
+    raiseAmountEl.step = String(CHIP_UNIT);
+    raiseTarget = Math.min(Math.max(sliderMin, sliderMax), sliderMin);
     raiseSlider.value = String(raiseTarget);
     raiseAmountEl.value = String(raiseTarget);
     raiseRow.hidden = false;
@@ -370,11 +372,15 @@ function render(state) {
 
 const game = new PokerGame(render);
 
+const CHIP_UNIT = 10;
+
 function clampRaise(n) {
   const min = Number(raiseSlider.min) || 0;
   const max = Number(raiseSlider.max) || 0;
   if (!Number.isFinite(n)) return min;
-  return Math.min(max, Math.max(min, Math.round(n)));
+  // Snap to chip unit (10), then clamp
+  const snapped = Math.round(n / CHIP_UNIT) * CHIP_UNIT;
+  return Math.min(max, Math.max(min, snapped));
 }
 
 function syncRaiseFromSlider() {

@@ -823,9 +823,10 @@ button:focus-visible {
 }
 
 /*
-  Cards always beside the avatar (not stacked above/below):
-  default = to the right of avatar; left-edge seats = to the left.
-  Side players keep cards horizontal (side by side).
+  Cards always beside the avatar, facing the table center:
+  - left-edge seats: cards on the RIGHT of the person
+  - right-edge seats: cards on the LEFT of the person
+  - everyone else: cards on the RIGHT
 */
 .seat {
   flex-direction: row;
@@ -843,12 +844,14 @@ button:focus-visible {
   order: 2;
 }
 
-/* Left-edge players: cards on the left of the avatar */
-.seat.left .seat-cards {
+/* Right-edge players: cards on the left (toward center) */
+.seat.right .seat-cards,
+.seat.top-right .seat-cards {
   order: 1;
 }
 
-.seat.left .seat-body {
+.seat.right .seat-body,
+.seat.top-right .seat-body {
   order: 2;
 }
 
@@ -1282,14 +1285,7 @@ button:focus-visible {
     transform: none;
   }
 
-  /* Both left-edge seats: hole cards on the left of the avatar */
-  .seat.bottom-left .seat-cards {
-    order: 1;
-  }
-
-  .seat.bottom-left .seat-body {
-    order: 2;
-  }
+  /* Left-edge seats: cards stay on the right (toward center) — default order */
 
   .seat.left .avatar-wrap,
   .seat.bottom-left .avatar-wrap,

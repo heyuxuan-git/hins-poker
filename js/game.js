@@ -6,6 +6,7 @@ import { playCheck, playChips, playAllIn } from './audio.js';
 const STARTING_STACK = 2000;
 const SMALL_BLIND = 10;
 const BIG_BLIND = 20;
+const CHIP_UNIT = 10;
 const AI_THINK_MIN = 1400;
 const AI_THINK_VAR = 1200;
 
@@ -354,8 +355,13 @@ export class PokerGame {
       if (action.type === 'allin') {
         target = player.bet + player.stack;
       } else {
-        target = Math.max(action.amount, this.currentBet + this.minRaise);
-        target = Math.min(target, player.bet + player.stack);
+        // Snap raise-to amount to chip unit
+        let raw = Math.max(action.amount, this.currentBet + this.minRaise);
+        raw = Math.round(raw / CHIP_UNIT) * CHIP_UNIT;
+        if (raw < this.currentBet + this.minRaise) {
+          raw = Math.ceil((this.currentBet + this.minRaise) / CHIP_UNIT) * CHIP_UNIT;
+        }
+        target = Math.min(raw, player.bet + player.stack);
       }
 
       const pay = target - player.bet;
