@@ -50,7 +50,7 @@ function buildCardEl(card) {
   el.className = `pcard${d.isRed ? ' red' : ''}`;
   el.setAttribute('aria-label', `${d.rank}${d.suit}`);
   el.innerHTML = `
-    <div class="corner"><span>${d.rank}</span><span>${d.suit}</span></div>
+    <div class="corner"><span>${d.rank}</span></div>
     <div class="center">${d.suit}</div>
   `;
   return el;
