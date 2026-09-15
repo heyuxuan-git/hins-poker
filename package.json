@@ -5,7 +5,7 @@
   "type": "module",
   "description": "hin's poker v2.0 — Texas Hold'em browser game",
   "scripts": {
-    "test": "node js/evaluator.test.mjs",
+    "test": "node js/evaluator.test.mjs && node js/deal-bust.test.mjs",
     "start": "python3 -m http.server 5173"
   }
 }

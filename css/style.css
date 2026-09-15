@@ -277,14 +277,14 @@ button:focus-visible {
   white-space: nowrap;
 }
 
-/* Dealer cutout at top-center of the table */
+/* Dealer cutout at top-center — female dealer portrait */
 .dealer-well {
   position: absolute;
   left: 50%;
-  top: clamp(10px, 1.8vw, 20px);
+  top: clamp(6px, 1.2vw, 14px);
   transform: translateX(-50%);
-  width: clamp(86px, 11vw, 118px);
-  height: clamp(48px, 7vw, 64px);
+  width: clamp(96px, 12vw, 130px);
+  height: clamp(72px, 10vw, 96px);
   z-index: 9;
   border-radius: 0 0 999px 999px;
   background:
@@ -297,32 +297,30 @@ button:focus-visible {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 6px;
+  padding-bottom: 4px;
   pointer-events: none;
+  overflow: hidden;
 }
 
 .dealer-figure {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
 }
 
-.dealer-head {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #e8c9a0, #b07d4a 70%);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
-}
-
-.dealer-body {
-  width: 34px;
-  height: 14px;
-  border-radius: 10px 10px 4px 4px;
-  background: linear-gradient(180deg, #1e2838, #121820);
-  border: 1px solid rgba(212, 175, 55, 0.25);
-  margin-top: -2px;
+.dealer-avatar {
+  width: clamp(52px, 6.5vw, 72px);
+  height: clamp(52px, 6.5vw, 72px);
+  border-radius: 50% 50% 42% 42%;
+  object-fit: cover;
+  object-position: center 18%;
+  border: 2px solid rgba(212, 175, 55, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.4),
+    0 4px 10px rgba(0, 0, 0, 0.45);
+  background: #121820;
+  margin-top: -8px;
 }
 
 .dealer-label {

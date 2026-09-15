@@ -115,15 +115,16 @@ export class PokerGame {
   }
 
   async startHand() {
-    if (this.players.every((p) => p.stack <= 0)) {
-      // Reset tournament
+    const withChips = this.players.filter((p) => p.stack > 0);
+    if (withChips.length < 2) {
+      // Too few players — rebuy everyone
       for (const p of this.players) p.stack = STARTING_STACK;
       this.handNumber = 0;
       this.button = 0;
-      this.message = '筹码已重置，新牌局开始';
+      this.message = '可玩人数不足，筹码已重置';
     }
 
-    // Move button
+    // Move button to next seated player
     do {
       this.button = (this.button + 1) % this.players.length;
     } while (this.players[this.button].stack <= 0);
@@ -151,21 +152,34 @@ export class PokerGame {
       p.isThinking = false;
     }
 
-    // Post blinds
-    const sbIndex = this.nextOccupied(this.button);
-    const bbIndex = this.nextOccupied(sbIndex);
+    // Seated order clockwise from button — busts are excluded once
+    const seated = [];
+    let cursor = this.button;
+    for (let n = 0; n < this.players.length; n++) {
+      cursor = (cursor + 1) % this.players.length;
+      if (this.players[cursor].stack > 0) {
+        seated.push(cursor);
+      }
+    }
+    if (seated.length < 2) {
+      this.phase = 'idle';
+      this.message = '可玩人数不足，请重置筹码';
+      this.emit();
+      return;
+    }
+
+    // Blinds: first two seated after button
+    const sbIndex = seated[0];
+    const bbIndex = seated[1];
     this.postBlind(this.players[sbIndex], SMALL_BLIND, '小盲');
     this.postBlind(this.players[bbIndex], BIG_BLIND, '大盲');
     this.currentBet = Math.max(SMALL_BLIND, BIG_BLIND, this.players[sbIndex].bet, this.players[bbIndex].bet);
     this.minRaise = BIG_BLIND;
 
-    // Deal hole cards
+    // Deal 2 cards to each seated player exactly once
     for (let round = 0; round < 2; round++) {
-      for (let i = 0; i < this.players.length; i++) {
-        const seat = this.nextOccupied(this.button + i);
-        if (!this.players[seat].folded) {
-          this.players[seat].cards.push(this.deck.pop());
-        }
+      for (const seat of seated) {
+        this.players[seat].cards.push(this.deck.pop());
       }
     }
 
