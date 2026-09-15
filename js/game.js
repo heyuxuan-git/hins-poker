@@ -330,7 +330,7 @@ export class PokerGame {
       player.acted = true;
       player.lastAction = '过牌';
       this.lastAction = { player: player.name, type: 'check' };
-      playCheck();
+      if (player.isHero) playCheck();
       return;
     }
 
@@ -345,28 +345,35 @@ export class PokerGame {
       player.acted = true;
       player.lastAction = pay === 0 ? '过牌' : `跟注 ${pay}`;
       this.lastAction = { player: player.name, type: 'call', amount: pay };
-      if (pay === 0) playCheck();
-      else playChips(0.7);
+      if (player.isHero) {
+        if (pay === 0) playCheck();
+        else playChips(0.7);
+      }
       return;
     }
 
     if (action.type === 'raise' || action.type === 'allin') {
+      const maxTo = player.bet + player.stack;
+      const minLegal = Math.max(this.currentBet + this.minRaise, this.currentBet + CHIP_UNIT);
       let target;
+
       if (action.type === 'allin') {
-        target = player.bet + player.stack;
+        target = maxTo;
       } else {
-        // Snap raise-to amount to chip unit
-        let raw = Math.max(action.amount, this.currentBet + this.minRaise);
-        raw = Math.round(raw / CHIP_UNIT) * CHIP_UNIT;
-        if (raw < this.currentBet + this.minRaise) {
-          raw = Math.ceil((this.currentBet + this.minRaise) / CHIP_UNIT) * CHIP_UNIT;
+        // Snap raise-to to 10; only exact-stack all-in may be off-unit
+        let raw = Math.max(action.amount, minLegal);
+        target = Math.round(raw / CHIP_UNIT) * CHIP_UNIT;
+        if (target < minLegal) {
+          target = Math.ceil(minLegal / CHIP_UNIT) * CHIP_UNIT;
         }
-        target = Math.min(raw, player.bet + player.stack);
+        if (target >= maxTo) {
+          target = maxTo;
+          action = { type: 'allin', amount: player.stack };
+        }
       }
 
       const pay = target - player.bet;
       if (pay <= 0) {
-        // Treat as call
         this.applyAction(player, { type: 'call' });
         return;
       }
@@ -381,22 +388,19 @@ export class PokerGame {
       if (raiseBy >= this.minRaise || player.allIn) {
         this.minRaise = Math.max(this.minRaise, raiseBy);
         this.currentBet = target;
-        // Re-open action for others
         for (const p of this.players) {
           if (p.id !== player.id && !p.folded && !p.allIn) p.acted = false;
         }
-      } else {
-        // All-in raise that's too small still increases current bet if larger
-        if (target > this.currentBet) {
-          this.currentBet = target;
-        }
+      } else if (target > this.currentBet) {
+        this.currentBet = target;
       }
 
       player.acted = true;
       player.lastAction = player.allIn ? `全下 ${target}` : `加注到 ${target}`;
       this.lastAction = { player: player.name, type: 'raise', amount: target };
+      // Crowd gasp on any all-in; chip sfx only for the local player
       if (player.allIn) playAllIn();
-      else playChips(1.2);
+      else if (player.isHero) playChips(1.2);
       return;
     }
   }

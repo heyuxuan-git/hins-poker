@@ -107,6 +107,30 @@ export function playAllIn() {
   }
   knock(c, t + 0.05, 0.35);
   noiseBurst(c, t + 0.02, 0.12, 0.2, 2200);
+  // Crowd gasp — layered "whoa" swell
+  const len = Math.floor(c.sampleRate * 0.9);
+  const buf = c.createBuffer(1, len, c.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) {
+    const p = i / len;
+    const swell = Math.sin(Math.PI * p);
+    data[i] = (Math.random() * 2 - 1) * swell * 0.55;
+  }
+  const src = c.createBufferSource();
+  src.buffer = buf;
+  const lp = c.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(600, t);
+  lp.frequency.linearRampToValueAtTime(1800, t + 0.18);
+  lp.frequency.linearRampToValueAtTime(400, t + 0.85);
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.35, t + 0.12);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+  src.connect(lp);
+  lp.connect(g);
+  g.connect(c.destination);
+  src.start(t);
 }
 
 export function playDeal() {

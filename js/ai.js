@@ -159,20 +159,23 @@ function snap10(n) {
 }
 
 function clampRaiseTo(amount, minRaise, stack, streetBet) {
-  // amount is "raise-to" target on this street (absolute)
+  const maxTo = stack + streetBet;
   let target = snap10(Math.max(minRaise, amount));
   if (target < minRaise) target = Math.ceil(minRaise / CHIP_UNIT) * CHIP_UNIT;
-  return Math.min(stack + streetBet, target);
+  // Never return a non-10x raise-to; if it would eat the stack, signal all-in via max
+  if (target > maxTo) return maxTo;
+  return target;
 }
 
 function preferRaise(target, stack, streetBet) {
-  const pay = target - streetBet;
-  if (pay <= 0) return { type: 'call' };
-  if (pay >= stack) {
-    // Only ship if remaining stack is small relative to raise
+  const maxTo = stack + streetBet;
+  let t = snap10(target);
+  if (t >= maxTo) {
     return { type: 'allin', amount: stack };
   }
-  return { type: 'raise', amount: target };
+  const pay = t - streetBet;
+  if (pay <= 0) return { type: 'call' };
+  return { type: 'raise', amount: t };
 }
 
 /**
