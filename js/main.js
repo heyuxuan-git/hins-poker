@@ -582,7 +582,7 @@ function lobbyNameVal() {
 }
 
 function currentWsUrl() {
-  const raw = (lobbyWs.value || '').trim() || defaultWsUrl();
+  const raw = ((lobbyWs && lobbyWs.value) || '').trim() || defaultWsUrl();
   // Allow pasting http(s) and convert to ws(s)
   let u = raw.replace(/^https:/i, 'wss:').replace(/^http:/i, 'ws:');
   // Deno deploy entry is /ws — append if user pasted bare host
@@ -633,6 +633,7 @@ document.getElementById('btn-copy-invite').addEventListener('click', async () =>
 });
 
 // Prefill WS + join code from URL
+let autoJoinCode = null;
 (() => {
   const q = new URLSearchParams(location.search).get('ws');
   let saved = null;
@@ -641,29 +642,35 @@ document.getElementById('btn-copy-invite').addEventListener('click', async () =>
   } catch {
     /* ignore */
   }
-  lobbyWs.value = q || saved || defaultWsUrl();
+  if (lobbyWs) lobbyWs.value = q || saved || defaultWsUrl();
   const hash = location.hash || '';
   const m = hash.match(/room=([A-Z0-9]{4,8})/i);
   if (m) {
+    autoJoinCode = m[1].toUpperCase();
     joinCodeField.hidden = false;
-    lobbyCodeInput.value = m[1].toUpperCase();
+    if (lobbyCodeInput) lobbyCodeInput.value = autoJoinCode;
   }
 })();
+
+async function connectAs(role, code) {
+  const url = currentWsUrl();
+  saveWsUrl(url);
+  net = new NetClient({
+    onMessage: handleNetMessage,
+    onStatus: () => {},
+  });
+  await net.connect(url);
+  mode = role;
+  if (role === 'host') net.create(lobbyNameVal() || '房主');
+  else net.join(code, lobbyNameVal() || '玩家');
+}
 
 document.getElementById('btn-solo').addEventListener('click', () => enterSolo());
 
 document.getElementById('btn-create').addEventListener('click', async () => {
   showLobbyError('');
-  const url = currentWsUrl();
-  saveWsUrl(url);
   try {
-    net = new NetClient({
-      onMessage: handleNetMessage,
-      onStatus: () => {},
-    });
-    await net.connect(url);
-    mode = 'host';
-    net.create(lobbyNameVal() || '房主');
+    await connectAs('host');
   } catch (err) {
     showLobbyError(err.message || '联机失败');
     net = null;
@@ -672,31 +679,33 @@ document.getElementById('btn-create').addEventListener('click', async () => {
 
 document.getElementById('btn-join').addEventListener('click', async () => {
   showLobbyError('');
+  const code = (lobbyCodeInput?.value || autoJoinCode || '').trim().toUpperCase();
+  if (code.length >= 4) {
+    try {
+      await connectAs('guest', code);
+    } catch (err) {
+      showLobbyError(err.message || '联机失败');
+      net = null;
+    }
+    return;
+  }
   if (joinCodeField.hidden) {
     joinCodeField.hidden = false;
-    lobbyCodeInput.focus();
+    lobbyCodeInput?.focus();
     return;
   }
-  const code = (lobbyCodeInput.value || '').trim().toUpperCase();
-  if (code.length < 4) {
-    showLobbyError('请输入房间码');
-    return;
-  }
-  const url = currentWsUrl();
-  saveWsUrl(url);
-  try {
-    net = new NetClient({
-      onMessage: handleNetMessage,
-      onStatus: () => {},
-    });
-    await net.connect(url);
-    mode = 'guest';
-    net.join(code, lobbyNameVal() || '玩家');
-  } catch (err) {
-    showLobbyError(err.message || '联机失败');
-    net = null;
-  }
+  showLobbyError('请输入房间码');
 });
+
+// Invite link: auto-join after a short beat
+if (autoJoinCode) {
+  lobbyHint.textContent = `检测到房间 ${autoJoinCode}，点击「加入房间」即可进入`;
+  setTimeout(() => {
+    if (mode === 'solo' && !net) {
+      document.getElementById('btn-join').click();
+    }
+  }, 400);
+}
 
 btnLeave.addEventListener('click', () => {
   net?.close();
