@@ -516,12 +516,12 @@ button:focus-visible {
 /* ===== Seats — character avatars + chip stacks ===== */
 .seat {
   position: absolute;
-  width: clamp(112px, 15vw, 156px);
+  width: clamp(130px, 18vw, 180px);
   z-index: 6;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   transition: filter 0.2s, opacity 0.2s;
   pointer-events: none;
 }
@@ -533,40 +533,40 @@ button:focus-visible {
 
 /* 6-max racetrack — even spacing; hero under 林姐 */
 .seat.top-left {
-  left: 20%;
+  left: 18%;
   top: -2%;
   z-index: 7;
 }
 
 .seat.top-right {
-  right: 20%;
+  right: 18%;
   top: -2%;
   z-index: 7;
 }
 
 .seat.left {
-  left: 0%;
-  top: 48%;
+  left: -4px;
+  top: 46%;
   transform: translateY(-50%);
   z-index: 7;
 }
 
 .seat.right {
-  right: 0%;
-  top: 48%;
+  right: -4px;
+  top: 46%;
   transform: translateY(-50%);
   z-index: 7;
 }
 
 .seat.bottom-left {
-  left: 20%;
-  bottom: -4%;
+  left: 18%;
+  bottom: -2%;
   z-index: 7;
 }
 
 .seat.bottom-right {
-  right: 20%;
-  bottom: -4%;
+  right: 18%;
+  bottom: -2%;
   z-index: 8;
 }
 
@@ -807,88 +807,49 @@ button:focus-visible {
 .seat-cards {
   display: flex;
   gap: 4px;
-  min-height: clamp(36px, 5vw, 50px);
-  margin-bottom: 0;
+  min-height: 0;
+  flex-direction: row;
+  align-items: center;
 }
 
 .seat-cards .pcard {
-  width: clamp(30px, 4.2vw, 40px);
-  height: clamp(44px, 6.2vw, 58px);
+  width: clamp(28px, 3.8vw, 38px);
+  height: clamp(40px, 5.6vw, 54px);
 }
 
 .seat.bottom-right .seat-cards .pcard {
-  width: clamp(36px, 5.2vw, 48px);
-  height: clamp(52px, 7.6vw, 68px);
+  width: clamp(34px, 4.8vw, 46px);
+  height: clamp(48px, 7vw, 64px);
 }
 
-/* Cards sit toward table center; avatar stays on the rail edge */
-.seat.top-left,
-.seat.top-right {
-  flex-direction: column;
-}
-
-.seat.top-left .seat-body,
-.seat.top-right .seat-body {
-  order: 1;
-}
-
-.seat.top-left .seat-cards,
-.seat.top-right .seat-cards {
-  order: 2;
-  margin-top: 4px;
-}
-
-.seat.bottom-left,
-.seat.bottom-right {
-  flex-direction: column;
-}
-
-.seat.bottom-left .seat-cards,
-.seat.bottom-right .seat-cards {
-  order: 1;
-}
-
-.seat.bottom-left .seat-body,
-.seat.bottom-right .seat-body {
-  order: 2;
-}
-
-.seat.left {
+/*
+  Cards always beside the avatar (not stacked above/below):
+  default = to the right of avatar; left-edge seats = to the left.
+  Side players keep cards horizontal (side by side).
+*/
+.seat {
   flex-direction: row;
   align-items: center;
   gap: 6px;
+}
+
+.seat-body {
+  flex-direction: column;
+  order: 1;
+  min-width: 0;
+}
+
+.seat-cards {
+  order: 2;
+}
+
+/* Left-edge players: cards on the left of the avatar */
+.seat.left .seat-cards {
+  order: 1;
 }
 
 .seat.left .seat-body {
-  order: 1;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.seat.left .seat-cards {
   order: 2;
-  flex-direction: column;
-  gap: 3px;
-  min-height: 0;
-}
-
-.seat.right {
-  flex-direction: row;
-  align-items: center;
-  gap: 6px;
-}
-
-.seat.right .seat-cards {
-  order: 1;
-  flex-direction: column;
-  gap: 3px;
-  min-height: 0;
-}
-
-.seat.right .seat-body {
-  order: 2;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .seat.left .plate,
@@ -1212,15 +1173,15 @@ button:focus-visible {
   }
 
   .table-wrap {
-    /* Even longer vertical track / longer straight sides */
-    aspect-ratio: 10 / 26;
-    max-height: min(72vh, 820px);
-    width: min(100%, 350px);
-    margin-top: 2px;
+    /* Room for topbar + action bar; felt inset by thick rail */
+    aspect-ratio: 10 / 24;
+    max-height: min(52vh, 640px);
+    width: min(100%, 380px);
+    margin-top: 0;
   }
 
   .table-rail {
-    padding: 18px 12px;
+    padding: 24px 16px;
   }
 
   /* Board & pot on the tall felt */
@@ -1263,10 +1224,10 @@ button:focus-visible {
     gap: 4px;
   }
 
-  /* Seat remap for vertical track */
+  /* Seat remap for vertical track — spread wider, cards beside avatars */
   .seat {
-    width: 78px;
-    gap: 2px;
+    width: 100px;
+    gap: 4px;
   }
 
   /*
@@ -1277,74 +1238,83 @@ button:focus-visible {
     /* player 3 — top center */
     left: 50%;
     right: auto;
-    top: -1%;
+    top: 0%;
     transform: translateX(-50%);
   }
 
   .seat.bottom-right {
-    /* hero — bottom center */
+    /* hero — bottom center, clear of the action bar */
     left: 50%;
     right: auto;
-    bottom: -1%;
+    bottom: 2%;
     transform: translateX(-50%);
     z-index: 8;
   }
 
   .seat.left {
-    /* player 2 — left upper, lifted so it clears the dealer well */
+    /* player 2 — left upper */
     left: 0;
-    top: 12%;
+    top: 14%;
     transform: none;
   }
 
   .seat.bottom-left {
-    /* player 1 — left lower */
+    /* player 1 — left lower, cards on the left */
     left: 0;
     right: auto;
     bottom: auto;
-    top: 68%;
+    top: 64%;
     transform: none;
   }
 
   .seat.top-right {
-    /* player 4 — right upper */
+    /* player 4 — right upper — keep cards on avatar's right, inset so they fit */
     left: auto;
-    right: 0;
-    top: 12%;
+    right: 4px;
+    top: 14%;
     transform: none;
   }
 
   .seat.right {
     /* player 5 — right lower */
-    right: 0;
-    top: 68%;
+    right: 4px;
+    top: 64%;
     transform: none;
+  }
+
+  /* Both left-edge seats: hole cards on the left of the avatar */
+  .seat.bottom-left .seat-cards {
+    order: 1;
+  }
+
+  .seat.bottom-left .seat-body {
+    order: 2;
   }
 
   .seat.left .avatar-wrap,
   .seat.bottom-left .avatar-wrap,
   .seat.right .avatar-wrap,
+  .seat.top-right .avatar-wrap,
   .seat.top-left .avatar-wrap {
-    width: 48px;
+    width: 50px;
+    height: 50px;
+  }
+
+  .seat-cards .pcard {
+    width: 28px;
+    height: 40px;
+  }
+
+  .seat.bottom-right .seat-cards .pcard {
+    width: 34px;
     height: 48px;
   }
 
-  .seat.left,
-  .seat.bottom-left,
-  .seat.right,
-  .seat.top-left {
-    width: 72px;
-  }
-
-  .seat.left .seat-body,
-  .seat.right .seat-body,
-  .seat.top-left .seat-body,
-  .seat.top-right .seat-body {
+  .seat-body {
     flex-direction: column;
   }
 
-  .seat.left .seat-cards,
-  .seat.right .seat-cards {
+  .seat-cards {
     flex-direction: row;
   }
 
