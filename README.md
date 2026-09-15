@@ -28,20 +28,33 @@ npm start               # 另开终端，静态页 :5173
 
 浏览器打开 `http://127.0.0.1:5173` 即可连本机 `:8787`。
 
-### 免费公网部署（推荐 Render / Railway 免费层）
+### 免费公网部署（Render）
 
-1. 把本仓库推到 GitHub
-2. 在 [Render](https://render.com) 新建 **Web Service**
-   - Build：`npm install`
-   - Start：`npm run server`
-   - 环境变量 `PORT` 会自动注入（代码已读 `process.env.PORT`）
-3. 得到 `https://xxx.onrender.com` 后，前端访问：
+仓库已带 `render.yaml`，可一键建站：
+
+1. 打开 [Render Blueprint](https://dashboard.render.com/blueprints)  
+   或直接用按钮（登录 GitHub 后）：
+
+   [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/heyuxuan-git/hins-poker)
+
+2. 确认服务名（例如 `hins-poker-ws`），等 Build 完成  
+3. 得到地址，例如 `https://hins-poker-ws.onrender.com`  
+4. 用下面链接开黑（把域名换成你的）：
 
 ```
-https://heyuxuan-git.github.io/hins-poker/?ws=wss://xxx.onrender.com
+https://heyuxuan-git.github.io/hins-poker/?ws=wss://hins-poker-ws.onrender.com
 ```
 
-（`?ws=` 会覆盖默认 WebSocket 地址。）
+说明：
+- `?ws=` 会覆盖默认 WebSocket 地址
+- Render **免费层**闲置会休眠，第一次打开可能要等 30 秒左右；和朋友约好前可先自己访问一次 `/health` 唤醒
+- 健康检查：`https://你的服务/health` 应返回 `{"ok":true,...}`
+
+手动建 Web Service 也可以：
+- Root：仓库根目录
+- Build：`npm ci`
+- Start：`node server/index.js`
+- Health Check Path：`/health`
 
 ## 本地跑前端
 

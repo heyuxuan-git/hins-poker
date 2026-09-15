@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: hins-poker-ws
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install
+    startCommand: npm run server
+    envVars:
+      - key: PORT
+        sync: false
+    healthCheckPath: /health
