@@ -1148,24 +1148,24 @@ button:focus-visible {
   }
 
   .table-wrap {
-    /* Longer vertical track so seats are not crowded */
-    aspect-ratio: 10 / 21;
-    max-height: min(64vh, 680px);
-    width: min(100%, 380px);
-    margin-top: 4px;
+    /* Longer vertical track / longer straight sides */
+    aspect-ratio: 10 / 24;
+    max-height: min(68vh, 760px);
+    width: min(100%, 360px);
+    margin-top: 2px;
   }
 
   .table-rail {
-    padding: 18px 14px;
+    padding: 18px 12px;
   }
 
   /* Board & pot on the tall felt */
   .board {
-    top: 44%;
+    top: 42%;
   }
 
   .pot {
-    top: 60%;
+    top: 58%;
   }
 
   .dealer-well {
@@ -1206,10 +1206,10 @@ button:focus-visible {
   }
 
   .seat.top-right {
-    /* top center */
+    /* top center — pulled up */
     left: 50%;
     right: auto;
-    top: 1%;
+    top: -1%;
     transform: translateX(-50%);
   }
 
@@ -1223,9 +1223,9 @@ button:focus-visible {
   }
 
   .seat.left {
-    /* left upper — above dealer */
+    /* left upper — higher, above dealer */
     left: 0;
-    top: 20%;
+    top: 15%;
     transform: none;
   }
 
@@ -1234,14 +1234,14 @@ button:focus-visible {
     left: 0;
     right: auto;
     bottom: auto;
-    top: 64%;
+    top: 66%;
     transform: none;
   }
 
   .seat.right {
-    /* right upper */
+    /* right upper — higher */
     right: 0;
-    top: 20%;
+    top: 15%;
     transform: none;
   }
 
@@ -1249,7 +1249,7 @@ button:focus-visible {
     /* right lower */
     left: auto;
     right: 0;
-    top: 64%;
+    top: 66%;
     transform: none;
   }
 
