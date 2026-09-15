@@ -28,6 +28,10 @@
           <span>昵称</span>
           <input type="text" id="lobby-name" maxlength="12" placeholder="你的名字" />
         </label>
+        <label class="lobby-field">
+          <span>联机服务器（所有人必须相同）</span>
+          <input type="url" id="lobby-ws" placeholder="wss://…" spellcheck="false" autocomplete="off" />
+        </label>
         <div class="lobby-row">
           <button type="button" class="action-btn btn-raise" id="btn-create">创建房间</button>
           <button type="button" class="action-btn btn-call" id="btn-join">加入房间</button>
@@ -36,8 +40,13 @@
           <span>房间码</span>
           <input type="text" id="lobby-code" maxlength="6" placeholder="6 位房间码" autocomplete="off" />
         </label>
-        <p class="lobby-hint" id="lobby-hint">空位会自动补齐 AI，最多 6 人一桌。</p>
+        <p class="lobby-hint" id="lobby-hint">空位自动补 AI。远程朋友必须用<strong>同一服务器</strong>和<strong>邀请链接</strong>加入。</p>
         <p class="lobby-error" id="lobby-error" hidden></p>
+        <div class="lobby-invite" id="lobby-invite" hidden>
+          <div class="lobby-invite-label">发给朋友这条链接</div>
+          <textarea id="invite-link" readonly rows="3"></textarea>
+          <button type="button" class="btn-ghost" id="btn-copy-invite">复制邀请链接</button>
+        </div>
       </section>
     </div>
   </div>
@@ -53,8 +62,8 @@
       </div>
       <div class="meta">
         <div class="meta-item" id="room-badge" hidden>
-          <span class="meta-label">房间</span>
-          <span class="meta-value" id="room-code">—</span>
+          <span class="meta-label">房间（点我复制邀请）</span>
+          <button type="button" class="meta-value room-link" id="room-code">—</button>
         </div>
         <div class="meta-item">
           <span class="meta-label">手牌</span>
@@ -130,6 +139,6 @@
     </footer>
   </div>
 
-  <script type="module" src="js/main.js?v=v3.1"></script>
+  <script type="module" src="js/main.js?v=v3.2"></script>
 </body>
 </html>

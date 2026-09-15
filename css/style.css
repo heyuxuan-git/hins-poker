@@ -159,6 +159,14 @@ button:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 
+.room-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline dotted rgba(212, 175, 55, 0.5);
+}
+
 .btn-ghost {
   padding: 8px 14px;
   border-radius: 999px;
@@ -283,6 +291,35 @@ button:focus-visible {
   margin-top: 10px;
   font-size: 13px;
   color: #ff8f8f;
+}
+
+.lobby-invite {
+  margin-top: 14px;
+  text-align: left;
+}
+
+.lobby-invite-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.lobby-invite textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: rgba(7, 11, 16, 0.9);
+  color: var(--gold-hi);
+  padding: 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  resize: none;
+  margin-bottom: 8px;
+}
+
+.lobby-invite .btn-ghost {
+  width: 100%;
+  min-height: 40px;
 }
 
 .app[hidden],

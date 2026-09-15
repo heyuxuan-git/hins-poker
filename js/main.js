@@ -434,6 +434,7 @@ function setRoomBadge(code) {
   }
   badge.hidden = false;
   el.textContent = code;
+  el.title = `复制邀请链接（${currentWsUrl()}）`;
 }
 
 function doAction(action) {
@@ -443,6 +444,24 @@ function doAction(action) {
   }
   game.actHero(action);
 }
+
+document.getElementById('room-code').addEventListener('click', async () => {
+  if (!roomCode) return;
+  const url = buildInviteUrl(roomCode);
+  try {
+    await navigator.clipboard.writeText(url);
+    const el = document.getElementById('brand-sub');
+    if (el) {
+      const prev = el.textContent;
+      el.textContent = '邀请链接已复制';
+      setTimeout(() => {
+        el.textContent = prev;
+      }, 1600);
+    }
+  } catch {
+    window.prompt('复制这条邀请链接发给朋友：', url);
+  }
+});
 
 function doStart() {
   if (mode === 'guest') return; // only host starts
@@ -550,13 +569,35 @@ document.addEventListener('keydown', (e) => {
 /* ===== Lobby ===== */
 const lobbyName = document.getElementById('lobby-name');
 const lobbyCodeInput = document.getElementById('lobby-code');
+const lobbyWs = document.getElementById('lobby-ws');
 const joinCodeField = document.getElementById('join-code-field');
 const lobbyError = document.getElementById('lobby-error');
 const lobbyHint = document.getElementById('lobby-hint');
+const lobbyInvite = document.getElementById('lobby-invite');
+const inviteLinkEl = document.getElementById('invite-link');
 const btnLeave = document.getElementById('btn-leave');
 
 function lobbyNameVal() {
   return (lobbyName.value || '').trim().slice(0, 12) || null;
+}
+
+function currentWsUrl() {
+  const raw = (lobbyWs.value || '').trim() || defaultWsUrl();
+  // Allow pasting http(s) and convert to ws(s)
+  let u = raw.replace(/^https:/i, 'wss:').replace(/^http:/i, 'ws:');
+  // Deno deploy entry is /ws — append if user pasted bare host
+  if (!/\/ws$/i.test(u) && !/localhost|127\.0\.0\.1/.test(u) && /^wss?:\/\/[^/]+$/i.test(u)) {
+    u = `${u}/ws`;
+  }
+  return u;
+}
+
+function saveWsUrl(u) {
+  try {
+    localStorage.setItem('hins_poker_ws', u);
+  } catch {
+    /* ignore */
+  }
 }
 
 function showLobbyError(msg) {
@@ -569,16 +610,58 @@ function showLobbyError(msg) {
   lobbyError.textContent = msg;
 }
 
+function buildInviteUrl(code) {
+  const origin = location.origin + location.pathname;
+  return `${origin}?ws=${encodeURIComponent(currentWsUrl())}#room=${code}`;
+}
+
+function showInvite(code) {
+  const url = buildInviteUrl(code);
+  lobbyInvite.hidden = false;
+  inviteLinkEl.value = url;
+  lobbyHint.textContent = `房间 ${code}。请把下面整条链接发给朋友（含服务器地址）。`;
+}
+
+document.getElementById('btn-copy-invite').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(inviteLinkEl.value);
+    lobbyHint.textContent = '邀请链接已复制';
+  } catch {
+    inviteLinkEl.select();
+    lobbyHint.textContent = '请手动全选复制';
+  }
+});
+
+// Prefill WS + join code from URL
+(() => {
+  const q = new URLSearchParams(location.search).get('ws');
+  let saved = null;
+  try {
+    saved = localStorage.getItem('hins_poker_ws');
+  } catch {
+    /* ignore */
+  }
+  lobbyWs.value = q || saved || defaultWsUrl();
+  const hash = location.hash || '';
+  const m = hash.match(/room=([A-Z0-9]{4,8})/i);
+  if (m) {
+    joinCodeField.hidden = false;
+    lobbyCodeInput.value = m[1].toUpperCase();
+  }
+})();
+
 document.getElementById('btn-solo').addEventListener('click', () => enterSolo());
 
 document.getElementById('btn-create').addEventListener('click', async () => {
   showLobbyError('');
+  const url = currentWsUrl();
+  saveWsUrl(url);
   try {
     net = new NetClient({
       onMessage: handleNetMessage,
       onStatus: () => {},
     });
-    await net.connect(defaultWsUrl());
+    await net.connect(url);
     mode = 'host';
     net.create(lobbyNameVal() || '房主');
   } catch (err) {
@@ -599,12 +682,14 @@ document.getElementById('btn-join').addEventListener('click', async () => {
     showLobbyError('请输入房间码');
     return;
   }
+  const url = currentWsUrl();
+  saveWsUrl(url);
   try {
     net = new NetClient({
       onMessage: handleNetMessage,
       onStatus: () => {},
     });
-    await net.connect(defaultWsUrl());
+    await net.connect(url);
     mode = 'guest';
     net.join(code, lobbyNameVal() || '玩家');
   } catch (err) {
@@ -627,7 +712,7 @@ function handleNetMessage(msg) {
     mySeat = msg.seat;
     mode = 'host';
     setRoomBadge(roomCode);
-    lobbyHint.textContent = `把房间码 ${roomCode} 发给朋友。空位自动补 AI。`;
+    showInvite(roomCode);
     document.getElementById('brand-sub').textContent = `联机 · 房间 ${roomCode}`;
     applySeatPlan(msg.roster);
     showGame();
