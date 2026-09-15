@@ -1,6 +1,7 @@
 import { createDeck, shuffle } from './deck.js';
 import { evaluateHand, compareEval } from './evaluator.js';
 import { decideAiAction } from './ai.js';
+import { playCheck, playChips, playAllIn } from './audio.js';
 
 const STARTING_STACK = 2000;
 const SMALL_BLIND = 10;
@@ -328,6 +329,7 @@ export class PokerGame {
       player.acted = true;
       player.lastAction = '过牌';
       this.lastAction = { player: player.name, type: 'check' };
+      playCheck();
       return;
     }
 
@@ -342,6 +344,8 @@ export class PokerGame {
       player.acted = true;
       player.lastAction = pay === 0 ? '过牌' : `跟注 ${pay}`;
       this.lastAction = { player: player.name, type: 'call', amount: pay };
+      if (pay === 0) playCheck();
+      else playChips(0.7);
       return;
     }
 
@@ -385,6 +389,8 @@ export class PokerGame {
       player.acted = true;
       player.lastAction = player.allIn ? `全下 ${target}` : `加注到 ${target}`;
       this.lastAction = { player: player.name, type: 'raise', amount: target };
+      if (player.allIn) playAllIn();
+      else playChips(1.2);
       return;
     }
   }

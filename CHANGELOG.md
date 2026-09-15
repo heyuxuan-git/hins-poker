@@ -2,6 +2,18 @@
 
 All notable changes to **hin's poker**.
 
+## v2.3 — 2026-09-15
+
+### Added
+- Sound effects: table knock on check, chip collision on bet/call/raise/all-in
+- Hole cards always closer to table center than the avatar
+
+### Fixed
+- Phone portrait seat order is now true clockwise (SB/BB no longer jump across the table)
+
+### Changed
+- Even taller phone portrait racetrack; upper-left seat clears the dealer well
+
 ## v2.2 — 2026-09-15
 
 ### Added

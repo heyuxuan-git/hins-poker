@@ -821,10 +821,74 @@ button:focus-visible {
   height: clamp(52px, 7.6vw, 68px);
 }
 
-.seat.left .seat-body,
-.seat.right .seat-body {
+/* Cards sit toward table center; avatar stays on the rail edge */
+.seat.top-left,
+.seat.top-right {
+  flex-direction: column;
+}
+
+.seat.top-left .seat-body,
+.seat.top-right .seat-body {
+  order: 1;
+}
+
+.seat.top-left .seat-cards,
+.seat.top-right .seat-cards {
+  order: 2;
+  margin-top: 4px;
+}
+
+.seat.bottom-left,
+.seat.bottom-right {
+  flex-direction: column;
+}
+
+.seat.bottom-left .seat-cards,
+.seat.bottom-right .seat-cards {
+  order: 1;
+}
+
+.seat.bottom-left .seat-body,
+.seat.bottom-right .seat-body {
+  order: 2;
+}
+
+.seat.left {
   flex-direction: row;
+  align-items: center;
   gap: 6px;
+}
+
+.seat.left .seat-body {
+  order: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.seat.left .seat-cards {
+  order: 2;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 0;
+}
+
+.seat.right {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.seat.right .seat-cards {
+  order: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 0;
+}
+
+.seat.right .seat-body {
+  order: 2;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .seat.left .plate,
@@ -1148,10 +1212,10 @@ button:focus-visible {
   }
 
   .table-wrap {
-    /* Longer vertical track / longer straight sides */
-    aspect-ratio: 10 / 24;
-    max-height: min(68vh, 760px);
-    width: min(100%, 360px);
+    /* Even longer vertical track / longer straight sides */
+    aspect-ratio: 10 / 26;
+    max-height: min(72vh, 820px);
+    width: min(100%, 350px);
     margin-top: 2px;
   }
 
@@ -1205,8 +1269,12 @@ button:focus-visible {
     gap: 2px;
   }
 
-  .seat.top-right {
-    /* top center — pulled up */
+  /*
+    Clockwise from hero must match game seat order:
+    0 bottom → 1 bottom-left → 2 left → 3 top-left → 4 top-right → 5 right
+  */
+  .seat.top-left {
+    /* player 3 — top center */
     left: 50%;
     right: auto;
     top: -1%;
@@ -1223,33 +1291,33 @@ button:focus-visible {
   }
 
   .seat.left {
-    /* left upper — higher, above dealer */
+    /* player 2 — left upper, lifted so it clears the dealer well */
     left: 0;
-    top: 15%;
+    top: 12%;
     transform: none;
   }
 
   .seat.bottom-left {
-    /* left lower — below dealer */
+    /* player 1 — left lower */
     left: 0;
     right: auto;
     bottom: auto;
-    top: 66%;
+    top: 68%;
+    transform: none;
+  }
+
+  .seat.top-right {
+    /* player 4 — right upper */
+    left: auto;
+    right: 0;
+    top: 12%;
     transform: none;
   }
 
   .seat.right {
-    /* right upper — higher */
+    /* player 5 — right lower */
     right: 0;
-    top: 15%;
-    transform: none;
-  }
-
-  .seat.top-left {
-    /* right lower */
-    left: auto;
-    right: 0;
-    top: 66%;
+    top: 68%;
     transform: none;
   }
 
@@ -1270,8 +1338,14 @@ button:focus-visible {
 
   .seat.left .seat-body,
   .seat.right .seat-body,
-  .seat.top-left .seat-body {
+  .seat.top-left .seat-body,
+  .seat.top-right .seat-body {
     flex-direction: column;
+  }
+
+  .seat.left .seat-cards,
+  .seat.right .seat-cards {
+    flex-direction: row;
   }
 
   .win-panel {
