@@ -37,17 +37,17 @@ function cardKey(card) {
   return card.id || `${card.rank}${card.suit}`;
 }
 
-function buildCardEl(card) {
+function buildCardEl(card, { board = false } = {}) {
   if (!card) return null;
   if (card.hidden) {
     const el = document.createElement('div');
-    el.className = 'pcard back';
+    el.className = 'pcard back deal-in';
     el.setAttribute('aria-label', '暗牌');
     return el;
   }
   const d = cardDisplay(card);
   const el = document.createElement('div');
-  el.className = `pcard${d.isRed ? ' red' : ''}`;
+  el.className = `pcard ${board ? 'board-in' : 'deal-in'}${d.isRed ? ' red' : ''}`;
   el.setAttribute('aria-label', `${d.rank}${d.suit}`);
   el.innerHTML = `
     <div class="corner"><span>${d.rank}</span></div>
@@ -174,7 +174,7 @@ function renderBoard(community) {
     const existing = boardCache[i];
     if (!existing || existing.key === key) continue;
 
-    const node = card ? buildCardEl(card) : document.createElement('div');
+    const node = card ? buildCardEl(card, { board: true }) : document.createElement('div');
     if (!card) node.className = 'card-slot';
     if (existing.node.parentNode === boardEl) {
       boardEl.replaceChild(node, existing.node);

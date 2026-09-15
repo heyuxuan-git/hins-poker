@@ -176,16 +176,18 @@ export class PokerGame {
     this.currentBet = Math.max(SMALL_BLIND, BIG_BLIND, this.players[sbIndex].bet, this.players[bbIndex].bet);
     this.minRaise = BIG_BLIND;
 
-    // Deal 2 cards to each seated player exactly once
+    // Deal 2 cards to each seated player — one at a time for animation
     for (let round = 0; round < 2; round++) {
       for (const seat of seated) {
         this.players[seat].cards.push(this.deck.pop());
+        this.emit();
+        await this.sleep(95);
       }
     }
 
     this.message = `第 ${this.handNumber} 局 · ${this.players[sbIndex].name} 小盲 ${SMALL_BLIND} / ${this.players[bbIndex].name} 大盲 ${BIG_BLIND}`;
     this.emit();
-    await this.sleep(600);
+    await this.sleep(450);
 
     // Preflop action starts after BB
     this.currentPlayer = this.nextOccupied(bbIndex);
@@ -424,22 +426,31 @@ export class PokerGame {
 
     if (this.phase === 'preflop') {
       this.phase = 'flop';
-      this.community.push(this.deck.pop(), this.deck.pop(), this.deck.pop());
       this.message = `翻牌 · 底池 ${this.pot}`;
       this.emit();
-      await this.sleep(700);
+      await this.sleep(280);
+      for (let i = 0; i < 3; i++) {
+        this.community.push(this.deck.pop());
+        this.emit();
+        await this.sleep(200);
+      }
+      await this.sleep(350);
     } else if (this.phase === 'flop') {
       this.phase = 'turn';
-      this.community.push(this.deck.pop());
       this.message = `转牌 · 底池 ${this.pot}`;
       this.emit();
-      await this.sleep(700);
+      await this.sleep(280);
+      this.community.push(this.deck.pop());
+      this.emit();
+      await this.sleep(450);
     } else if (this.phase === 'turn') {
       this.phase = 'river';
-      this.community.push(this.deck.pop());
       this.message = `河牌 · 底池 ${this.pot}`;
       this.emit();
-      await this.sleep(700);
+      await this.sleep(280);
+      this.community.push(this.deck.pop());
+      this.emit();
+      await this.sleep(450);
     } else if (this.phase === 'river') {
       await this.showdown();
       return;
