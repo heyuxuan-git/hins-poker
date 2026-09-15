@@ -62,28 +62,43 @@ function ensureSeatScaffold(el) {
 
   el.innerHTML = `
     <div class="seat-cards"></div>
-    <div class="player-chip">
-      <div class="player-name">
+    <div class="seat-body">
+      <div class="avatar-wrap">
+        <div class="avatar-glow"></div>
+        <img class="avatar" alt="" width="72" height="72" draggable="false" />
         <span class="dealer-btn" title="庄家" hidden>D</span>
-        <span class="player-name-text"></span>
       </div>
-      <div class="player-stack"></div>
-      <div class="player-bet"></div>
-      <div class="player-action"></div>
-      <div class="hand-tag"></div>
+      <div class="plate">
+        <div class="player-name">
+          <span class="player-name-text"></span>
+        </div>
+        <div class="player-stack"></div>
+        <div class="bet-row" hidden>
+          <span class="chip-stack" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <span class="player-bet"></span>
+        </div>
+        <div class="player-action"></div>
+        <div class="hand-tag"></div>
+      </div>
     </div>
   `;
 
   cache = {
     cards: el.querySelector('.seat-cards'),
+    avatar: el.querySelector('.avatar'),
     name: el.querySelector('.player-name-text'),
     dealer: el.querySelector('.dealer-btn'),
     stack: el.querySelector('.player-stack'),
+    betRow: el.querySelector('.bet-row'),
     bet: el.querySelector('.player-bet'),
+    chipStack: el.querySelector('.chip-stack'),
     action: el.querySelector('.player-action'),
     hand: el.querySelector('.hand-tag'),
     cardEls: [],
     cardKeys: [],
+    avatarKey: '',
   };
   seatCache.set(el, cache);
   return cache;
@@ -118,10 +133,17 @@ function renderSeat(el, player, state) {
   if (player.isCurrent) classes.push('current');
   if (isWinner) classes.push('winner');
   if (player.isThinking) classes.push('thinking');
+  if (player.isHero) classes.push('is-hero');
   const nextClass = classes.join(' ');
   if (el.className !== nextClass) el.className = nextClass;
 
   syncCards(cache.cards, cache, player.cards);
+
+  const avatarKey = player.avatar || 'hero';
+  if (cache.avatarKey !== avatarKey) {
+    cache.avatarKey = avatarKey;
+    cache.avatar.src = `assets/avatar-${avatarKey}.png`;
+  }
 
   if (cache.name.textContent !== player.name) cache.name.textContent = player.name;
   if (cache.dealer.hidden === !!player.isButton) cache.dealer.hidden = !player.isButton;
@@ -129,8 +151,14 @@ function renderSeat(el, player, state) {
   const stackText = formatChips(player.stack);
   if (cache.stack.textContent !== stackText) cache.stack.textContent = stackText;
 
-  const betText = player.bet > 0 ? `下注 ${formatChips(player.bet)}` : '';
-  if (cache.bet.textContent !== betText) cache.bet.textContent = betText;
+  const hasBet = player.bet > 0;
+  if (cache.betRow.hidden === hasBet) cache.betRow.hidden = !hasBet;
+  if (hasBet) {
+    const betText = formatChips(player.bet);
+    if (cache.bet.textContent !== betText) cache.bet.textContent = betText;
+    const chips = Math.min(4, Math.max(1, Math.ceil(player.bet / 50)));
+    cache.chipStack.dataset.tier = String(chips);
+  }
 
   const actionText = player.lastAction || '';
   if (cache.action.textContent !== actionText) cache.action.textContent = actionText;

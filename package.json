@@ -1,9 +1,9 @@
 {
   "name": "hins-poker",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "hin's poker — Texas Hold'em browser game (v1.0)",
+  "description": "hin's poker v2.0 — Texas Hold'em browser game",
   "scripts": {
     "test": "node js/evaluator.test.mjs",
     "start": "python3 -m http.server 5173"

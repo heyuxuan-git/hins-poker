@@ -14,12 +14,12 @@ export class PokerGame {
   constructor(onUpdate) {
     this.onUpdate = onUpdate || (() => {});
     this.players = [
-      { id: 0, name: '你', stack: STARTING_STACK, isHero: true, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'bottom-right' },
-      { id: 1, name: '陈哥', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'bottom-left', personality: 'tight' },
-      { id: 2, name: '小美', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'left', personality: 'maniac' },
-      { id: 3, name: '老周', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'top-left', personality: 'balanced' },
-      { id: 4, name: '林姐', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'top-right', personality: 'tight' },
-      { id: 5, name: '阿凯', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'right', personality: 'aggressive' },
+      { id: 0, name: '你', stack: STARTING_STACK, isHero: true, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'bottom-right', avatar: 'hero' },
+      { id: 1, name: '陈哥', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'bottom-left', personality: 'tight', avatar: 'chen' },
+      { id: 2, name: '小美', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'left', personality: 'maniac', avatar: 'mei' },
+      { id: 3, name: '老周', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'top-left', personality: 'balanced', avatar: 'zhou' },
+      { id: 4, name: '林姐', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'top-right', personality: 'tight', avatar: 'lin' },
+      { id: 5, name: '阿凯', stack: STARTING_STACK, isHero: false, cards: [], bet: 0, totalBet: 0, folded: false, allIn: false, acted: false, seat: 'right', personality: 'aggressive', avatar: 'kai' },
     ];
     this.handNumber = 0;
     this.button = 0;
@@ -87,6 +87,7 @@ export class PokerGame {
         isCurrent: p.id === this.currentPlayer,
         isThinking: !!p.isThinking,
         seat: p.seat,
+        avatar: p.avatar || null,
         lastAction: p.lastAction || null,
         handName: p.handName || null,
       })),

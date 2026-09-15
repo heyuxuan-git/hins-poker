@@ -202,18 +202,37 @@ button:focus-visible {
   position: absolute;
   inset: 0;
   border-radius: 999px;
-  padding: clamp(14px, 2.2vw, 22px);
+  padding: clamp(22px, 3.6vw, 36px);
   background:
-    linear-gradient(180deg, #4a3426 0%, #2c1e14 28%, #1a120c 62%, #3a281c 100%);
+    linear-gradient(180deg, #5a4030 0%, #3a281c 18%, #1f1610 52%, #2e2016 78%, #4a3426 100%);
   box-shadow:
-    inset 0 2px 0 rgba(255, 220, 170, 0.12),
-    inset 0 -4px 10px rgba(0, 0, 0, 0.55),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.35),
-    0 0 0 2px #0a0e14,
-    0 0 0 4px rgba(212, 175, 55, 0.75),
-    0 0 0 6px #0a0e14,
-    0 14px 40px rgba(0, 0, 0, 0.55);
+    inset 0 3px 0 rgba(255, 220, 170, 0.16),
+    inset 0 -6px 14px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 8px rgba(0, 0, 0, 0.12),
+    0 0 0 3px #0a0e14,
+    0 0 0 5px rgba(212, 175, 55, 0.85),
+    0 0 0 7px #0a0e14,
+    0 18px 50px rgba(0, 0, 0, 0.6);
   z-index: 1;
+}
+
+.table-rail::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 210, 150, 0.08);
+  pointer-events: none;
+}
+
+.table-rail::after {
+  content: "";
+  position: absolute;
+  inset: clamp(22px, 3.6vw, 36px);
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.22);
+  pointer-events: none;
 }
 
 .table {
@@ -469,178 +488,293 @@ button:focus-visible {
   flex-shrink: 0;
 }
 
-/* ===== Seats ===== */
+/* ===== Seats — character avatars + chip stacks ===== */
 .seat {
   position: absolute;
-  width: clamp(108px, 16vw, 148px);
+  width: clamp(112px, 15vw, 156px);
   z-index: 6;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
   transition: filter 0.2s, opacity 0.2s;
+  pointer-events: none;
 }
 
 .seat.folded {
-  opacity: 0.42;
-  filter: grayscale(0.4);
+  opacity: 0.4;
+  filter: grayscale(0.55) brightness(0.85);
 }
 
-/* 6-max racetrack — even spacing along the track.
-   Hero (你) sits bottom-right, directly under 林姐 (top-right). */
+/* 6-max racetrack — even spacing; hero under 林姐 */
 .seat.top-left {
   left: 20%;
-  top: 0;
+  top: -2%;
   z-index: 7;
 }
 
 .seat.top-right {
   right: 20%;
-  top: 0;
+  top: -2%;
   z-index: 7;
 }
 
 .seat.left {
-  left: 1.5%;
-  top: 50%;
+  left: 0%;
+  top: 48%;
   transform: translateY(-50%);
   z-index: 7;
 }
 
 .seat.right {
-  right: 1.5%;
-  top: 50%;
+  right: 0%;
+  top: 48%;
   transform: translateY(-50%);
   z-index: 7;
 }
 
 .seat.bottom-left {
   left: 20%;
-  bottom: -6px;
+  bottom: -4%;
   z-index: 7;
 }
 
 .seat.bottom-right {
   right: 20%;
-  bottom: -6px;
+  bottom: -4%;
   z-index: 8;
 }
 
-.seat.bottom-right .player-chip {
-  border-color: rgba(212, 175, 55, 0.4);
-}
-
-.seat.thinking .player-chip {
-  border-color: rgba(140, 200, 255, 0.65);
-  box-shadow:
-    0 0 0 1px rgba(140, 200, 255, 0.35),
-    0 0 18px rgba(100, 170, 255, 0.25);
-}
-
-.seat.thinking .player-action {
-  color: #9ec9ff;
-}
-
-.seat-cards {
+.seat-body {
   display: flex;
-  gap: 5px;
-  min-height: clamp(40px, 6vw, 56px);
-  margin-bottom: 2px;
-}
-
-.seat-cards .pcard {
-  width: clamp(34px, 5vw, 46px);
-  height: clamp(50px, 7.4vw, 68px);
-}
-
-.seat.bottom-right .seat-cards .pcard {
-  width: clamp(38px, 5.8vw, 50px);
-  height: clamp(56px, 8.5vw, 72px);
-}
-
-.player-chip {
-  width: 100%;
-  border-radius: 14px;
-  padding: 8px 10px;
-  background: linear-gradient(180deg, rgba(22, 32, 44, 0.96), rgba(10, 14, 20, 0.96));
-  border: 1px solid rgba(212, 175, 55, 0.28);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-  text-align: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
   position: relative;
 }
 
-.seat.current .player-chip {
+.avatar-wrap {
+  position: relative;
+  width: clamp(64px, 8.5vw, 88px);
+  height: clamp(64px, 8.5vw, 88px);
+}
+
+.avatar-glow {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.35) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.avatar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #2a2218;
+  box-shadow:
+    0 0 0 2px rgba(212, 175, 55, 0.55),
+    0 8px 18px rgba(0, 0, 0, 0.45);
+  background: #121820;
+  display: block;
+}
+
+.seat.is-hero .avatar {
+  border-color: #3a3020;
+  box-shadow:
+    0 0 0 3px rgba(240, 215, 140, 0.75),
+    0 10px 22px rgba(0, 0, 0, 0.5);
+}
+
+.seat.current .avatar-glow,
+.seat.thinking .avatar-glow {
+  opacity: 1;
+}
+
+.seat.current .avatar {
   border-color: var(--gold);
   box-shadow:
-    0 0 0 1px rgba(212, 175, 55, 0.5),
-    0 0 22px rgba(212, 175, 55, 0.35),
-    0 8px 20px rgba(0, 0, 0, 0.4);
+    0 0 0 3px rgba(212, 175, 55, 0.85),
+    0 0 22px rgba(212, 175, 55, 0.45),
+    0 8px 18px rgba(0, 0, 0, 0.45);
 }
 
-.seat.winner .player-chip {
-  border-color: var(--gold-hi);
+.seat.thinking .avatar {
+  border-color: #6aa8ff;
   box-shadow:
-    0 0 0 2px rgba(240, 215, 140, 0.55),
-    0 0 28px rgba(240, 215, 140, 0.45);
-  animation: winPulse 1s ease infinite alternate;
+    0 0 0 3px rgba(100, 160, 255, 0.55),
+    0 0 20px rgba(80, 140, 255, 0.35);
 }
 
-@keyframes winPulse {
-  from { filter: brightness(1); }
-  to { filter: brightness(1.15); }
-}
-
-.player-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--cream);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
+.seat.winner .avatar {
+  animation: winPulse 0.9s ease infinite alternate;
 }
 
 .dealer-btn {
+  position: absolute;
+  right: -4px;
+  top: -2px;
   display: inline-grid;
   place-items: center;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: linear-gradient(180deg, #f5f0e0, #cfc7b0);
   color: #1a1405;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+  z-index: 2;
 }
 
 .dealer-btn[hidden] {
   display: none !important;
 }
 
+.plate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 4px 10px 5px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(18, 26, 36, 0.92), rgba(8, 12, 18, 0.95));
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+  min-width: 88%;
+  max-width: 100%;
+}
+
+.seat.current .plate {
+  border-color: rgba(212, 175, 55, 0.7);
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.25),
+    0 0 16px rgba(212, 175, 55, 0.25);
+}
+
+.player-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  line-height: 1.2;
+}
+
 .player-stack {
   font-family: var(--font-display);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--gold-hi);
   font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.bet-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 2px;
+  min-height: 18px;
+}
+
+.bet-row[hidden] {
+  display: none !important;
 }
 
 .player-bet {
-  margin-top: 2px;
   font-size: 12px;
   color: #ffe9a8;
-  min-height: 16px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
 }
 
+/* Stacked casino chips next to bet amount */
+.chip-stack {
+  position: relative;
+  width: 22px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.chip-stack i {
+  position: absolute;
+  left: 50%;
+  width: 20px;
+  height: 8px;
+  margin-left: -10px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 35%, #f0d78c, #c9a227 45%, #7a6420 100%);
+  border: 1px solid #5a4a18;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  display: none;
+}
+
+.chip-stack[data-tier="1"] i:nth-child(1),
+.chip-stack[data-tier="2"] i:nth-child(-n+2),
+.chip-stack[data-tier="3"] i:nth-child(-n+3),
+.chip-stack[data-tier="4"] i {
+  display: block;
+}
+
+.chip-stack i:nth-child(1) { bottom: 0; }
+.chip-stack i:nth-child(2) { bottom: 4px; }
+.chip-stack i:nth-child(3) { bottom: 8px; }
+.chip-stack i:nth-child(4) { bottom: 12px; }
+
 .player-action {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
-  min-height: 14px;
+  min-height: 12px;
+  line-height: 1.2;
 }
 
 .hand-tag {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--gold-hi);
-  min-height: 14px;
+  min-height: 12px;
+  line-height: 1.2;
+}
+
+.seat-cards {
+  display: flex;
+  gap: 4px;
+  min-height: clamp(36px, 5vw, 50px);
+  margin-bottom: 0;
+}
+
+.seat-cards .pcard {
+  width: clamp(30px, 4.2vw, 40px);
+  height: clamp(44px, 6.2vw, 58px);
+}
+
+.seat.bottom-right .seat-cards .pcard {
+  width: clamp(36px, 5.2vw, 48px);
+  height: clamp(52px, 7.6vw, 68px);
+}
+
+.seat.left .seat-body,
+.seat.right .seat-body {
+  flex-direction: row;
+  gap: 6px;
+}
+
+.seat.left .plate,
+.seat.right .plate {
+  min-width: 0;
+  padding: 4px 8px;
+}
+
+@keyframes winPulse {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.2); }
 }
 
 /* ===== Message ===== */
@@ -868,14 +1002,14 @@ button:focus-visible {
   }
 
   .table-rail {
-    padding: 12px;
+    padding: 18px;
     box-shadow:
-      inset 0 2px 0 rgba(255, 220, 170, 0.1),
-      inset 0 -3px 8px rgba(0, 0, 0, 0.5),
+      inset 0 2px 0 rgba(255, 220, 170, 0.12),
+      inset 0 -4px 10px rgba(0, 0, 0, 0.55),
       0 0 0 2px #0a0e14,
-      0 0 0 3px rgba(212, 175, 55, 0.7),
+      0 0 0 3px rgba(212, 175, 55, 0.75),
       0 0 0 5px #0a0e14,
-      0 10px 28px rgba(0, 0, 0, 0.5);
+      0 12px 32px rgba(0, 0, 0, 0.5);
   }
 
   .table {
