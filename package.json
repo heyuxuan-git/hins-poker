@@ -1,9 +1,9 @@
 {
-  "name": "sohoo-poker",
+  "name": "hins-poker",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Sohoo-style Texas Hold'em browser game",
+  "description": "hin's poker — Texas Hold'em browser game (v1.0)",
   "scripts": {
     "test": "node js/evaluator.test.mjs",
     "start": "python3 -m http.server 5173"

@@ -1,4 +1,4 @@
-/* Sohoo Poker — deep felt, gold VIP chrome */
+/* hin's poker — deep felt, gold VIP chrome */
 
 :root {
   --felt: #0b5c3a;
@@ -108,6 +108,20 @@ button:focus-visible {
   letter-spacing: 0.04em;
   color: var(--gold-hi);
   white-space: nowrap;
+}
+
+.brand-ver {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #1a1405;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  vertical-align: middle;
 }
 
 .brand-sub {
@@ -231,7 +245,7 @@ button:focus-visible {
 }
 
 .table::after {
-  content: "SOHOO POKER";
+  content: "HIN'S POKER";
   position: absolute;
   left: 50%;
   top: 48%;
