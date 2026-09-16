@@ -85,6 +85,7 @@ function ensureSeatScaffold(el) {
       <div class="avatar-wrap">
         <div class="avatar-glow"></div>
         <img class="avatar" alt="" width="72" height="72" draggable="false" />
+        <span class="online-dot" title="在线" hidden></span>
         <span class="dealer-btn" title="庄家" hidden>D</span>
       </div>
       <div class="plate">
@@ -107,6 +108,7 @@ function ensureSeatScaffold(el) {
   cache = {
     cards: el.querySelector('.seat-cards'),
     avatar: el.querySelector('.avatar'),
+    onlineDot: el.querySelector('.online-dot'),
     name: el.querySelector('.player-name-text'),
     dealer: el.querySelector('.dealer-btn'),
     stack: el.querySelector('.player-stack'),
@@ -153,6 +155,14 @@ function renderSeat(el, player, state) {
   if (isWinner) classes.push('winner');
   if (player.isThinking) classes.push('thinking');
   if (player.isHero) classes.push('is-hero');
+  // Offline = human seat not in live roster (solo / AI always online)
+  let online = true;
+  if (mode === 'host' || mode === 'guest') {
+    if (!player.isAI) {
+      online = !net?.roster?.length || net.roster.some((r) => r.seat === player.id);
+    }
+  }
+  if (!online) classes.push('offline');
   const nextClass = classes.join(' ');
   if (el.className !== nextClass) el.className = nextClass;
 
@@ -162,6 +172,11 @@ function renderSeat(el, player, state) {
   if (cache.avatarKey !== avatarKey) {
     cache.avatarKey = avatarKey;
     cache.avatar.src = `assets/avatar-${avatarKey}.png`;
+  }
+
+  if (cache.onlineDot) {
+    const showDot = (mode === 'host' || mode === 'guest') && !player.isAI && online;
+    if (cache.onlineDot.hidden === showDot) cache.onlineDot.hidden = !showDot;
   }
 
   if (cache.name.textContent !== player.name) cache.name.textContent = player.name;
@@ -290,6 +305,7 @@ function renderActions(state) {
   fold.type = 'button';
   fold.className = 'action-btn btn-fold';
   fold.textContent = '弃牌';
+  fold.setAttribute('aria-label', '弃牌');
   fold.addEventListener('click', () => doAction({ type: 'fold' }));
   actionsEl.appendChild(fold);
 
@@ -298,11 +314,13 @@ function renderActions(state) {
   if (canCheck) {
     checkCall.className = 'action-btn btn-check';
     checkCall.textContent = '过牌';
+    checkCall.setAttribute('aria-label', '过牌');
     checkCall.addEventListener('click', () => doAction({ type: 'check' }));
   } else {
     checkCall.className = 'action-btn btn-call';
     const pay = Math.min(toCall, hero.stack);
     checkCall.textContent = `跟注 ${formatBb(pay, bb)}`;
+    checkCall.setAttribute('aria-label', `跟注 ${formatBb(pay, bb)}`);
     checkCall.addEventListener('click', () => doAction({ type: 'call' }));
     if (hero.stack <= 0) checkCall.disabled = true;
   }
@@ -992,9 +1010,14 @@ function handleNetMessage(msg) {
 
   if (msg.type === 'disconnected' || msg.type === 'room_closed') {
     setBusy(false);
-    showLobbyError('连接已断开');
+    const reason =
+      msg.type === 'room_closed'
+        ? '房主已离开或房间已解散，请重新创建/加入'
+        : '联机连接已断开';
+    showLobbyError(reason);
     net = null;
     mode = 'solo';
+    roomCode = null;
     showLobby();
   }
 }

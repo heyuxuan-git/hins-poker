@@ -1,11 +1,11 @@
 {
   "name": "hins-poker",
-  "version": "3.5.0",
+  "version": "4.0.0",
   "private": true,
   "type": "module",
-  "description": "hin's poker — Texas Hold'em with online rooms",
+  "description": "hin's poker v4.0 — Texas Hold'em with online rooms",
   "scripts": {
-    "test": "node js/evaluator.test.mjs && node js/deal-bust.test.mjs",
+    "test": "node js/evaluator.test.mjs && node js/deal-bust.test.mjs && node js/rebuy.test.mjs",
     "start": "python3 -m http.server 5173",
     "server": "node server/index.js"
   },

@@ -2,17 +2,32 @@
 
 All notable changes to **hin's poker**.
 
-## v2.3 — 2026-09-15
+## v4.0 — 2026-09-16
 
 ### Added
-- Sound effects: table knock on check, chip collision on bet/call/raise/all-in
-- Hole cards always closer to table center than the avatar
-
-### Fixed
-- Phone portrait seat order is now true clockwise (SB/BB no longer jump across the table)
+- Online status dots on human seats in multiplayer
+- Host-leave / room-closed message returns guests to lobby
+- Rebuy (补码) when busted between hands
+- Mute toggle for all table SFX
+- Rebuy tests (`rebuy.test.mjs`)
 
 ### Changed
-- Even taller phone portrait racetrack; upper-left seat clears the dealer well
+- Victory banner / best-five panel more polished
+- Desktop side-seat spacing slightly widened
+- Lobby hides machine-local WS on public pages; advanced server field collapsed
+- Action buttons expose aria-labels
+
+## v3.5 — 2026-09-16
+
+### Added
+- Mute toggle, rebuy, disconnect auto-fold, safer lobby WS defaults
+
+## v3.4 — 2026-09-15
+
+### Added
+- 30s action timer (auto check/fold)
+- Quick raise presets (½ pot, ⅔ pot, pot, +3bb, +4bb)
+- Chip amounts displayed as xbb (including blinds)
 
 ## v2.2 — 2026-09-15
 
