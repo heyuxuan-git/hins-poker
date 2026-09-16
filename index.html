@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#070b10" />
   <meta name="description" content="hin's poker — 跑道台面德州扑克小游戏，与五位 AI 同桌对战" />
-  <title>hin's poker · 德州扑克 v4.0</title>
+  <title>hin's poker · 德州扑克 v4.1</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
-  <link rel="stylesheet" href="css/style.css?v=v4.0" />
+  <link rel="stylesheet" href="css/style.css?v=v4.1" />
 </head>
 <body>
   <!-- Lobby -->
@@ -28,6 +28,10 @@
           <span>昵称</span>
           <input type="text" id="lobby-name" maxlength="12" placeholder="你的名字" autocomplete="nickname" />
         </label>
+        <div class="lobby-field">
+          <span>头像</span>
+          <div class="avatar-picker" id="avatar-picker" role="listbox" aria-label="选择头像"></div>
+        </div>
         <label class="lobby-field">
           <span>房间码（加入时填写，可粘贴邀请链接）</span>
           <input type="text" id="lobby-code" maxlength="200" placeholder="6 位房间码 / 邀请链接" autocomplete="off" spellcheck="false" />
@@ -61,7 +65,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">H</div>
         <div class="brand-text">
-          <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v4.0</span></div>
+          <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v4.1</span></div>
           <div class="brand-sub" id="brand-sub">No-Limit Hold'em</div>
         </div>
       </div>
@@ -152,6 +156,6 @@
     </footer>
   </div>
 
-  <script type="module" src="js/main.js?v=v4.0"></script>
+  <script type="module" src="js/main.js?v=v4.1"></script>
 </body>
 </html>

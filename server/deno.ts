@@ -7,6 +7,7 @@ type Member = {
   name: string;
   seat: number;
   isHost: boolean;
+  avatar?: string | null;
   socket: WebSocket;
 };
 
@@ -46,6 +47,7 @@ function roster(room: Room) {
     name: m.name,
     seat: m.seat,
     isHost: m.isHost,
+    avatar: m.avatar || null,
   }));
 }
 
@@ -76,7 +78,7 @@ function handle(ws: WebSocket) {
       let code = roomCode();
       while (rooms.has(code)) code = roomCode();
       const room: Room = { host: ws, members: new Map() };
-      room.members.set(ws, { name: msg.name || '房主', seat: 0, isHost: true, socket: ws });
+      room.members.set(ws, { name: msg.name || '房主', seat: 0, isHost: true, avatar: msg.avatar || null, socket: ws });
       rooms.set(code, room);
       send(ws, {
         type: 'created',
@@ -107,6 +109,7 @@ function handle(ws: WebSocket) {
         name: msg.name || `玩家${seat + 1}`,
         seat,
         isHost: false,
+        avatar: msg.avatar || null,
         socket: ws,
       });
       send(ws, {

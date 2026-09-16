@@ -78,12 +78,12 @@ export class NetClient {
     if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(obj));
   }
 
-  create(name) {
-    this.send({ type: 'create', name });
+  create(name, avatar) {
+    this.send({ type: 'create', name, avatar });
   }
 
-  join(code, name) {
-    this.send({ type: 'join', code: String(code || '').toUpperCase(), name });
+  join(code, name, avatar) {
+    this.send({ type: 'join', code: String(code || '').toUpperCase(), name, avatar });
   }
 
   sendAction(action) {
@@ -109,15 +109,14 @@ export class NetClient {
 }
 
 /**
- * Build a 6-seat roster: humans from room + AI fillers.
- * Returns array of 6 player descriptors for PokerGame.
+ * Build a 6-seat roster: humans from room; empty seats stay empty
+ * until startHand fills them with AI.
  */
 export function buildSeatPlan(roster, mySeat) {
   const bySeat = new Map();
   for (const r of roster || []) bySeat.set(r.seat, r);
 
   const seats = [];
-  let aiIdx = 0;
   for (let i = 0; i < 6; i++) {
     const human = bySeat.get(i);
     if (human) {
@@ -126,21 +125,28 @@ export function buildSeatPlan(roster, mySeat) {
         id: i,
         name: human.name || (i === mySeat ? '你' : `玩家${i + 1}`),
         isHero: i === mySeat,
-        avatar: i === mySeat ? 'hero' : AI_AVATARS_POOL[i % AI_AVATARS_POOL.length],
-        seatKey: null,
+        avatar: human.avatar || (i === mySeat ? 'hero' : AI_AVATARS_POOL[i % AI_AVATARS_POOL.length]),
+        empty: false,
       });
     } else {
       seats.push({
-        kind: 'ai',
+        kind: 'empty',
         id: i,
-        name: AI_NAMES[aiIdx % AI_NAMES.length],
+        name: '空位',
         isHero: false,
-        avatar: AI_AVATARS[aiIdx % AI_AVATARS.length],
-        personality: AI_PERSONAS[aiIdx % AI_PERSONAS.length],
-        seatKey: null,
+        avatar: null,
+        empty: true,
       });
-      aiIdx += 1;
     }
   }
   return seats;
 }
+
+export const AVATAR_CHOICES = [
+  { id: 'hero', label: '我' },
+  { id: 'chen', label: '陈哥' },
+  { id: 'mei', label: '小美' },
+  { id: 'zhou', label: '老周' },
+  { id: 'lin', label: '林姐' },
+  { id: 'kai', label: '阿凯' },
+];

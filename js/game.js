@@ -41,26 +41,27 @@ export class PokerGame {
     this.showdownReveal = false;
   }
 
-  /** Rebind seats for multiplayer (humans + AI fillers). */
+  /** Rebind seats for multiplayer (humans + empty; AI filled at startHand). */
   setPlayers(descriptors, heroSeat = 0) {
     const SEAT_KEYS = ['bottom-right', 'bottom-left', 'left', 'top-left', 'top-right', 'right'];
     this.heroSeat = heroSeat;
     this.players = descriptors.map((d, i) => ({
       id: i,
-      name: d.name,
-      stack: STARTING_STACK,
+      name: d.name || '空位',
+      stack: d.empty ? 0 : STARTING_STACK,
       isHero: i === heroSeat,
       isAI: !!d.isAI,
+      isEmpty: !!d.empty,
       cards: [],
       bet: 0,
       totalBet: 0,
-      folded: false,
+      folded: !!d.empty,
       allIn: false,
       acted: false,
       seat: SEAT_KEYS[i] || `seat-${i}`,
       personality: d.personality || null,
-      avatar: d.avatar || 'hero',
-      isHuman: !d.isAI,
+      avatar: d.avatar || null,
+      isHuman: !d.isAI && !d.empty,
     }));
     this.handNumber = 0;
     this.button = 0;
@@ -70,9 +71,35 @@ export class PokerGame {
     this.currentPlayer = null;
     this.winners = [];
     this.showdownReveal = false;
-    this.message = '准备开始新一局';
+    this.message = '等待入座 · 开局时空位会自动补 AI';
     this.actionDeadline = null;
     this._actionTimer = null;
+  }
+
+  /** Replace remaining empty seats with AI before dealing. */
+  fillEmptyWithAi() {
+    const names = ['阿凯', '林姐', '老周', '小美', '陈哥', '小李'];
+    const avatars = ['kai', 'lin', 'zhou', 'mei', 'chen', 'hero'];
+    const personas = ['aggressive', 'tight', 'balanced', 'maniac', 'tight', 'balanced'];
+    let n = 0;
+    for (const p of this.players) {
+      if (!p.isEmpty) continue;
+      const i = n++;
+      p.name = names[i % names.length];
+      p.avatar = avatars[i % avatars.length];
+      p.personality = personas[i % personas.length];
+      p.isAI = true;
+      p.isEmpty = false;
+      p.stack = STARTING_STACK;
+      p.folded = false;
+      p.cards = [];
+      p.bet = 0;
+      p.totalBet = 0;
+      p.allIn = false;
+      p.acted = false;
+      p.lastAction = null;
+      p.handName = null;
+    }
   }
 
   clearActionClock() {
@@ -168,6 +195,7 @@ export class PokerGame {
         isButton: p.id === this.button,
         isCurrent: p.id === this.currentPlayer,
         isThinking: !!p.isThinking,
+        isEmpty: !!p.isEmpty,
         seat: p.seat,
         avatar: p.avatar || null,
         lastAction: p.lastAction || null,
@@ -202,6 +230,7 @@ export class PokerGame {
   }
 
   async startHand() {
+    this.fillEmptyWithAi();
     const withChips = this.players.filter((p) => p.stack > 0);
     if (withChips.length < 2) {
       // Too few players — rebuy everyone

@@ -1,6 +1,6 @@
 import { PokerGame } from './game.js';
 import { cardDisplay } from './deck.js';
-import { NetClient, buildSeatPlan, defaultWsUrl } from './net.js';
+import { NetClient, buildSeatPlan, defaultWsUrl, AVATAR_CHOICES } from './net.js';
 import { setMuted, isMuted } from './audio.js';
 
 const SEAT_KEYS = ['bottom-right', 'bottom-left', 'left', 'top-left', 'top-right', 'right'];
@@ -91,6 +91,7 @@ function ensureSeatScaffold(el) {
       <div class="plate">
         <div class="player-name">
           <span class="player-name-text"></span>
+          <span class="ai-tag" hidden>AI</span>
         </div>
         <div class="player-stack"></div>
         <div class="bet-row" hidden>
@@ -110,6 +111,7 @@ function ensureSeatScaffold(el) {
     avatar: el.querySelector('.avatar'),
     onlineDot: el.querySelector('.online-dot'),
     name: el.querySelector('.player-name-text'),
+    aiTag: el.querySelector('.ai-tag'),
     dealer: el.querySelector('.dealer-btn'),
     stack: el.querySelector('.player-stack'),
     betRow: el.querySelector('.bet-row'),
@@ -162,20 +164,27 @@ function renderSeat(el, player, state) {
       online = !net?.roster?.length || net.roster.some((r) => r.seat === player.id);
     }
   }
+  if (player.isEmpty) classes.push('empty-seat');
   if (!online) classes.push('offline');
   const nextClass = classes.join(' ');
   if (el.className !== nextClass) el.className = nextClass;
 
   syncCards(cache.cards, cache, player.cards);
 
-  const avatarKey = player.avatar || 'hero';
-  if (cache.avatarKey !== avatarKey) {
+  const avatarKey = player.avatar || (player.isEmpty ? null : 'hero');
+  if (avatarKey && cache.avatarKey !== avatarKey) {
     cache.avatarKey = avatarKey;
     cache.avatar.src = `assets/avatar-${avatarKey}.png`;
   }
+  if (cache.avatar) cache.avatar.style.visibility = player.isEmpty ? 'hidden' : 'visible';
+
+  if (cache.aiTag) {
+    const showAi = !!player.isAI;
+    if (cache.aiTag.hidden === showAi) cache.aiTag.hidden = !showAi;
+  }
 
   if (cache.onlineDot) {
-    const showDot = (mode === 'host' || mode === 'guest') && !player.isAI && online;
+    const showDot = (mode === 'host' || mode === 'guest') && !player.isAI && !player.isEmpty && online;
     if (cache.onlineDot.hidden === showDot) cache.onlineDot.hidden = !showDot;
   }
 
@@ -601,8 +610,9 @@ function applySeatPlan(roster) {
   humanSeats = new Set(plan.filter((p) => p.kind === 'human').map((p) => p.id));
   const desc = plan.map((p) => ({
     name: p.name,
-    isAI: p.kind === 'ai',
-    personality: p.personality || null,
+    isAI: false,
+    empty: p.kind === 'empty',
+    personality: null,
     avatar: p.avatar,
   }));
   game.setPlayers(desc, mySeat);
@@ -698,6 +708,44 @@ let connecting = false;
 function lobbyNameVal() {
   return (lobbyName.value || '').trim().slice(0, 12) || null;
 }
+
+/* Avatar picker */
+const avatarPicker = document.getElementById('avatar-picker');
+let selectedAvatar = 'hero';
+try {
+  selectedAvatar = localStorage.getItem('hins_poker_avatar') || 'hero';
+} catch {
+  /* ignore */
+}
+
+function currentAvatar() {
+  return selectedAvatar || 'hero';
+}
+
+function buildAvatarPicker() {
+  if (!avatarPicker) return;
+  avatarPicker.innerHTML = '';
+  for (const a of AVATAR_CHOICES) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'avatar-opt' + (a.id === selectedAvatar ? ' is-on' : '');
+    b.setAttribute('role', 'option');
+    b.setAttribute('aria-selected', a.id === selectedAvatar ? 'true' : 'false');
+    b.title = a.label;
+    b.innerHTML = `<img src="assets/avatar-${a.id}.png" alt="${a.label}" width="40" height="40" />`;
+    b.addEventListener('click', () => {
+      selectedAvatar = a.id;
+      try {
+        localStorage.setItem('hins_poker_avatar', a.id);
+      } catch {
+        /* ignore */
+      }
+      buildAvatarPicker();
+    });
+    avatarPicker.appendChild(b);
+  }
+}
+buildAvatarPicker();
 
 function saveName(n) {
   try {
@@ -848,14 +896,15 @@ async function connectAs(role, code) {
   const url = currentWsUrl();
   saveWsUrl(url);
   saveName(lobbyNameVal());
+  const avatar = currentAvatar();
   net = new NetClient({
     onMessage: handleNetMessage,
     onStatus: () => {},
   });
   await net.connect(url);
   mode = role;
-  if (role === 'host') net.create(lobbyNameVal() || '房主');
-  else net.join(code, lobbyNameVal() || '玩家');
+  if (role === 'host') net.create(lobbyNameVal() || '房主', avatar);
+  else net.join(code, lobbyNameVal() || '玩家', avatar);
 }
 
 btnSolo.addEventListener('click', () => enterSolo());

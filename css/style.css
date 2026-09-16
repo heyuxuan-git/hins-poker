@@ -709,9 +709,80 @@ button:focus-visible {
   filter: grayscale(0.55) brightness(0.85);
 }
 
+.seat.empty-seat {
+  opacity: 0.85;
+}
+
 .seat.offline {
   opacity: 0.55;
   filter: grayscale(0.35);
+}
+
+.seat.empty-seat .avatar-wrap {
+  border-style: dashed;
+  border-color: rgba(212, 175, 55, 0.35);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+}
+
+.seat.empty-seat .avatar {
+  opacity: 0;
+}
+
+.seat.empty-seat .plate {
+  border-style: dashed;
+  background: rgba(8, 12, 18, 0.55);
+}
+
+.ai-tag {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #0a0e14;
+  background: linear-gradient(180deg, #8ec8ff, #4a90e2);
+  vertical-align: middle;
+}
+
+.ai-tag[hidden] {
+  display: none !important;
+}
+
+.avatar-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.avatar-opt {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  overflow: hidden;
+  cursor: pointer;
+  background: #121820;
+}
+
+.avatar-opt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-opt.is-on {
+  border-color: var(--gold);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.45);
+}
+
+.avatar-opt:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 .online-dot {

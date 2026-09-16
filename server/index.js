@@ -40,6 +40,7 @@ function roster(room) {
     name: m.name,
     seat: m.seat,
     isHost: m.isHost,
+    avatar: m.avatar || null,
   }));
 }
 
@@ -87,7 +88,7 @@ wss.on('connection', (ws) => {
       let roomCode = code();
       while (rooms.has(roomCode)) roomCode = code();
       const room = { host: ws, members: new Map() };
-      room.members.set(ws, { name: msg.name || '房主', seat: 0, isHost: true });
+      room.members.set(ws, { name: msg.name || '房主', seat: 0, isHost: true, avatar: msg.avatar || null });
       rooms.set(roomCode, room);
       send(ws, {
         type: 'created',
@@ -114,7 +115,7 @@ wss.on('connection', (ws) => {
         send(ws, { type: 'error', message: '没有空位' });
         return;
       }
-      room.members.set(ws, { name: msg.name || `玩家${seat + 1}`, seat, isHost: false });
+      room.members.set(ws, { name: msg.name || `玩家${seat + 1}`, seat, isHost: false, avatar: msg.avatar || null });
       send(ws, {
         type: 'joined',
         code: msg.code,
