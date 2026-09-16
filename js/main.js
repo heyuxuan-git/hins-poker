@@ -649,22 +649,33 @@ document.addEventListener('keydown', (e) => {
 const lobbyName = document.getElementById('lobby-name');
 const lobbyCodeInput = document.getElementById('lobby-code');
 const lobbyWs = document.getElementById('lobby-ws');
-const joinCodeField = document.getElementById('join-code-field');
 const lobbyError = document.getElementById('lobby-error');
 const lobbyHint = document.getElementById('lobby-hint');
+const lobbyStatus = document.getElementById('lobby-status');
 const lobbyInvite = document.getElementById('lobby-invite');
 const inviteLinkEl = document.getElementById('invite-link');
 const btnLeave = document.getElementById('btn-leave');
+const btnCreate = document.getElementById('btn-create');
+const btnJoin = document.getElementById('btn-join');
+const btnSolo = document.getElementById('btn-solo');
+
+let connecting = false;
 
 function lobbyNameVal() {
   return (lobbyName.value || '').trim().slice(0, 12) || null;
 }
 
+function saveName(n) {
+  try {
+    if (n) localStorage.setItem('hins_poker_name', n);
+  } catch {
+    /* ignore */
+  }
+}
+
 function currentWsUrl() {
   const raw = ((lobbyWs && lobbyWs.value) || '').trim() || defaultWsUrl();
-  // Allow pasting http(s) and convert to ws(s)
   let u = raw.replace(/^https:/i, 'wss:').replace(/^http:/i, 'ws:');
-  // Deno deploy entry is /ws — append if user pasted bare host
   if (!/\/ws$/i.test(u) && !/localhost|127\.0\.0\.1/.test(u) && /^wss?:\/\/[^/]+$/i.test(u)) {
     u = `${u}/ws`;
   }
@@ -689,6 +700,51 @@ function showLobbyError(msg) {
   lobbyError.textContent = msg;
 }
 
+function setLobbyStatus(msg) {
+  if (!msg) {
+    lobbyStatus.hidden = true;
+    lobbyStatus.textContent = '';
+    return;
+  }
+  lobbyStatus.hidden = false;
+  lobbyStatus.textContent = msg;
+}
+
+function setBusy(busy, status) {
+  connecting = busy;
+  btnCreate.disabled = busy;
+  btnJoin.disabled = busy;
+  btnSolo.disabled = busy;
+  if (busy) setLobbyStatus(status || '连接中…');
+  else setLobbyStatus('');
+}
+
+/** Accept 6-char code, or paste a full invite URL and extract ws + room */
+function parseJoinInput(raw) {
+  const s = (raw || '').trim();
+  if (!s) return { code: null, ws: null };
+
+  // Full URL invite
+  try {
+    if (/^https?:\/\//i.test(s) || s.includes('?ws=') || s.includes('#room=')) {
+      const url = new URL(s, location.href);
+      const ws = url.searchParams.get('ws');
+      const m = (url.hash || '').match(/room=([A-Z0-9]{4,8})/i);
+      const code = m ? m[1].toUpperCase() : null;
+      return { code, ws: ws || null };
+    }
+  } catch {
+    /* fall through */
+  }
+
+  // Bare code (allow spaces/dashes)
+  const cleaned = s.replace(/[\s-]/g, '').toUpperCase();
+  if (/^[A-Z0-9]{4,8}$/.test(cleaned)) {
+    return { code: cleaned, ws: null };
+  }
+  return { code: null, ws: null };
+}
+
 function buildInviteUrl(code) {
   const origin = location.origin + location.pathname;
   return `${origin}?ws=${encodeURIComponent(currentWsUrl())}#room=${code}`;
@@ -698,7 +754,7 @@ function showInvite(code) {
   const url = buildInviteUrl(code);
   lobbyInvite.hidden = false;
   inviteLinkEl.value = url;
-  lobbyHint.textContent = `房间 ${code}。请把下面整条链接发给朋友（含服务器地址）。`;
+  lobbyHint.textContent = `房间 ${code}。把整条链接发给朋友即可自动填好服务器和房间码。`;
 }
 
 document.getElementById('btn-copy-invite').addEventListener('click', async () => {
@@ -711,29 +767,42 @@ document.getElementById('btn-copy-invite').addEventListener('click', async () =>
   }
 });
 
-// Prefill WS + join code from URL
+// Prefill from URL / storage
 let autoJoinCode = null;
 (() => {
   const q = new URLSearchParams(location.search).get('ws');
-  let saved = null;
+  let savedWs = null;
+  let savedName = null;
   try {
-    saved = localStorage.getItem('hins_poker_ws');
+    savedWs = localStorage.getItem('hins_poker_ws');
+    savedName = localStorage.getItem('hins_poker_name');
   } catch {
     /* ignore */
   }
-  if (lobbyWs) lobbyWs.value = q || saved || defaultWsUrl();
+  if (lobbyWs) lobbyWs.value = q || savedWs || defaultWsUrl();
+  if (lobbyName && savedName) lobbyName.value = savedName;
+
   const hash = location.hash || '';
   const m = hash.match(/room=([A-Z0-9]{4,8})/i);
   if (m) {
     autoJoinCode = m[1].toUpperCase();
-    joinCodeField.hidden = false;
     if (lobbyCodeInput) lobbyCodeInput.value = autoJoinCode;
   }
+
+  // If user pastes an invite link into the code box, extract parts
+  lobbyCodeInput?.addEventListener('change', () => {
+    const parsed = parseJoinInput(lobbyCodeInput.value);
+    if (parsed.ws && lobbyWs) lobbyWs.value = parsed.ws;
+    if (parsed.code) lobbyCodeInput.value = parsed.code;
+  });
+
+  lobbyName?.addEventListener('change', () => saveName(lobbyNameVal()));
 })();
 
 async function connectAs(role, code) {
   const url = currentWsUrl();
   saveWsUrl(url);
+  saveName(lobbyNameVal());
   net = new NetClient({
     onMessage: handleNetMessage,
     onStatus: () => {},
@@ -744,46 +813,61 @@ async function connectAs(role, code) {
   else net.join(code, lobbyNameVal() || '玩家');
 }
 
-document.getElementById('btn-solo').addEventListener('click', () => enterSolo());
+btnSolo.addEventListener('click', () => enterSolo());
 
-document.getElementById('btn-create').addEventListener('click', async () => {
+btnCreate.addEventListener('click', async () => {
   showLobbyError('');
+  if (connecting) return;
+  setBusy(true, '正在创建房间…');
   try {
     await connectAs('host');
   } catch (err) {
-    showLobbyError(err.message || '联机失败');
+    setBusy(false);
+    showLobbyError(err.message || '无法连接联机服务器，请检查服务器地址');
     net = null;
   }
 });
 
-document.getElementById('btn-join').addEventListener('click', async () => {
+btnJoin.addEventListener('click', async () => {
   showLobbyError('');
-  const code = (lobbyCodeInput?.value || autoJoinCode || '').trim().toUpperCase();
-  if (code.length >= 4) {
-    try {
-      await connectAs('guest', code);
-    } catch (err) {
-      showLobbyError(err.message || '联机失败');
-      net = null;
-    }
-    return;
-  }
-  if (joinCodeField.hidden) {
-    joinCodeField.hidden = false;
+  if (connecting) return;
+
+  const parsed = parseJoinInput(lobbyCodeInput?.value || '');
+  if (parsed.ws && lobbyWs) lobbyWs.value = parsed.ws;
+  const code = parsed.code || autoJoinCode;
+  if (!code) {
+    showLobbyError('请输入 6 位房间码，或粘贴朋友发来的邀请链接');
     lobbyCodeInput?.focus();
     return;
   }
-  showLobbyError('请输入房间码');
+  if (lobbyCodeInput) lobbyCodeInput.value = code;
+
+  setBusy(true, `正在加入房间 ${code}…`);
+  try {
+    await connectAs('guest', code);
+  } catch (err) {
+    setBusy(false);
+    showLobbyError(err.message || '无法连接联机服务器，请检查服务器地址');
+    net = null;
+  }
 });
 
-// Invite link: auto-join after a short beat
+// Enter key = join (or create if focused on create fields)
+lobbyCodeInput?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    btnJoin.click();
+  }
+});
+
+// Invite link: auto-join
 if (autoJoinCode) {
-  lobbyHint.textContent = `检测到房间 ${autoJoinCode}，点击「加入房间」即可进入`;
+  setLobbyStatus(`检测到邀请，正在加入房间 ${autoJoinCode}…`);
   setTimeout(() => {
-    if (mode === 'solo' && !net) {
-      document.getElementById('btn-join').click();
+    if (mode === 'solo' && !net && !connecting) {
+      btnJoin.click();
     }
-  }, 400);
+  }, 250);
 }
 
 btnLeave.addEventListener('click', () => {
@@ -796,6 +880,7 @@ btnLeave.addEventListener('click', () => {
 
 function handleNetMessage(msg) {
   if (msg.type === 'created') {
+    setBusy(false);
     roomCode = msg.code;
     mySeat = msg.seat;
     mode = 'host';
@@ -808,12 +893,12 @@ function handleNetMessage(msg) {
   }
 
   if (msg.type === 'joined') {
+    setBusy(false);
     roomCode = msg.code;
     mySeat = msg.seat;
     mode = 'guest';
     setRoomBadge(roomCode);
     document.getElementById('brand-sub').textContent = `联机 · 房间 ${roomCode}`;
-    // Show waiting table until host syncs
     applySeatPlan(msg.roster);
     showGame();
     return;
@@ -854,11 +939,17 @@ function handleNetMessage(msg) {
   }
 
   if (msg.type === 'error') {
+    setBusy(false);
+    // Stay on lobby so user can fix code/server
+    if (document.getElementById('game-app')?.hidden === false && mode === 'guest') {
+      showLobby();
+    }
     showLobbyError(msg.message || '出错了');
     return;
   }
 
   if (msg.type === 'disconnected' || msg.type === 'room_closed') {
+    setBusy(false);
     showLobbyError('连接已断开');
     net = null;
     mode = 'solo';

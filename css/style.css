@@ -287,6 +287,16 @@ button:focus-visible {
   line-height: 1.5;
 }
 
+.lobby-status {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--gold-hi);
+}
+
+.lobby-status[hidden] {
+  display: none !important;
+}
+
 .lobby-error {
   margin-top: 10px;
   font-size: 13px;
