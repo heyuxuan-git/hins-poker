@@ -328,30 +328,35 @@ function renderActions(state) {
     raiseAmountEl.value = String(raiseTarget);
     raiseRow.hidden = false;
 
-    // Quick presets: ½ pot / ⅔ pot / pot / 3bb / min
+    // Quick presets: sizing rule → actual raise-to (deduped)
     const pot = state.pot || 0;
     const presets = [
-      { label: '最小加注', amount: minTo },
-      { label: '½ pot', amount: state.currentBet + Math.round(pot * 0.5) },
-      { label: '⅔ pot', amount: state.currentBet + Math.round(pot * 0.67) },
-      { label: '底池', amount: state.currentBet + pot },
-      { label: '3bb', amount: state.currentBet + bb * 3 },
-      { label: '4bb', amount: state.currentBet + bb * 4 },
+      { label: '最小', amount: minTo },
+      { label: '½底池', amount: state.currentBet + Math.round(pot * 0.5) },
+      { label: '⅔底池', amount: state.currentBet + Math.round(pot * 0.67) },
+      { label: '满底池', amount: state.currentBet + pot },
+      { label: '加3bb', amount: state.currentBet + bb * 3 },
+      { label: '加4bb', amount: state.currentBet + bb * 4 },
+      { label: '全下', amount: maxTo },
     ];
     quickRaisesEl.hidden = false;
     quickRaisesEl.innerHTML = '';
+    const seenAmounts = new Set();
     for (const p of presets) {
       const amount = clampRaise(p.amount);
-      if (amount < sliderMin && amount !== sliderMin) continue;
+      if (amount < sliderMin) continue;
+      if (seenAmounts.has(amount)) continue;
+      seenAmounts.add(amount);
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'quick-btn';
-      b.textContent = `${p.label} · ${formatBb(amount, bb)}`;
+      b.textContent = `${p.label}→${formatBb(amount, bb)}`;
+      b.title = `按「${p.label}」下注，共加注到 ${formatBb(amount, bb)}`;
       b.addEventListener('click', () => {
         raiseTarget = clampRaise(amount);
         raiseSlider.value = String(raiseTarget);
         raiseAmountEl.value = String(raiseTarget);
-        raiseBtn.textContent = `加注 ${formatBb(raiseTarget, bb)}`;
+        raiseBtn.textContent = `加注到 ${formatBb(raiseTarget, bb)}`;
       });
       quickRaisesEl.appendChild(b);
     }
