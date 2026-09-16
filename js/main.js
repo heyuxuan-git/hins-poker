@@ -16,6 +16,7 @@ const raiseRow = document.getElementById('raise-row');
 const raiseSlider = document.getElementById('raise-slider');
 const raiseAmountEl = document.getElementById('raise-amount');
 const handNumEl = document.getElementById('hand-num');
+const blindsEl = document.getElementById('blinds');
 const winBannerSlot = document.getElementById('win-banner-slot');
 const btnReset = document.getElementById('btn-reset');
 const actionTimerEl = document.getElementById('action-timer');
@@ -443,6 +444,11 @@ function render(state) {
 
   const handText = state.handNumber > 0 ? String(state.handNumber) : '—';
   if (handNumEl.textContent !== handText) handNumEl.textContent = handText;
+
+  const bb = state.bigBlind || 20;
+  const sb = state.smallBlind || Math.round(bb / 2);
+  const blindsText = `${formatBb(sb, bb)} / ${formatBb(bb, bb)}`;
+  if (blindsEl && blindsEl.textContent !== blindsText) blindsEl.textContent = blindsText;
 
   const msg = state.message || '';
   if (toastEl.textContent !== msg) toastEl.textContent = msg;

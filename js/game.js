@@ -273,7 +273,7 @@ export class PokerGame {
       await this.sleep(120);
     }
 
-    this.message = `第 ${this.handNumber} 局 · ${this.players[sbIndex].name} 小盲 ${SMALL_BLIND} / ${this.players[bbIndex].name} 大盲 ${BIG_BLIND}`;
+    this.message = `第 ${this.handNumber} 局 · ${this.players[sbIndex].name} 小盲 ${SMALL_BLIND / BIG_BLIND}bb / ${this.players[bbIndex].name} 大盲 ${BIG_BLIND / BIG_BLIND}bb`;
     this.emit();
     await this.sleep(650);
 
