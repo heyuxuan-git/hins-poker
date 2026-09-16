@@ -1,6 +1,7 @@
 import { PokerGame } from './game.js';
 import { cardDisplay } from './deck.js';
 import { NetClient, buildSeatPlan, defaultWsUrl } from './net.js';
+import { setMuted, isMuted } from './audio.js';
 
 const SEAT_KEYS = ['bottom-right', 'bottom-left', 'left', 'top-left', 'top-right', 'right'];
 
@@ -23,6 +24,9 @@ const actionTimerEl = document.getElementById('action-timer');
 const actionTimerNum = document.getElementById('action-timer-num');
 const actionTimerFill = document.getElementById('action-timer-fill');
 const quickRaisesEl = document.getElementById('quick-raises');
+const btnMute = document.getElementById('btn-mute');
+const btnRebuy = document.getElementById('btn-rebuy');
+const lobbyAdv = document.getElementById('lobby-adv');
 
 let lastState = null;
 let raiseTarget = 40;
@@ -467,6 +471,7 @@ function render(state) {
   renderActions(state);
   renderWinBanner(state);
   updateActionTimer(state);
+  refreshRebuyBtn(state);
 }
 
 // Smooth countdown between state emits
@@ -790,8 +795,17 @@ let autoJoinCode = null;
   } catch {
     /* ignore */
   }
-  if (lobbyWs) lobbyWs.value = q || savedWs || defaultWsUrl();
+  const isLocalHost =
+    location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  // Don't prefill machine-local WS on public pages — friends would connect to their own localhost
+  let initialWs = q || savedWs || '';
+  if (!initialWs && isLocalHost) initialWs = defaultWsUrl();
+  if (!q && initialWs && /127\.0\.0\.1|localhost/.test(initialWs) && !isLocalHost) {
+    initialWs = '';
+  }
+  if (lobbyWs) lobbyWs.value = initialWs;
   if (lobbyName && savedName) lobbyName.value = savedName;
+  if (q && lobbyAdv) lobbyAdv.open = true;
 
   const hash = location.hash || '';
   const m = hash.match(/room=([A-Z0-9]{4,8})/i);
@@ -800,10 +814,12 @@ let autoJoinCode = null;
     if (lobbyCodeInput) lobbyCodeInput.value = autoJoinCode;
   }
 
-  // If user pastes an invite link into the code box, extract parts
   lobbyCodeInput?.addEventListener('change', () => {
     const parsed = parseJoinInput(lobbyCodeInput.value);
-    if (parsed.ws && lobbyWs) lobbyWs.value = parsed.ws;
+    if (parsed.ws && lobbyWs) {
+      lobbyWs.value = parsed.ws;
+      if (lobbyAdv) lobbyAdv.open = true;
+    }
     if (parsed.code) lobbyCodeInput.value = parsed.code;
   });
 
@@ -916,8 +932,23 @@ function handleNetMessage(msg) {
   }
 
   if (msg.type === 'player_join' || msg.type === 'player_leave') {
-    if (mode === 'host' && (game.phase === 'idle' || game.phase === 'handover')) {
-      applySeatPlan(msg.roster);
+    if (mode === 'host') {
+      if (msg.type === 'player_leave' && typeof msg.seat === 'number') {
+        game.foldSeatIfIdleTurn(msg.seat);
+      }
+      if (game.phase === 'idle' || game.phase === 'handover') {
+        applySeatPlan(msg.roster);
+      }
+    }
+    return;
+  }
+
+  if (msg.type === 'rebuy' && mode === 'host') {
+    if (typeof msg.seat === 'number') {
+      game.rebuySeat(msg.seat);
+      for (const seat of humanSeats) {
+        net?.send({ type: 'state', code: roomCode, state: game.snapshot(seat), toSeat: seat });
+      }
     }
     return;
   }
@@ -966,6 +997,40 @@ function handleNetMessage(msg) {
     mode = 'solo';
     showLobby();
   }
+}
+
+/* Mute */
+function refreshMuteBtn() {
+  if (btnMute) btnMute.textContent = isMuted() ? '🔇' : '🔊';
+}
+btnMute?.addEventListener('click', () => {
+  setMuted(!isMuted());
+  refreshMuteBtn();
+});
+refreshMuteBtn();
+
+/* Rebuy — only when hero busted between hands */
+btnRebuy?.addEventListener('click', () => {
+  if (!lastState || (lastState.phase !== 'idle' && lastState.phase !== 'handover')) return;
+  const hero = lastState.players.find((p) => p.isHero);
+  if (!hero || hero.stack > 0) return;
+  if (mode === 'guest') {
+    net?.send({ type: 'rebuy', code: roomCode });
+  } else {
+    game.rebuySeat(game.heroSeat);
+    if (mode === 'host') {
+      for (const seat of humanSeats) {
+        net?.send({ type: 'state', code: roomCode, state: game.snapshot(seat), toSeat: seat });
+      }
+    }
+  }
+});
+
+function refreshRebuyBtn(state) {
+  if (!btnRebuy) return;
+  const betweenHands = !!state && (state.phase === 'idle' || state.phase === 'handover');
+  const heroStack = state?.players?.find((p) => p.isHero)?.stack ?? 1;
+  btnRebuy.hidden = !(betweenHands && heroStack === 0);
 }
 
 initBoardSlots();

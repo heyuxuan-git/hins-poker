@@ -762,4 +762,42 @@ export class PokerGame {
     this.currentPlayer = null;
     this.emit();
   }
+
+  /** Rebuy a busted seat back to starting stack (between hands). */
+  rebuySeat(seat) {
+    if (this.phase !== 'idle' && this.phase !== 'handover') return false;
+    const p = this.players[seat];
+    if (!p) return false;
+    if (p.stack > 0) return false;
+    p.stack = STARTING_STACK;
+    p.folded = false;
+    p.allIn = false;
+    p.lastAction = '补码';
+    this.message = `${p.name} 已补码 ${STARTING_STACK}`;
+    this.emit();
+    return true;
+  }
+
+  /** Fold a seat if they disconnect mid-hand. */
+  foldSeatIfIdleTurn(seat) {
+    const p = this.players[seat];
+    if (!p || p.folded || p.allIn) return;
+    if (this.phase === 'idle' || this.phase === 'handover' || this.phase === 'showdown') return;
+    if (this.currentPlayer === seat) {
+      this.clearActionClock();
+      this.applyAction(p, { type: 'fold' });
+      this.message = `${p.name} 断线，自动弃牌`;
+      this.emit();
+      if (this.activePlayers().length === 1) {
+        this.finishHand();
+        return;
+      }
+      this.currentPlayer = this.nextToAct(seat);
+      setTimeout(() => this.runBettingRound(), 80);
+    } else {
+      p.folded = true;
+      p.lastAction = '断线弃牌';
+      this.emit();
+    }
+  }
 }

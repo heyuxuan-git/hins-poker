@@ -1,8 +1,29 @@
 /** Tiny Web Audio SFX — table knocks & chip stacks (no external files). */
 
 let ctx = null;
+let muted = false;
+
+export function setMuted(v) {
+  muted = !!v;
+  try {
+    localStorage.setItem('hins_poker_muted', muted ? '1' : '0');
+  } catch {
+    /* ignore */
+  }
+}
+
+export function isMuted() {
+  return muted;
+}
+
+try {
+  muted = localStorage.getItem('hins_poker_muted') === '1';
+} catch {
+  /* ignore */
+}
 
 function ac() {
+  if (muted) return null;
   if (typeof window === 'undefined') return null;
   if (!ctx) {
     const AC = window.AudioContext || window.webkitAudioContext;

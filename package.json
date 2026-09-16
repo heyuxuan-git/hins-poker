@@ -1,6 +1,6 @@
 {
   "name": "hins-poker",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "private": true,
   "type": "module",
   "description": "hin's poker — Texas Hold'em with online rooms",

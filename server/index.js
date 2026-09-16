@@ -67,7 +67,7 @@ const httpServer = createServer((req, res) => {
   res.end('hin poker ws server\n');
 });
 
-const wss = new WebSocketServer({ server: httpServer });
+const wss = new WebSocketServer({ server: httpServer, path: '/' });
 
 wss.on('connection', (ws) => {
   ws.isAlive = true;
@@ -144,13 +144,13 @@ wss.on('connection', (ws) => {
       return;
     }
 
-    if (msg.type === 'action') {
+    if (msg.type === 'action' || msg.type === 'rebuy') {
       // guest -> host
       const room = rooms.get(msg.code);
       if (!room) return;
       const meta = room.members.get(ws);
       if (!meta) return;
-      send(room.host, { type: 'action', seat: meta.seat, action: msg.action });
+      send(room.host, { type: msg.type, seat: meta.seat, action: msg.action });
       return;
     }
 
