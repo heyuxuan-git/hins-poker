@@ -303,6 +303,24 @@ button:focus-visible {
   color: #ff8f8f;
 }
 
+.lobby-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 8px 0 10px;
+  font-size: 13px;
+  color: var(--cream);
+  cursor: pointer;
+  text-align: left;
+}
+
+.lobby-check input {
+  margin-top: 3px;
+  accent-color: var(--gold);
+  width: 16px;
+  height: 16px;
+}
+
 .lobby-adv {
   margin-top: 14px;
   text-align: left;

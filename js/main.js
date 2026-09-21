@@ -690,6 +690,8 @@ function doStart() {
   initBoardSlots();
   actionsSignature = '';
   logRenderLen = 0;
+  // Host controls AI fill (solo always uses this flag too)
+  game.setFillAi(mode === 'solo' ? true : currentFillAi());
   if (mode === 'host') net?.send({ type: 'start', code: roomCode });
   game.startHand();
 }
@@ -735,6 +737,7 @@ function applySeatPlan(roster) {
     avatar: p.avatar,
   }));
   game.setPlayers(desc, mySeat);
+  game.setFillAi(currentFillAi());
   actionsSignature = '';
   clearWinBanner();
   boardCache.forEach((slot, i) => {
@@ -846,6 +849,27 @@ try {
 function currentAvatar() {
   return selectedAvatar || 'hero';
 }
+
+const fillAiEl = document.getElementById('fill-ai');
+try {
+  const savedFill = localStorage.getItem('hins_poker_fill_ai');
+  if (fillAiEl && savedFill != null) fillAiEl.checked = savedFill !== '0';
+} catch {
+  /* ignore */
+}
+
+function currentFillAi() {
+  return fillAiEl ? !!fillAiEl.checked : true;
+}
+
+fillAiEl?.addEventListener('change', () => {
+  try {
+    localStorage.setItem('hins_poker_fill_ai', fillAiEl.checked ? '1' : '0');
+  } catch {
+    /* ignore */
+  }
+  game.setFillAi(currentFillAi());
+});
 
 function buildAvatarPicker() {
   if (!avatarPicker) return;

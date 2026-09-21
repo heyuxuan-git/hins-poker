@@ -40,6 +40,11 @@ export class PokerGame {
     this.message = '准备开始新一局';
     this.showdownReveal = false;
     this.actionLog = [];
+    this.fillAi = true;
+  }
+
+  setFillAi(v) {
+    this.fillAi = !!v;
   }
 
   pushLog(playerName, type, text) {
@@ -237,10 +242,27 @@ export class PokerGame {
   }
 
   async startHand() {
-    this.fillEmptyWithAi();
+    if (this.fillAi) {
+      this.fillEmptyWithAi();
+    } else {
+      // Ensure empty seats stay out of the hand
+      for (const p of this.players) {
+        if (p.isEmpty) {
+          p.stack = 0;
+          p.folded = true;
+        }
+      }
+    }
     this.actionLog = [];
     const withChips = this.players.filter((p) => p.stack > 0);
+    const humansReady = this.players.filter((p) => !p.isEmpty && !p.isAI && p.stack > 0).length;
     if (withChips.length < 2) {
+      if (!this.fillAi) {
+        this.phase = 'idle';
+        this.message = '玩家不足 2 人，请开启 AI 补齐或等人加入';
+        this.emit();
+        return;
+      }
       // Too few players — rebuy everyone
       for (const p of this.players) p.stack = STARTING_STACK;
       this.handNumber = 0;
