@@ -504,17 +504,27 @@ function renderActions(state) {
   }
 }
 
+function clearWinBanner() {
+  winBannerKey = '';
+  if (winBannerSlot) winBannerSlot.innerHTML = '';
+}
+
 function renderWinBanner(state) {
   const primary = state.phase === 'handover' && state.winners?.length ? state.winners[0] : null;
-  const cardsKey = primary?.bestCards?.map((c) => c.id).join(',') || '';
-  const key = primary
-    ? `${primary.id}:${primary.amount}:${primary.handName || ''}:${cardsKey}`
-    : '';
+  if (!primary) {
+    // New hand / not showdown — always wipe leftover banner
+    if (winBannerSlot && winBannerSlot.childElementCount) {
+      winBannerSlot.innerHTML = '';
+    }
+    winBannerKey = '';
+    return;
+  }
 
+  const cardsKey = (primary.bestCards || []).map((c) => c.id).join(',');
+  const key = `${primary.id}:${primary.amount}:${primary.handName || ''}:${cardsKey}`;
   if (key === winBannerKey) return;
   winBannerKey = key;
   winBannerSlot.innerHTML = '';
-  if (!primary) return;
 
   const wrap = document.createElement('div');
   wrap.className = 'win-panel';
@@ -676,6 +686,10 @@ document.getElementById('room-code').addEventListener('click', async () => {
 
 function doStart() {
   if (mode === 'guest') return; // only host starts
+  clearWinBanner();
+  initBoardSlots();
+  actionsSignature = '';
+  logRenderLen = 0;
   if (mode === 'host') net?.send({ type: 'start', code: roomCode });
   game.startHand();
 }
@@ -688,8 +702,24 @@ function enterSolo() {
   mySeat = 0;
   humanSeats = new Set([0]);
   game.heroSeat = 0;
+  game.setPlayers(
+    [
+      { name: '你', isAI: false, empty: false, avatar: 'hero' },
+      { name: '陈哥', isAI: true, empty: false, avatar: 'chen', personality: 'tight' },
+      { name: '小美', isAI: true, empty: false, avatar: 'mei', personality: 'maniac' },
+      { name: '老周', isAI: true, empty: false, avatar: 'zhou', personality: 'balanced' },
+      { name: '林姐', isAI: true, empty: false, avatar: 'lin', personality: 'tight' },
+      { name: '阿凯', isAI: true, empty: false, avatar: 'kai', personality: 'aggressive' },
+    ],
+    0,
+  );
   setRoomBadge(null);
   document.getElementById('brand-sub').textContent = "No-Limit Hold'em";
+  clearWinBanner();
+  initBoardSlots();
+  actionsSignature = '';
+  if (actionLogEl) actionLogEl.innerHTML = '';
+  logRenderLen = 0;
   showGame();
   game.emit();
 }
@@ -706,7 +736,13 @@ function applySeatPlan(roster) {
   }));
   game.setPlayers(desc, mySeat);
   actionsSignature = '';
-  winBannerKey = '';
+  clearWinBanner();
+  boardCache.forEach((slot, i) => {
+    slot.key = 'empty';
+  });
+  initBoardSlots();
+  if (actionLogEl) actionLogEl.innerHTML = '';
+  logRenderLen = 0;
   game.emit();
 }
 
