@@ -2,6 +2,7 @@ import { PokerGame } from './game.js';
 import { cardDisplay } from './deck.js';
 import { NetClient, buildSeatPlan, defaultWsUrl, AVATAR_CHOICES } from './net.js';
 import { setMuted, isMuted } from './audio.js';
+import { recommendHeroAction, POKER_TERMS } from './coach.js';
 
 const SEAT_KEYS = ['bottom-right', 'bottom-left', 'left', 'top-left', 'top-right', 'right'];
 
@@ -26,7 +27,93 @@ const actionTimerFill = document.getElementById('action-timer-fill');
 const quickRaisesEl = document.getElementById('quick-raises');
 const btnMute = document.getElementById('btn-mute');
 const btnRebuy = document.getElementById('btn-rebuy');
+const btnTrain = document.getElementById('btn-train');
 const lobbyAdv = document.getElementById('lobby-adv');
+const actionLogEl = document.getElementById('action-log');
+const coachBox = document.getElementById('coach-box');
+const coachAction = document.getElementById('coach-action');
+const coachReason = document.getElementById('coach-reason');
+const coachTerm = document.getElementById('coach-term');
+const coachTip = document.getElementById('coach-tip');
+const termList = document.getElementById('term-list');
+
+let trainMode = false;
+let logRenderLen = 0;
+let logHand = 0;
+
+try {
+  trainMode = localStorage.getItem('hins_poker_train') === '1';
+} catch {
+  /* ignore */
+}
+
+function refreshTrainBtn() {
+  if (!btnTrain) return;
+  btnTrain.classList.toggle('btn-train-on', trainMode);
+  btnTrain.textContent = trainMode ? '训练中' : '训练';
+}
+refreshTrainBtn();
+
+btnTrain?.addEventListener('click', () => {
+  trainMode = !trainMode;
+  try {
+    localStorage.setItem('hins_poker_train', trainMode ? '1' : '0');
+  } catch {
+    /* ignore */
+  }
+  refreshTrainBtn();
+  if (coachBox) coachBox.hidden = !trainMode;
+  if (coachTip) coachTip.hidden = !trainMode || !lastState?.heroTurn;
+  if (lastState) renderCoach(lastState);
+});
+
+function renderTermBook() {
+  if (!termList) return;
+  if (termList.childElementCount) return;
+  const keys = ['button', 'blinds', 'open', 'raise', 'call', 'fold', 'check', 'flop', 'turn', 'river', 'showdown', 'draw', 'nuts', 'range', 'bluff'];
+  for (const k of keys) {
+    const p = document.createElement('p');
+    p.textContent = POKER_TERMS[k] || '';
+    termList.appendChild(p);
+  }
+}
+renderTermBook();
+
+function renderActionLog(state) {
+  if (!actionLogEl) return;
+  const log = state.actionLog || [];
+  const hand = state.handNumber || 0;
+  if (hand !== logHand) {
+    actionLogEl.innerHTML = '';
+    logRenderLen = 0;
+    logHand = hand;
+  }
+  if (log.length < logRenderLen) {
+    actionLogEl.innerHTML = '';
+    logRenderLen = 0;
+  }
+  for (let i = logRenderLen; i < log.length; i++) {
+    const item = log[i];
+    const div = document.createElement('div');
+    div.className = `log-item ${item.type || ''}`;
+    div.innerHTML = `<span class="log-name">${item.name}</span>${item.text || ''}`;
+    actionLogEl.appendChild(div);
+  }
+  logRenderLen = log.length;
+  actionLogEl.scrollTop = actionLogEl.scrollHeight;
+}
+
+function renderCoach(state) {
+  if (!trainMode) return;
+  const tip = recommendHeroAction(state);
+  if (coachBox) coachBox.hidden = !tip;
+  if (coachTip) coachTip.hidden = !tip;
+  if (!tip) return;
+  if (coachAction) coachAction.textContent = tip.action;
+  if (coachReason) coachReason.textContent = tip.reason;
+  if (coachTerm) coachTerm.textContent = tip.term;
+  if (coachTip) coachTip.textContent = `${tip.action} · ${tip.reason}`;
+}
 
 let lastState = null;
 let raiseTarget = 40;
@@ -499,6 +586,8 @@ function render(state) {
   renderWinBanner(state);
   updateActionTimer(state);
   refreshRebuyBtn(state);
+  renderActionLog(state);
+  renderCoach(state);
 }
 
 // Smooth countdown between state emits

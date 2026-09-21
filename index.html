@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#070b10" />
   <meta name="description" content="hin's poker — 跑道台面德州扑克小游戏，与五位 AI 同桌对战" />
-  <title>hin's poker · 德州扑克 v4.1</title>
+  <title>hin's poker · 德州扑克 v4.2</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
-  <link rel="stylesheet" href="css/style.css?v=v4.1" />
+  <link rel="stylesheet" href="css/style.css?v=v4.2" />
 </head>
 <body>
   <!-- Lobby -->
@@ -65,7 +65,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">H</div>
         <div class="brand-text">
-          <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v4.1</span></div>
+          <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v4.2</span></div>
           <div class="brand-sub" id="brand-sub">No-Limit Hold'em</div>
         </div>
       </div>
@@ -82,6 +82,7 @@
           <span class="meta-label">盲注</span>
           <span class="meta-value" id="blinds">0.5bb / 1bb</span>
         </div>
+        <button class="btn-ghost" id="btn-train" type="button" title="训练模式">训练</button>
         <button class="btn-ghost" id="btn-mute" type="button" title="开关音效">🔊</button>
         <button class="btn-ghost" id="btn-rebuy" type="button" hidden>补码</button>
         <button class="btn-ghost" id="btn-reset" type="button">重置筹码</button>
@@ -89,39 +90,60 @@
       </div>
     </header>
 
-    <main class="stage">
-      <div class="table-wrap">
-        <div class="table-rail">
-          <div class="table">
-            <div class="felt-pattern"></div>
+    <div class="game-layout">
+      <main class="stage">
+        <div class="table-wrap">
+          <div class="table-rail">
+            <div class="table">
+              <div class="felt-pattern"></div>
+            </div>
           </div>
-        </div>
-        <div class="dealer-well" aria-hidden="true">
-          <div class="dealer-figure">
-            <img class="dealer-avatar" src="assets/dealer.png" alt="" width="64" height="64" draggable="false" />
-            <span class="dealer-label">DEALER</span>
+          <div class="dealer-well" aria-hidden="true">
+            <div class="dealer-figure">
+              <img class="dealer-avatar" src="assets/dealer.png" alt="" width="64" height="64" draggable="false" />
+              <span class="dealer-label">DEALER</span>
+            </div>
           </div>
+
+          <div class="board" id="board" aria-label="公共牌"></div>
+          <div class="pot" id="pot">
+            <div class="pot-label">底池</div>
+            <div class="pot-amount" id="pot-amount">0</div>
+            <div class="pot-chips" aria-hidden="true"></div>
+          </div>
+          <div id="win-banner-slot"></div>
+
+          <!-- 6-max racetrack seats -->
+          <div class="seat top-left" data-seat="top-left" id="seat-top-left"></div>
+          <div class="seat top-right" data-seat="top-right" id="seat-top-right"></div>
+          <div class="seat left" data-seat="left" id="seat-left"></div>
+          <div class="seat right" data-seat="right" id="seat-right"></div>
+          <div class="seat bottom-left" data-seat="bottom-left" id="seat-bottom-left"></div>
+          <div class="seat bottom-right hero-seat" data-seat="bottom-right" id="seat-bottom-right"></div>
         </div>
 
-        <div class="board" id="board" aria-label="公共牌"></div>
-        <div class="pot" id="pot">
-          <div class="pot-label">底池</div>
-          <div class="pot-amount" id="pot-amount">0</div>
-          <div class="pot-chips" aria-hidden="true"></div>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        <div class="coach-tip" id="coach-tip" hidden></div>
+      </main>
+
+      <aside class="action-side" id="action-side" aria-label="行动日志">
+        <div class="side-head">
+          <span>行动日志</span>
+          <span class="side-sub">Training</span>
         </div>
-        <div id="win-banner-slot"></div>
-
-        <!-- 6-max racetrack seats — evenly spaced; hero sits under 林姐 -->
-        <div class="seat top-left" data-seat="top-left" id="seat-top-left"></div>
-        <div class="seat top-right" data-seat="top-right" id="seat-top-right"></div>
-        <div class="seat left" data-seat="left" id="seat-left"></div>
-        <div class="seat right" data-seat="right" id="seat-right"></div>
-        <div class="seat bottom-left" data-seat="bottom-left" id="seat-bottom-left"></div>
-        <div class="seat bottom-right hero-seat" data-seat="bottom-right" id="seat-bottom-right"></div>
-      </div>
-
-      <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    </main>
+        <div class="coach-box" id="coach-box" hidden>
+          <div class="coach-title">教练提示</div>
+          <div class="coach-action" id="coach-action"></div>
+          <div class="coach-reason" id="coach-reason"></div>
+          <div class="coach-term" id="coach-term"></div>
+        </div>
+        <div class="action-log" id="action-log" aria-live="polite"></div>
+        <details class="term-book">
+          <summary>术语速查</summary>
+          <div id="term-list"></div>
+        </details>
+      </aside>
+    </div>
 
     <footer class="action-bar">
       <div class="action-timer" id="action-timer" hidden>
@@ -156,6 +178,6 @@
     </footer>
   </div>
 
-  <script type="module" src="js/main.js?v=v4.1"></script>
+  <script type="module" src="js/main.js?v=v4.2"></script>
 </body>
 </html>

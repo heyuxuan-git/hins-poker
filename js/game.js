@@ -39,6 +39,12 @@ export class PokerGame {
     this.handResults = [];
     this.message = '准备开始新一局';
     this.showdownReveal = false;
+    this.actionLog = [];
+  }
+
+  pushLog(playerName, type, text) {
+    this.actionLog.push({ t: Date.now(), name: playerName, type, text });
+    if (this.actionLog.length > 60) this.actionLog = this.actionLog.slice(-60);
   }
 
   /** Rebind seats for multiplayer (humans + empty; AI filled at startHand). */
@@ -216,6 +222,7 @@ export class PokerGame {
         : 0,
       lastAction: this.lastAction,
       winners: this.winners,
+      actionLog: this.actionLog.slice(),
       showdownReveal: this.showdownReveal || this.phase === 'showdown',
       canCheck: heroTurn && viewer.bet === this.currentBet,
       toCall: heroTurn ? Math.max(0, this.currentBet - viewer.bet) : 0,
@@ -231,6 +238,7 @@ export class PokerGame {
 
   async startHand() {
     this.fillEmptyWithAi();
+    this.actionLog = [];
     const withChips = this.players.filter((p) => p.stack > 0);
     if (withChips.length < 2) {
       // Too few players — rebuy everyone
@@ -439,6 +447,7 @@ export class PokerGame {
       player.acted = true;
       player.lastAction = '弃牌';
       this.lastAction = { player: player.name, type: 'fold' };
+      this.pushLog(player.name, 'fold', '弃牌 Fold');
       return;
     }
 
@@ -446,6 +455,7 @@ export class PokerGame {
       player.acted = true;
       player.lastAction = '过牌';
       this.lastAction = { player: player.name, type: 'check' };
+      this.pushLog(player.name, 'check', '过牌 Check');
       if (player.isHero) playCheck();
       return;
     }
@@ -461,6 +471,8 @@ export class PokerGame {
       player.acted = true;
       player.lastAction = pay === 0 ? '过牌' : `跟注 ${pay}`;
       this.lastAction = { player: player.name, type: 'call', amount: pay };
+      if (pay === 0) this.pushLog(player.name, 'check', '过牌 Check');
+      else this.pushLog(player.name, 'call', `跟注 Call ${pay} (${(pay / BIG_BLIND).toFixed(1)}bb)`);
       if (player.isHero) {
         if (pay === 0) playCheck();
         else playChips(0.7);
@@ -514,6 +526,11 @@ export class PokerGame {
       player.acted = true;
       player.lastAction = player.allIn ? `全下 ${target}` : `加注到 ${target}`;
       this.lastAction = { player: player.name, type: 'raise', amount: target };
+      if (player.allIn) {
+        this.pushLog(player.name, 'allin', `全下 All-in 到 ${target} (${(target / BIG_BLIND).toFixed(1)}bb)`);
+      } else {
+        this.pushLog(player.name, 'raise', `加注 Raise 到 ${target} (${(target / BIG_BLIND).toFixed(1)}bb)`);
+      }
       // Crowd gasp on any all-in; chip sfx only for the local player
       if (player.allIn) playAllIn();
       else if (player.isHero) playChips(1.2);
@@ -590,6 +607,7 @@ export class PokerGame {
         this.emit();
         await this.sleep(320);
       }
+      this.pushLog('牌桌', 'flop', `翻牌 Flop ${this.community.slice(0, 3).map((c) => c.rank + c.suit).join(' ')}`);
       await this.sleep(500);
     } else if (this.phase === 'flop') {
       this.phase = 'turn';
@@ -598,6 +616,7 @@ export class PokerGame {
       await this.sleep(420);
       this.community.push(this.deck.pop());
       this.emit();
+      this.pushLog('牌桌', 'turn', `转牌 Turn ${this.community[3].rank}${this.community[3].suit}`);
       await this.sleep(650);
     } else if (this.phase === 'turn') {
       this.phase = 'river';
@@ -606,6 +625,7 @@ export class PokerGame {
       await this.sleep(420);
       this.community.push(this.deck.pop());
       this.emit();
+      this.pushLog('牌桌', 'river', `河牌 River ${this.community[4].rank}${this.community[4].suit}`);
       await this.sleep(650);
     } else if (this.phase === 'river') {
       await this.showdown();

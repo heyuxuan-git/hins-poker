@@ -356,6 +356,160 @@ button:focus-visible {
   display: none !important;
 }
 
+/* ===== Game layout + side log ===== */
+.game-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 0;
+  width: 100%;
+}
+
+@media (min-width: 960px) {
+  .game-layout {
+    grid-template-columns: minmax(0, 1fr) 260px;
+  }
+}
+
+.action-side {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px 16px;
+  border-left: 1px solid rgba(212, 175, 55, 0.2);
+  background: rgba(8, 12, 18, 0.75);
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+}
+
+@media (min-width: 960px) {
+  .action-side {
+    display: flex;
+  }
+}
+
+.side-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  color: var(--cream);
+}
+
+.side-sub {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.action-log {
+  flex: 1;
+  overflow: auto;
+  font-size: 12px;
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 80px;
+}
+
+.log-item {
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 3px solid rgba(212, 175, 55, 0.35);
+}
+
+.log-item.fold { border-left-color: #666; opacity: 0.75; }
+.log-item.check { border-left-color: #3d8b6e; }
+.log-item.call { border-left-color: #4a90e2; }
+.log-item.raise { border-left-color: var(--gold); }
+.log-item.allin { border-left-color: #ff8f8f; }
+.log-item.flop, .log-item.turn, .log-item.river {
+  border-left-color: rgba(240, 215, 140, 0.7);
+  color: var(--gold-hi);
+}
+
+.log-name {
+  color: var(--cream);
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.coach-box {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(100, 180, 255, 0.35);
+  background: rgba(20, 40, 70, 0.45);
+  font-size: 12px;
+}
+
+.coach-box[hidden] {
+  display: none !important;
+}
+
+.coach-title {
+  font-size: 10px;
+  color: #8ec8ff;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.coach-action {
+  color: var(--cream);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.coach-reason {
+  color: var(--muted);
+}
+
+.coach-term {
+  margin-top: 4px;
+  color: var(--gold-hi);
+  font-size: 11px;
+}
+
+.coach-tip {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 180, 255, 0.4);
+  background: rgba(20, 40, 70, 0.85);
+  color: #cfe6ff;
+  font-size: 12px;
+  text-align: center;
+}
+
+.coach-tip[hidden] {
+  display: none !important;
+}
+
+.term-book {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.term-book summary {
+  cursor: pointer;
+  color: var(--gold-hi);
+  margin-bottom: 6px;
+}
+
+.term-book p {
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+.btn-train-on {
+  border-color: #6aa8ff !important;
+  color: #cfe6ff !important;
+  background: rgba(40, 80, 140, 0.35) !important;
+}
+
 /* ===== Stage ===== */
 .stage {
   flex: 1;
