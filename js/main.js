@@ -124,6 +124,14 @@ const boardCache = [];
 let actionsSignature = '';
 let winBannerKey = '';
 
+/** Force action bar rebuild on next render */
+function actionsSignatureReset() {
+  actionsSignature = '';
+}
+
+// game.js actHero calls this if present
+globalThis.actionsSignatureReset = actionsSignatureReset;
+
 function formatChips(n) {
   return Number(n).toLocaleString('zh-CN');
 }
@@ -661,9 +669,14 @@ function setRoomBadge(code) {
 function doAction(action) {
   if (mode === 'guest') {
     net?.sendAction(action);
+    // Rebuild buttons so a missed host ack doesn't leave a dead UI
+    actionsSignature = '';
+    if (lastState) render(lastState);
     return;
   }
   game.actHero(action);
+  actionsSignature = '';
+  if (lastState) render(lastState);
 }
 
 document.getElementById('room-code').addEventListener('click', async () => {

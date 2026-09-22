@@ -478,7 +478,13 @@ export class PokerGame {
       player.lastAction = '过牌';
       this.lastAction = { player: player.name, type: 'check' };
       this.pushLog(player.name, 'check', '过牌 Check');
-      if (player.isHero) playCheck();
+      if (player.isHero) {
+        try {
+          playCheck();
+        } catch {
+          /* audio must never block the action */
+        }
+      }
       return;
     }
 
@@ -495,9 +501,18 @@ export class PokerGame {
       this.lastAction = { player: player.name, type: 'call', amount: pay };
       if (pay === 0) this.pushLog(player.name, 'check', '过牌 Check');
       else this.pushLog(player.name, 'call', `跟注 Call ${pay} (${(pay / BIG_BLIND).toFixed(1)}bb)`);
-      if (player.isHero) {
-        if (pay === 0) playCheck();
-        else playChips(0.7);
+      if (pay === 0) {
+        try {
+          playCheck();
+        } catch {
+          /* ignore */
+        }
+      } else {
+        try {
+          playChips(0.7);
+        } catch {
+          /* ignore */
+        }
       }
       return;
     }
@@ -554,19 +569,34 @@ export class PokerGame {
         this.pushLog(player.name, 'raise', `加注 Raise 到 ${target} (${(target / BIG_BLIND).toFixed(1)}bb)`);
       }
       // Crowd gasp on any all-in; chip sfx only for the local player
-      if (player.allIn) playAllIn();
-      else if (player.isHero) playChips(1.2);
+      try {
+        if (player.allIn) playAllIn();
+        else if (player.isHero) playChips(1.2);
+      } catch {
+        /* ignore */
+      }
       return;
     }
   }
 
   /** Called when local hero clicks an action button */
   actHero(action) {
-    if (!this.isHeroTurn()) return;
+    if (!this.isHeroTurn()) {
+      console.warn('[poker] actHero ignored, not hero turn', action, this.currentPlayer, this.phase);
+      return;
+    }
     const hero = this.hero();
     this.clearActionClock();
-    this.applyAction(hero, action);
+    try {
+      this.applyAction(hero, action);
+    } catch (e) {
+      console.error('[poker] applyAction failed', e);
+      this.clearActionClock();
+      this.emit();
+      return;
+    }
     this.emit();
+    actionsSignatureReset();
 
     if (this.activePlayers().length === 1) {
       this.finishHand();
