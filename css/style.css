@@ -1638,11 +1638,12 @@ button:focus-visible {
 /* ===== Responsive ===== */
 @media (max-width: 720px) {
   .topbar {
-    padding: 10px 12px;
+    padding: 8px 10px;
+    gap: 6px;
   }
 
   .brand-title {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .brand-sub {
@@ -1650,25 +1651,29 @@ button:focus-visible {
   }
 
   .meta {
-    gap: 10px;
+    gap: 6px;
+  }
+
+  .meta-label {
+    display: none;
+  }
+
+  .btn-ghost {
+    padding: 6px 8px;
+    font-size: 12px;
+    min-height: 36px;
+    border-radius: 8px;
   }
 
   .table-wrap {
     aspect-ratio: 3 / 2;
-    max-height: min(58vh, 420px);
+    max-height: min(48vh, 380px);
     width: min(100%, 560px);
-    margin-top: 8px;
+    margin-top: 6px;
   }
 
   .table-rail {
-    padding: 14px;
-    box-shadow:
-      inset 0 2px 0 rgba(255, 220, 170, 0.12),
-      inset 0 -4px 10px rgba(0, 0, 0, 0.55),
-      0 0 0 2px #0a0e14,
-      0 0 0 3px rgba(212, 175, 55, 0.75),
-      0 0 0 5px #0a0e14,
-      0 12px 32px rgba(0, 0, 0, 0.5);
+    padding: 12px;
   }
 
   .table {
@@ -1680,169 +1685,232 @@ button:focus-visible {
   }
 
   .avatar-wrap {
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
   }
 
   .plate {
     padding: 3px 7px 4px;
   }
 
-  .player-name { font-size: 11px; }
-  .player-stack { font-size: 12px; }
+  .player-name {
+    font-size: 11px;
+  }
+
+  .player-stack {
+    font-size: 12px;
+  }
+
+  .action-bar {
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    gap: 6px;
+  }
 
   .actions {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .action-btn {
+    min-height: 42px;
+    font-size: 13px;
+    border-radius: 10px;
+    letter-spacing: 0;
+    padding: 0 4px;
   }
 
   .btn-raise {
-    grid-column: span 2;
+    grid-column: auto;
+  }
+
+  .btn-start {
+    min-height: 48px;
+    font-size: 14px;
+  }
+
+  .quick-raises {
+    gap: 5px;
+    justify-content: center;
+  }
+
+  .quick-btn {
+    min-height: 28px;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 999px;
+  }
+
+  .raise-row {
+    gap: 6px;
+  }
+
+  .raise-amount {
+    width: 72px;
+    min-width: 72px;
+    padding: 8px;
+    font-size: 15px;
+  }
+
+  .action-timer {
+    gap: 6px;
+    font-size: 11px;
+  }
+
+  .action-timer-num {
+    font-size: 16px;
+    min-width: 24px;
+  }
+
+  .waiting {
+    min-height: 42px;
+    font-size: 12px;
   }
 }
 
 /*
-  Phone portrait (WeChat default):
-  vertical racetrack — semicircles top/bottom, straight left/right.
-  Dealer on the left mid-edge. Hero bottom-center, one top, two on each side.
+  Phone portrait (WeChat / mobile install):
+  Tall vertical racetrack — seats widely spaced, compact controls.
 */
 @media (max-width: 760px) and (orientation: portrait) {
   .topbar {
-    padding: 8px 10px;
+    padding: 6px 8px;
+    flex-wrap: wrap;
+    row-gap: 4px;
   }
 
   .stage {
-    padding: 8px 6px 0;
+    padding: 6px 4px 0;
   }
 
   .table-wrap {
-    /* Room for topbar + action bar; felt inset by thick rail */
-    aspect-ratio: 10 / 24;
-    max-height: min(52vh, 640px);
-    width: min(100%, 380px);
-    margin-top: 0;
+    /* Longer track for roomier seats */
+    aspect-ratio: 10 / 26;
+    max-height: min(58vh, 720px);
+    width: min(100%, 400px);
+    margin-top: 2px;
   }
 
   .table-rail {
-    padding: 24px 16px;
+    padding: 22px 14px;
   }
 
-  /* Board & pot on the tall felt */
   .board {
-    top: 42%;
+    top: 44%;
+  }
+
+  .board .pcard,
+  .board .card-slot {
+    width: clamp(36px, 9vw, 48px);
+    height: clamp(52px, 13vw, 70px);
   }
 
   .pot {
-    top: 58%;
+    top: 62%;
+    padding: 4px 10px;
+    gap: 6px;
+  }
+
+  .pot-amount {
+    font-size: 15px;
   }
 
   .dealer-well {
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: clamp(48px, 12vw, 60px);
-    height: clamp(72px, 18vw, 96px);
+    width: clamp(44px, 11vw, 56px);
+    height: clamp(64px, 16vw, 88px);
     border-radius: 0 999px 999px 0;
-    border: 1px solid rgba(212, 175, 55, 0.28);
+    border: 1px solid #cbd5e1;
     border-left: none;
+    background: linear-gradient(180deg, #f8fafc, #e2e8f0);
     align-items: center;
-    padding: 4px 2px 4px 0;
+    padding: 4px 2px;
     z-index: 5;
   }
 
   .dealer-avatar {
-    width: 36px;
-    height: 48px;
-    border-radius: 24px 24px 18px 18px;
+    width: 34px;
+    height: 46px;
     margin-top: 0;
   }
 
   .dealer-label {
     writing-mode: vertical-rl;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.16em;
     font-size: 8px;
+    color: var(--muted);
   }
 
   .dealer-figure {
-    gap: 4px;
+    gap: 2px;
   }
 
-  /* Seat remap for vertical track — spread wider, cards beside avatars */
+  /* Widely spaced vertical seats */
   .seat {
-    width: 100px;
+    width: 112px;
     gap: 4px;
   }
 
-  /*
-    Clockwise from hero must match game seat order:
-    0 bottom → 1 bottom-left → 2 left → 3 top-left → 4 top-right → 5 right
-  */
   .seat.top-left {
-    /* player 3 — top center */
     left: 50%;
     right: auto;
-    top: 0%;
+    top: -1%;
     transform: translateX(-50%);
   }
 
   .seat.bottom-right {
-    /* hero — bottom center, clear of the action bar */
     left: 50%;
     right: auto;
-    bottom: 2%;
+    bottom: 1%;
     transform: translateX(-50%);
     z-index: 8;
   }
 
   .seat.left {
-    /* player 2 — left upper */
     left: 0;
-    top: 14%;
+    top: 16%;
     transform: none;
   }
 
   .seat.bottom-left {
-    /* player 1 — left lower, cards on the left */
     left: 0;
     right: auto;
     bottom: auto;
-    top: 64%;
+    top: 66%;
     transform: none;
   }
 
   .seat.top-right {
-    /* player 4 — right upper — keep cards on avatar's right, inset so they fit */
     left: auto;
-    right: 4px;
-    top: 14%;
+    right: 0;
+    top: 16%;
     transform: none;
   }
 
   .seat.right {
-    /* player 5 — right lower */
-    right: 4px;
-    top: 64%;
+    right: 0;
+    top: 66%;
     transform: none;
   }
-
-  /* Left-edge seats: cards stay on the right (toward center) — default order */
 
   .seat.left .avatar-wrap,
   .seat.bottom-left .avatar-wrap,
   .seat.right .avatar-wrap,
   .seat.top-right .avatar-wrap,
   .seat.top-left .avatar-wrap {
-    width: 50px;
-    height: 50px;
+    width: 54px;
+    height: 54px;
   }
 
   .seat-cards .pcard {
-    width: 28px;
-    height: 40px;
+    width: 26px;
+    height: 38px;
   }
 
   .seat.bottom-right .seat-cards .pcard {
-    width: 34px;
-    height: 48px;
+    width: 32px;
+    height: 46px;
   }
 
   .seat-body {
@@ -1851,31 +1919,130 @@ button:focus-visible {
 
   .seat-cards {
     flex-direction: row;
+    gap: 3px;
+  }
+
+  .plate {
+    padding: 3px 8px 4px;
+    min-width: 0;
+    max-width: 96px;
+  }
+
+  .player-name {
+    font-size: 11px;
+  }
+
+  .player-stack {
+    font-size: 12px;
+  }
+
+  .player-action {
+    font-size: 9px;
+  }
+
+  .hand-tag {
+    font-size: 9px;
   }
 
   .win-panel {
-    top: 38%;
+    top: 40%;
+    width: calc(100% - 16px);
+  }
+
+  .win-banner {
+    font-size: 13px;
+    padding: 8px 14px;
+    white-space: normal;
+    text-align: center;
   }
 
   .win-cards .pcard {
-    width: 30px;
-    height: 44px;
+    width: 28px;
+    height: 42px;
   }
 
   .toast {
     font-size: 12px;
-    padding: 8px 12px;
+    padding: 6px 10px;
+    margin-top: 6px;
+  }
+
+  /* Compact bottom action zone */
+  .action-bar {
+    padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
+    gap: 5px;
+  }
+
+  .action-timer {
+    padding: 0;
+  }
+
+  .quick-raises {
+    gap: 4px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .quick-btn {
+    min-height: 26px;
+    padding: 3px 8px;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .action-btn {
+    min-height: 44px;
+    font-size: 12.5px;
+    border-radius: 10px;
+    padding: 0 2px;
+    line-height: 1.15;
+  }
+
+  .btn-start {
+    min-height: 48px;
+    font-size: 14px;
+  }
+
+  .raise-row {
+    gap: 6px;
+  }
+
+  .raise-amount {
+    width: 68px;
+    min-width: 68px;
+    padding: 8px 6px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .raise-row input[type="range"] {
+    margin: 0;
+  }
+
+  .action-timer-num {
+    font-size: 15px;
+  }
+
+  .action-timer-track {
+    height: 4px;
   }
 }
 
 @media (max-width: 760px) {
   .quick-raises {
-    gap: 6px;
+    gap: 5px;
   }
 
   .quick-btn {
-    min-height: 34px;
-    padding: 5px 10px;
+    min-height: 30px;
+    padding: 4px 9px;
     font-size: 11px;
   }
 }
