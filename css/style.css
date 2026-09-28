@@ -1772,209 +1772,329 @@ button:focus-visible {
   Tall vertical racetrack — seats widely spaced, compact controls.
 */
 @media (max-width: 760px) and (orientation: portrait) {
+  /* Slim header — keep brand + essential controls only */
   .topbar {
-    padding: 6px 8px;
-    flex-wrap: wrap;
-    row-gap: 4px;
+    padding: 4px 8px;
+    gap: 4px;
+    flex-wrap: nowrap;
+    min-height: 40px;
+  }
+
+  .brand-mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .brand-title {
+    font-size: 13px;
+  }
+
+  .brand-ver {
+    margin-left: 4px;
+    font-size: 9px;
+    padding: 0 4px;
+  }
+
+  .brand-sub {
+    display: none;
+  }
+
+  .meta {
+    gap: 4px;
+    flex-wrap: nowrap;
+  }
+
+  .meta-item {
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .meta-label {
+    display: none;
+  }
+
+  .meta-value {
+    font-size: 12px;
+  }
+
+  .btn-ghost {
+    min-height: 30px;
+    padding: 4px 6px;
+    font-size: 11px;
+    border-radius: 8px;
   }
 
   .stage {
-    padding: 6px 4px 0;
+    padding: 4px 4px 0;
   }
 
   .table-wrap {
-    /* Longer track for roomier seats */
-    aspect-ratio: 10 / 26;
-    max-height: min(58vh, 720px);
-    width: min(100%, 400px);
-    margin-top: 2px;
+    /* Smaller footprint; still tall enough to spread seats */
+    aspect-ratio: 10 / 22;
+    max-height: min(54vh, 620px);
+    width: min(100%, 340px);
+    margin-top: 0;
   }
 
   .table-rail {
-    padding: 22px 14px;
+    padding: 16px 10px;
   }
 
   .board {
-    top: 44%;
+    top: 45%;
+    gap: 4px;
   }
 
   .board .pcard,
   .board .card-slot {
-    width: clamp(36px, 9vw, 48px);
-    height: clamp(52px, 13vw, 70px);
+    width: clamp(30px, 7.5vw, 40px);
+    height: clamp(44px, 11vw, 58px);
   }
 
   .pot {
-    top: 62%;
-    padding: 4px 10px;
-    gap: 6px;
+    top: 64%;
+    padding: 3px 8px;
+    gap: 5px;
   }
 
   .pot-amount {
-    font-size: 15px;
+    font-size: 13px;
+  }
+
+  .pot-label {
+    font-size: 10px;
+  }
+
+  .pot-chips {
+    width: 20px;
+    height: 8px;
   }
 
   .dealer-well {
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: clamp(44px, 11vw, 56px);
-    height: clamp(64px, 16vw, 88px);
+    width: clamp(40px, 10vw, 50px);
+    height: clamp(56px, 14vw, 76px);
     border-radius: 0 999px 999px 0;
     border: 1px solid #cbd5e1;
     border-left: none;
     background: linear-gradient(180deg, #f8fafc, #e2e8f0);
     align-items: center;
-    padding: 4px 2px;
+    padding: 2px;
     z-index: 5;
   }
 
   .dealer-avatar {
-    width: 34px;
-    height: 46px;
+    width: 28px;
+    height: 38px;
     margin-top: 0;
   }
 
   .dealer-label {
     writing-mode: vertical-rl;
-    letter-spacing: 0.16em;
-    font-size: 8px;
+    letter-spacing: 0.12em;
+    font-size: 7px;
     color: var(--muted);
   }
 
   .dealer-figure {
-    gap: 2px;
+    gap: 1px;
   }
 
-  /* Widely spaced vertical seats */
+  /* Seats: smaller, spread, no overlap with board/pot */
   .seat {
-    width: 112px;
-    gap: 4px;
+    width: 96px;
+    gap: 2px;
   }
 
   .seat.top-left {
     left: 50%;
     right: auto;
-    top: -1%;
+    top: 0;
     transform: translateX(-50%);
+    z-index: 7;
   }
 
   .seat.bottom-right {
     left: 50%;
     right: auto;
-    bottom: 1%;
+    bottom: 0;
     transform: translateX(-50%);
     z-index: 8;
   }
 
   .seat.left {
     left: 0;
-    top: 16%;
+    top: 22%;
     transform: none;
+    z-index: 7;
   }
 
   .seat.bottom-left {
     left: 0;
     right: auto;
     bottom: auto;
-    top: 66%;
+    top: 68%;
     transform: none;
+    z-index: 7;
   }
 
   .seat.top-right {
     left: auto;
     right: 0;
-    top: 16%;
+    top: 22%;
     transform: none;
+    z-index: 7;
   }
 
   .seat.right {
     right: 0;
-    top: 66%;
+    top: 68%;
     transform: none;
+    z-index: 7;
   }
 
-  .seat.left .avatar-wrap,
-  .seat.bottom-left .avatar-wrap,
-  .seat.right .avatar-wrap,
-  .seat.top-right .avatar-wrap,
-  .seat.top-left .avatar-wrap {
-    width: 54px;
-    height: 54px;
+  .seat .avatar-wrap,
+  .seat .avatar {
+    width: 44px;
+    height: 44px;
   }
 
-  .seat-cards .pcard {
-    width: 26px;
-    height: 38px;
-  }
-
-  .seat.bottom-right .seat-cards .pcard {
-    width: 32px;
-    height: 46px;
-  }
-
-  .seat-body {
-    flex-direction: column;
-  }
-
-  .seat-cards {
-    flex-direction: row;
-    gap: 3px;
+  .seat .avatar {
+    border-width: 2px;
   }
 
   .plate {
-    padding: 3px 8px 4px;
+    padding: 2px 7px 3px;
     min-width: 0;
-    max-width: 96px;
+    max-width: 88px;
+    border-radius: 999px;
   }
 
   .player-name {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .player-stack {
-    font-size: 12px;
+    font-size: 11px;
+  }
+
+  .player-bet {
+    font-size: 10px;
   }
 
   .player-action {
-    font-size: 9px;
+    font-size: 8px;
+    min-height: 10px;
   }
 
   .hand-tag {
-    font-size: 9px;
+    font-size: 8px;
+    min-height: 10px;
+  }
+
+  .bet-row {
+    min-height: 14px;
+    gap: 4px;
+    margin-top: 1px;
+  }
+
+  .chip-stack {
+    width: 18px;
+    height: 13px;
+  }
+
+  .chip-stack i {
+    width: 16px;
+    margin-left: -8px;
+  }
+
+  .seat-cards {
+    gap: 2px;
+  }
+
+  .seat-cards .pcard {
+    width: 22px;
+    height: 32px;
+    border-radius: 4px;
+  }
+
+  .seat.bottom-right .seat-cards .pcard {
+    width: 28px;
+    height: 40px;
+  }
+
+  .ai-tag {
+    font-size: 8px;
+    padding: 0 3px;
+  }
+
+  .online-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  /* Toast sits between table and controls — never over seats */
+  .toast {
+    font-size: 11px;
+    padding: 5px 10px;
+    margin-top: 6px;
+    max-width: calc(100vw - 24px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .coach-tip {
+    font-size: 11px;
+    padding: 4px 8px;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .win-panel {
-    top: 40%;
-    width: calc(100% - 16px);
+    top: 48%;
+    z-index: 9;
   }
 
   .win-banner {
-    font-size: 13px;
-    padding: 8px 14px;
+    font-size: 12px;
+    padding: 6px 12px;
     white-space: normal;
     text-align: center;
+    max-width: 90%;
   }
 
   .win-cards .pcard {
-    width: 28px;
-    height: 42px;
+    width: 24px;
+    height: 36px;
   }
 
-  .toast {
-    font-size: 12px;
-    padding: 6px 10px;
-    margin-top: 6px;
-  }
-
-  /* Compact bottom action zone */
+  /* Compact bottom controls */
   .action-bar {
-    padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
-    gap: 5px;
+    padding: 5px 8px calc(6px + env(safe-area-inset-bottom));
+    gap: 4px;
+    border-top: 1px solid #e5e7eb;
   }
 
   .action-timer {
-    padding: 0;
+    gap: 5px;
+    font-size: 10px;
+  }
+
+  .action-timer-num {
+    font-size: 14px;
+    min-width: 20px;
+  }
+
+  .action-timer-track {
+    height: 3px;
   }
 
   .quick-raises {
@@ -1986,52 +2106,45 @@ button:focus-visible {
   }
 
   .quick-btn {
-    min-height: 26px;
-    padding: 3px 8px;
+    min-height: 24px;
+    padding: 2px 7px;
     font-size: 10px;
     flex-shrink: 0;
   }
 
   .actions {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 5px;
+    gap: 4px;
   }
 
   .action-btn {
-    min-height: 44px;
-    font-size: 12.5px;
-    border-radius: 10px;
+    min-height: 40px;
+    font-size: 12px;
+    border-radius: 9px;
     padding: 0 2px;
-    line-height: 1.15;
+    line-height: 1.1;
   }
 
   .btn-start {
-    min-height: 48px;
-    font-size: 14px;
+    min-height: 44px;
+    font-size: 13px;
   }
 
   .raise-row {
-    gap: 6px;
+    gap: 5px;
   }
 
   .raise-amount {
-    width: 68px;
-    min-width: 68px;
-    padding: 8px 6px;
-    font-size: 14px;
+    width: 64px;
+    min-width: 64px;
+    padding: 7px 6px;
+    font-size: 13px;
     border-radius: 8px;
   }
 
-  .raise-row input[type="range"] {
-    margin: 0;
-  }
-
-  .action-timer-num {
-    font-size: 15px;
-  }
-
-  .action-timer-track {
-    height: 4px;
+  .waiting {
+    min-height: 36px;
+    font-size: 11px;
   }
 }
 
