@@ -2,6 +2,13 @@
 
 All notable changes to **hin's poker**.
 
+## v5.1 — 2026-09-28
+
+### Added
+- PWA installable (manifest + service worker + icons)
+- White flat UI, mobile-first
+- Game layout: table left, action controls right (all orientations)
+
 ## v4.0 — 2026-09-16
 
 ### Added

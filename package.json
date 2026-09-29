@@ -1,9 +1,9 @@
 {
   "name": "hins-poker",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "private": true,
   "type": "module",
-  "description": "hin's poker v5.0 — PWA, mobile-first flat UI",
+  "description": "hin's poker v5.1 — PWA, white flat UI, table-left layout",
   "scripts": {
     "test": "node js/evaluator.test.mjs && node js/deal-bust.test.mjs && node js/rebuy.test.mjs",
     "start": "python3 -m http.server 5173",
