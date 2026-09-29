@@ -13,7 +13,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="assets/icon-192.png" />
-  <link rel="stylesheet" href="css/style.css?v=v5.2.2" />
+  <link rel="stylesheet" href="css/style.css?v=v5.2.3" />
 </head>
 <body>
   <!-- Lobby -->
@@ -76,27 +76,7 @@
         <div class="brand-mark" aria-hidden="true">H</div>
         <div class="brand-text">
           <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v5.2</span></div>
-          <div class="brand-sub" id="brand-sub">No-Limit Hold'em</div>
         </div>
-      </div>
-      <div class="meta">
-        <div class="meta-item" id="room-badge" hidden>
-          <span class="meta-label">房间（点我复制邀请）</span>
-          <button type="button" class="meta-value room-link" id="room-code">—</button>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">手牌</span>
-          <span class="meta-value" id="hand-num">—</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">盲注</span>
-          <span class="meta-value" id="blinds">0.5bb / 1bb</span>
-        </div>
-        <button class="btn-ghost" id="btn-train" type="button" title="训练模式">训练</button>
-        <button class="btn-ghost" id="btn-mute" type="button" title="开关音效">🔊</button>
-        <button class="btn-ghost" id="btn-rebuy" type="button" hidden>补码</button>
-        <button class="btn-ghost" id="btn-reset" type="button">重置筹码</button>
-        <button class="btn-ghost" id="btn-leave" type="button">离开</button>
       </div>
     </header>
 
@@ -136,9 +116,23 @@
         <div class="coach-tip" id="coach-tip" hidden></div>
       </main>
 
+      <div class="float-tools" id="float-tools">
+        <div class="room-meta">
+          <button type="button" class="room-link" id="room-code" hidden>邀请</button>
+          <div class="meta-mini">
+            <span id="hand-num">—</span>
+            <span id="blinds">0.5bb / 1bb</span>
+          </div>
+        </div>
+        <button class="btn-ghost" id="btn-train" type="button" title="训练模式">训练</button>
+        <button class="btn-ghost" id="btn-mute" type="button" title="开关音效">🔊</button>
+        <button class="btn-ghost" id="btn-rebuy" type="button" hidden>补码</button>
+        <button class="btn-ghost" id="btn-reset" type="button">重置</button>
+        <button class="btn-ghost" id="btn-leave" type="button">离开</button>
+      </div>
+
       <footer class="action-bar">
         <div class="action-timer" id="action-timer" hidden>
-          <span class="action-timer-label">行动倒计时</span>
           <span class="action-timer-num" id="action-timer-num">30</span>
           <div class="action-timer-track"><div class="action-timer-fill" id="action-timer-fill"></div></div>
         </div>
@@ -167,24 +161,6 @@
         </div>
         <div class="actions" id="actions"></div>
       </footer>
-
-      <aside class="action-side" id="action-side" aria-label="行动日志">
-        <div class="side-head">
-          <span>行动日志</span>
-          <span class="side-sub">Training</span>
-        </div>
-        <div class="coach-box" id="coach-box" hidden>
-          <div class="coach-title">教练提示</div>
-          <div class="coach-action" id="coach-action"></div>
-          <div class="coach-reason" id="coach-reason"></div>
-          <div class="coach-term" id="coach-term"></div>
-        </div>
-        <div class="action-log" id="action-log" aria-live="polite"></div>
-        <details class="term-book">
-          <summary>术语速查</summary>
-          <div id="term-list"></div>
-        </details>
-      </aside>
     </div>
   </div>
 

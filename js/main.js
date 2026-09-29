@@ -661,14 +661,21 @@ function showLobby() {
 function setRoomBadge(code) {
   const badge = document.getElementById('room-badge');
   const el = document.getElementById('room-code');
-  if (!badge || !el) return;
+  if (!el) return;
   if (!code) {
-    badge.hidden = true;
+    el.hidden = true;
+    if (badge) badge.hidden = true;
     return;
   }
-  badge.hidden = false;
-  el.textContent = code;
+  if (badge) badge.hidden = false;
+  el.hidden = false;
+  el.textContent = `邀请 ${code}`;
   el.title = `复制邀请链接（${currentWsUrl()}）`;
+}
+
+function setBrandSub(text) {
+  const el = document.getElementById('brand-sub');
+  if (el) el.textContent = text;
 }
 
 function doAction(action) {
@@ -734,7 +741,7 @@ function enterSolo() {
     0,
   );
   setRoomBadge(null);
-  document.getElementById('brand-sub').textContent = "No-Limit Hold'em";
+  setBrandSub("No-Limit Hold'em");
   clearWinBanner();
   initBoardSlots();
   actionsSignature = '';
@@ -1147,7 +1154,7 @@ function handleNetMessage(msg) {
     mode = 'host';
     setRoomBadge(roomCode);
     showInvite(roomCode);
-    document.getElementById('brand-sub').textContent = `联机 · 房间 ${roomCode}`;
+    setBrandSub(`联机 · 房间 ${roomCode}`);
     applySeatPlan(msg.roster);
     showGame();
     return;
@@ -1159,7 +1166,7 @@ function handleNetMessage(msg) {
     mySeat = msg.seat;
     mode = 'guest';
     setRoomBadge(roomCode);
-    document.getElementById('brand-sub').textContent = `联机 · 房间 ${roomCode}`;
+    setBrandSub(`联机 · 房间 ${roomCode}`);
     applySeatPlan(msg.roster);
     showGame();
     return;

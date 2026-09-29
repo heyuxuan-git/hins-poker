@@ -59,13 +59,12 @@ button:focus-visible {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  max-width: 1200px;
-  margin: 0 auto;
-  background: #fff;
-  box-shadow: 0 0 0 1px #e5e7eb;
+  max-width: none;
+  margin: 0;
+  background: #f3f4f6;
 }
 
-/* Forced horizontal UI: full-width table + floating actions */
+/* Game: large table left; floating controls; no topbar */
 .game-layout {
   flex: 1;
   display: grid;
@@ -78,81 +77,231 @@ button:focus-visible {
 }
 
 .app:has(#game-app:not([hidden])) .topbar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 20;
-  background: transparent;
-  border-bottom: none;
-  padding: 6px 8px;
-  min-height: 40px;
-  pointer-events: none;
-}
-
-.app:has(#game-app:not([hidden])) .topbar .brand,
-.app:has(#game-app:not([hidden])) .topbar .meta,
-.app:has(#game-app:not([hidden])) .topbar .btn-ghost {
-  pointer-events: auto;
-}
-
-.app:has(#game-app:not([hidden])) .topbar .brand {
-  align-self: flex-start;
-  margin-top: 2px;
-}
-
-.app:has(#game-app:not([hidden])) .topbar .meta {
-  align-self: flex-start;
-  margin-left: auto;
-  padding-top: 2px;
-}
-
-.app:has(#game-app:not([hidden])) .stage {
-  padding: 44px 8px 120px;
-  min-height: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.app:has(#game-app:not([hidden])) .table-wrap {
-  width: min(100%, 720px);
-  aspect-ratio: 21 / 10;
-  max-height: min(70vh, 480px);
-  margin: 0 auto;
-}
-
-.app:has(#game-app:not([hidden])) .action-bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin-top: 0;
-  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
-  background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.92) 28%, #fff);
-  border-left: none;
-  border-top: 1px solid #e5e7eb;
-  overflow-y: auto;
-  max-height: 42vh;
-  gap: 4px;
-  justify-content: flex-end;
-  z-index: 16;
-}
-
-.app:has(#game-app:not([hidden])) .action-side {
   display: none !important;
 }
 
 .app:has(#game-app:not([hidden])) .stage {
+  padding: 8px 38% 12px 8px;
+  min-height: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
 }
 
 .app:has(#game-app:not([hidden])) .table-wrap {
-  width: min(100%, 640px);
+  width: 100%;
+  max-width: none;
   aspect-ratio: 21 / 10;
-  max-height: calc(100% - 20px);
+  max-height: min(78vh, 520px);
+  margin: 0;
+}
+
+/* Floating utility buttons — top-right */
+.float-tools {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.float-tools .btn-ghost {
+  min-height: 30px;
+  padding: 5px 9px;
+  font-size: 11px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e5e7eb;
+  color: var(--text);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
+}
+
+.float-tools .room-meta {
+  font-size: 11px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 8px;
+  padding: 4px 8px;
+  text-align: right;
+}
+
+.float-tools .meta-mini {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Floating action controls — bottom-right, no panel */
+.action-bar {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  left: auto;
+  width: min(42vw, 240px);
   margin-top: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow: visible;
+  max-height: none;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.action-bar > * {
+  pointer-events: auto;
+}
+
+.action-timer {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+}
+
+.action-btn {
+  min-height: 36px;
+  font-size: 11.5px;
+  border-radius: 9px;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.1);
+}
+
+.btn-start {
+  grid-column: 1 / -1;
+  min-height: 40px;
+}
+
+.quick-raises {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+}
+
+.quick-btn {
+  min-height: 24px;
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
+.raise-row {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+}
+
+.raise-amount {
+  width: 100%;
+}
+
+.action-side {
+  display: none !important;
+}
+
+/* Compact player elements on a large table */
+.app:has(#game-app:not([hidden])) .avatar-wrap,
+.app:has(#game-app:not([hidden])) .avatar {
+  width: 36px;
+  height: 36px;
+}
+
+.app:has(#game-app:not([hidden])) .plate {
+  padding: 1px 5px 2px;
+  max-width: 72px;
+  gap: 0;
+}
+
+.app:has(#game-app:not([hidden])) .player-name {
+  font-size: 9px;
+}
+
+.app:has(#game-app:not([hidden])) .player-stack {
+  font-size: 10px;
+}
+
+.app:has(#game-app:not([hidden])) .player-bet,
+.app:has(#game-app:not([hidden])) .player-action,
+.app:has(#game-app:not([hidden])) .hand-tag {
+  font-size: 8px;
+  min-height: 9px;
+}
+
+.app:has(#game-app:not([hidden])) .bet-row {
+  height: 16px;
+  min-height: 16px;
+  max-height: 16px;
+  padding: 0 4px;
+}
+
+.app:has(#game-app:not([hidden])) .chip-stack {
+  width: 14px;
+  height: 11px;
+}
+
+.app:has(#game-app:not([hidden])) .seat {
+  width: 78px;
+}
+
+.app:has(#game-app:not([hidden])) .seat-cards .pcard {
+  width: 18px;
+  height: 27px;
+}
+
+.app:has(#game-app:not([hidden])) .seat.bottom-right .seat-cards .pcard {
+  width: 22px;
+  height: 33px;
+}
+
+.app:has(#game-app:not([hidden])) .board .pcard,
+.app:has(#game-app:not([hidden])) .board .card-slot {
+  width: 30px;
+  height: 45px;
+}
+
+.app:has(#game-app:not([hidden])) .dealer-well {
+  width: 56px;
+  height: 44px;
+}
+
+.app:has(#game-app:not([hidden])) .dealer-avatar {
+  width: 30px;
+  height: 40px;
+}
+
+.app:has(#game-app:not([hidden])) .ai-tag {
+  font-size: 7px;
+  padding: 0 3px;
 }
 
 /* ===== Top bar ===== */
