@@ -4,7 +4,7 @@ const ASSETS = [
   './',
   './index.html',
   './css/style.css?v=v6.2',
-  './js/main.js?v=v6.1',
+  './js/main.js?v=v6.2',
   './js/game.js',
   './js/deck.js',
   './js/evaluator.js',
