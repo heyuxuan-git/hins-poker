@@ -1789,6 +1789,76 @@ button:focus-visible {
     margin-top: 0;
   }
 
+  /* Horizontal racetrack seats (same order as desktop) */
+  .seat.top-left {
+    left: 18%;
+    right: auto;
+    top: 0;
+    transform: none;
+  }
+
+  .seat.top-right {
+    left: auto;
+    right: 18%;
+    top: 0;
+    transform: none;
+  }
+
+  .seat.left {
+    left: 0;
+    top: 46%;
+    transform: translateY(-50%);
+  }
+
+  .seat.right {
+    right: 0;
+    left: auto;
+    top: 46%;
+    transform: translateY(-50%);
+  }
+
+  .seat.bottom-left {
+    left: 18%;
+    right: auto;
+    bottom: 0;
+    top: auto;
+  }
+
+  .seat.bottom-right {
+    left: auto;
+    right: 18%;
+    bottom: 0;
+    top: auto;
+  }
+
+  .seat.left .seat-body,
+  .seat.right .seat-body {
+    flex-direction: column;
+  }
+
+  .dealer-well {
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: clamp(48px, 10vw, 70px);
+    height: clamp(40px, 6vw, 56px);
+    border-radius: 0 0 999px 999px;
+    border: 1px solid #cbd5e1;
+    border-top: none;
+    background: linear-gradient(180deg, #f8fafc, #e2e8f0);
+  }
+
+  .dealer-avatar {
+    width: 32px;
+    height: 42px;
+  }
+
+  .dealer-label {
+    writing-mode: horizontal-tb;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+  }
+
   .table-rail {
     padding: 12px;
   }
