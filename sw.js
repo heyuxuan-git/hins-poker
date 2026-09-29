@@ -1,10 +1,10 @@
 /* hin's poker PWA service worker */
-const CACHE = 'hin-poker-v60';
+const CACHE = 'hin-poker-v61';
 const ASSETS = [
   './',
   './index.html',
-  './css/style.css?v=v6.0',
-  './js/main.js?v=v6.0',
+  './css/style.css?v=v6.1',
+  './js/main.js?v=v6.1',
   './js/game.js',
   './js/deck.js',
   './js/evaluator.js',

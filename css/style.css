@@ -2687,7 +2687,10 @@ body.mode-game .game-layout {
 body.mode-game .stage {
   position: absolute !important;
   inset: 0 !important;
-  padding: 10px 108px 10px 10px !important;
+  /* Extra sides for rounded corners / Dynamic Island */
+  padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    12px max(16px, env(safe-area-inset-left)) !important;
+  padding-right: max(100px, env(safe-area-inset-right) + 92px) !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -2698,11 +2701,53 @@ body.mode-game .stage {
 
 body.mode-game .table-wrap {
   position: relative !important;
-  width: 100% !important;
-  max-width: none !important;
+  width: 92% !important;
+  max-width: 720px !important;
   aspect-ratio: 21 / 10 !important;
   max-height: 100% !important;
   margin: 0 !important;
+}
+
+/* Small cards: rank & suit must scale */
+body.mode-game .pcard .corner,
+body.mode-game .pcard .center,
+body.mode-game .seat-cards .pcard .corner,
+body.mode-game .seat-cards .pcard .center,
+body.mode-game .board .pcard .corner,
+body.mode-game .board .pcard .center,
+body.mode-game .win-cards .pcard .corner,
+body.mode-game .win-cards .pcard .center {
+  font-size: clamp(8px, 1.6vw, 14px) !important;
+}
+
+body.mode-game .seat-cards .pcard .corner,
+body.mode-game .seat-cards .pcard .center {
+  font-size: 8px !important;
+}
+
+body.mode-game .seat.bottom-right .seat-cards .pcard .corner,
+body.mode-game .seat.bottom-right .seat-cards .pcard .center {
+  font-size: 10px !important;
+}
+
+body.mode-game .board .pcard .corner,
+body.mode-game .board .pcard .center {
+  font-size: clamp(9px, 1.8vw, 13px) !important;
+}
+
+body.mode-game .win-cards .pcard .corner,
+body.mode-game .win-cards .pcard .center {
+  font-size: 9px !important;
+}
+
+body.mode-game .pcard .corner span:last-child,
+body.mode-game .pcard .center {
+  line-height: 1 !important;
+}
+
+body.mode-game .win-cards .pcard {
+  width: 24px !important;
+  height: 36px !important;
 }
 
 body.mode-game .table-rail {
