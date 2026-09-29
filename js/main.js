@@ -189,7 +189,7 @@ function ensureSeatScaffold(el) {
           <span class="ai-tag" hidden>AI</span>
         </div>
         <div class="player-stack"></div>
-        <div class="bet-row" hidden>
+        <div class="bet-row">
           <span class="chip-stack" aria-hidden="true">
             <i></i><i></i><i></i><i></i>
           </span>
@@ -290,12 +290,17 @@ function renderSeat(el, player, state) {
   if (cache.stack.textContent !== stackText) cache.stack.textContent = stackText;
 
   const hasBet = player.bet > 0;
-  if (cache.betRow.hidden === hasBet) cache.betRow.hidden = !hasBet;
+  // Fixed-size bet slot: never toggle display (avoids plate height jumps)
   if (hasBet) {
+    cache.betRow.classList.remove('is-empty');
     const betText = formatBb(player.bet, state.bigBlind);
     if (cache.bet.textContent !== betText) cache.bet.textContent = betText;
     const chips = Math.min(4, Math.max(1, Math.ceil(player.bet / 50)));
     cache.chipStack.dataset.tier = String(chips);
+  } else {
+    cache.betRow.classList.add('is-empty');
+    if (cache.bet.textContent !== '') cache.bet.textContent = '—';
+    if (cache.chipStack.dataset.tier !== '0') cache.chipStack.dataset.tier = '0';
   }
 
   const actionText = (player.lastAction || '').replace(/\s+\d+(\.\d+)?$/, (m) => {
