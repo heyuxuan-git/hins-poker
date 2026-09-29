@@ -64,6 +64,109 @@ button:focus-visible {
   box-shadow: 0 0 0 1px #e5e7eb;
 }
 
+/* Game shell: topbar + (table | actions) — always, any orientation */
+.app:has(#game-app:not([hidden])) {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.app:has(#game-app:not([hidden])) .topbar {
+  grid-row: 1;
+  padding: 6px 10px;
+  min-height: 38px;
+}
+
+.app:has(#game-app:not([hidden])) .game-layout {
+  grid-row: 2;
+  grid-column: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 32%);
+  min-height: 0;
+  height: 100%;
+}
+
+.app:has(#game-app:not([hidden])) .action-bar {
+  grid-row: 2;
+  grid-column: 2;
+  margin-top: 0;
+  position: relative;
+  bottom: auto;
+  padding: 8px;
+  border-top: none;
+  border-left: 1px solid #e5e7eb;
+  background: #fff;
+  overflow-y: auto;
+  max-height: 100%;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+.app:has(#game-app:not([hidden])) .action-side {
+  display: none !important;
+}
+
+.app:has(#game-app:not([hidden])) .stage {
+  padding: 6px 4px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app:has(#game-app:not([hidden])) .table-wrap {
+  width: min(100%, 640px);
+  aspect-ratio: 21 / 10;
+  max-height: calc(100% - 10px);
+  margin-top: 0;
+}
+
+.app:has(#game-app:not([hidden])) .action-timer {
+  max-width: none;
+}
+
+.app:has(#game-app:not([hidden])) .actions {
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.app:has(#game-app:not([hidden])) .action-btn {
+  min-height: 44px;
+  font-size: 13px;
+}
+
+.app:has(#game-app:not([hidden])) .btn-start {
+  min-height: 48px;
+  grid-column: 1 / -1;
+}
+
+.app:has(#game-app:not([hidden])) .quick-raises {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.app:has(#game-app:not([hidden])) .quick-btn {
+  min-height: 28px;
+}
+
+.app:has(#game-app:not([hidden])) .raise-row {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.app:has(#game-app:not([hidden])) .raise-amount {
+  width: 100%;
+}
+
+.app:has(#game-app:not([hidden])) .toast {
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+.app:has(#game-app:not([hidden])) .coach-tip {
+  font-size: 10px;
+  margin-top: 2px;
+}
+
 /* ===== Top bar ===== */
 .topbar {
   display: flex;
@@ -395,149 +498,9 @@ button:focus-visible {
 }
 
 @media (min-width: 960px) {
-  .game-layout {
-    grid-template-columns: minmax(0, 1fr) 260px;
-  }
-}
-
-/*
-  Mobile landscape:
-  left = table, right = action controls.
-  Topbar stays as a slim full-width strip on top.
-*/
-@media (max-width: 980px) and (orientation: landscape) {
-  .app {
-    height: 100vh;
-    height: 100dvh;
-    max-width: none;
-    overflow: hidden;
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
-  }
-
-  .topbar {
-    grid-row: 1;
-    padding: 4px 8px;
-    min-height: 36px;
-  }
-
-  .brand-mark {
-    width: 24px;
-    height: 24px;
-    font-size: 11px;
-  }
-
-  .brand-title {
-    font-size: 13px;
-  }
-
-  .brand-sub {
-    display: none;
-  }
-
-  .meta-item {
-    flex-direction: row;
-    gap: 2px;
-  }
-
-  .meta-label {
-    display: none;
-  }
-
-  .meta-value {
-    font-size: 12px;
-  }
-
-  .btn-ghost {
-    min-height: 28px;
-    padding: 3px 6px;
-    font-size: 11px;
-  }
-
-  .game-layout {
-    grid-row: 2;
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 30%);
-    min-height: 0;
-  }
-
-  .action-side {
-    display: none !important;
-  }
-
-  .stage {
-    padding: 4px;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .table-wrap {
-    width: min(100%, 520px);
-    aspect-ratio: 21 / 10;
-    max-height: calc(100% - 8px);
-    margin-top: 0;
-  }
-
-  .action-bar {
-    grid-row: 2;
-    grid-column: 2;
-    margin-top: 0;
-    position: relative;
-    bottom: auto;
-    padding: 8px;
-    border-top: none;
-    border-left: 1px solid #e5e7eb;
-    background: #fff;
-    overflow-y: auto;
-    max-height: 100%;
-    gap: 6px;
-  }
-
-  .action-timer {
-    max-width: none;
-  }
-
-  .actions {
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-  }
-
-  .action-btn {
-    min-height: 44px;
-    font-size: 13px;
-  }
-
-  .btn-start {
-    min-height: 48px;
-  }
-
-  .quick-raises {
-    flex-wrap: wrap;
-    overflow: visible;
-  }
-
-  .quick-btn {
-    min-height: 28px;
-  }
-
-  .raise-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .raise-amount {
-    width: 100%;
-  }
-
-  .toast {
-    margin-top: 2px;
-    font-size: 11px;
-  }
-
-  .coach-tip {
-    font-size: 10px;
-    margin-top: 2px;
+  /* Desktop keeps action log on the right */
+  .app:has(#game-app:not([hidden])) .game-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 260px);
   }
 }
 
