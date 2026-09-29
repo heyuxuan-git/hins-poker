@@ -164,8 +164,10 @@ function buildCardEl(card, { board = false } = {}) {
   el.className = `pcard ${board ? 'board-in' : 'deal-in'}${d.isRed ? ' red' : ''}`;
   el.setAttribute('aria-label', `${d.rank}${d.suit}`);
   el.innerHTML = `
-    <div class="corner"><span>${d.rank}</span></div>
-    <div class="center">${d.suit}</div>
+    <div class="corner">
+      <div class="rank">${d.rank}</div>
+      <div class="suit">${d.suit}</div>
+    </div>
   `;
   return el;
 }

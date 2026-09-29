@@ -2687,10 +2687,10 @@ body.mode-game .game-layout {
 body.mode-game .stage {
   position: absolute !important;
   inset: 0 !important;
-  /* Extra sides for rounded corners / Dynamic Island */
-  padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+  /* Extra sides for rounded corners / Dynamic Island / right controls */
+  padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
     12px max(16px, env(safe-area-inset-left)) !important;
-  padding-right: max(100px, env(safe-area-inset-right) + 92px) !important;
+  padding-right: max(112px, calc(env(safe-area-inset-right) + 100px)) !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -2701,48 +2701,59 @@ body.mode-game .stage {
 
 body.mode-game .table-wrap {
   position: relative !important;
-  width: 92% !important;
-  max-width: 720px !important;
+  width: 90% !important;
+  max-width: 680px !important;
   aspect-ratio: 21 / 10 !important;
   max-height: 100% !important;
   margin: 0 !important;
 }
 
-/* Small cards: rank & suit must scale */
-body.mode-game .pcard .corner,
-body.mode-game .pcard .center,
-body.mode-game .seat-cards .pcard .corner,
-body.mode-game .seat-cards .pcard .center,
-body.mode-game .board .pcard .corner,
-body.mode-game .board .pcard .center,
-body.mode-game .win-cards .pcard .corner,
-body.mode-game .win-cards .pcard .center {
-  font-size: clamp(8px, 1.6vw, 14px) !important;
+/* Card rank + suit — stacked, never overlapping */
+body.mode-game .pcard {
+  padding: 2px 3px !important;
+  justify-content: flex-start !important;
 }
 
-body.mode-game .seat-cards .pcard .corner,
-body.mode-game .seat-cards .pcard .center {
+body.mode-game .pcard .corner {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 0 !important;
+  line-height: 1 !important;
+  width: 100% !important;
+}
+
+body.mode-game .pcard .corner .rank {
+  font-weight: 700 !important;
+}
+
+body.mode-game .pcard .corner .suit {
+  margin-top: 1px !important;
+}
+
+body.mode-game .pcard .center {
+  display: none !important;
+}
+
+body.mode-game .seat-cards .pcard .corner .rank,
+body.mode-game .seat-cards .pcard .corner .suit {
   font-size: 8px !important;
 }
 
-body.mode-game .seat.bottom-right .seat-cards .pcard .corner,
-body.mode-game .seat.bottom-right .seat-cards .pcard .center {
+body.mode-game .seat.bottom-right .seat-cards .pcard .corner .rank,
+body.mode-game .seat.bottom-right .seat-cards .pcard .corner .suit {
   font-size: 10px !important;
 }
 
-body.mode-game .board .pcard .corner,
-body.mode-game .board .pcard .center {
-  font-size: clamp(9px, 1.8vw, 13px) !important;
+body.mode-game .board .pcard .corner .rank,
+body.mode-game .board .pcard .corner .suit {
+  font-size: clamp(10px, 2vw, 14px) !important;
 }
 
-body.mode-game .win-cards .pcard .corner,
-body.mode-game .win-cards .pcard .center {
+body.mode-game .win-cards .pcard .corner .rank,
+body.mode-game .win-cards .pcard .corner .suit {
   font-size: 9px !important;
-}
-
-body.mode-game .pcard .corner span:last-child,
-body.mode-game .pcard .center {
-  line-height: 1 !important;
 }
 
 body.mode-game .win-cards .pcard {
@@ -2783,9 +2794,9 @@ body.mode-game .dealer-avatar {
   height: 36px !important;
 }
 
-/* Seats — compact, horizontal racetrack */
+/* Seats — slightly larger now that space allows */
 body.mode-game .seat {
-  width: 70px !important;
+  width: 78px !important;
   gap: 2px !important;
   z-index: 6 !important;
 }
@@ -2841,8 +2852,8 @@ body.mode-game .seat.bottom-right {
 
 body.mode-game .avatar-wrap,
 body.mode-game .avatar {
-  width: 32px !important;
-  height: 32px !important;
+  width: 36px !important;
+  height: 36px !important;
 }
 
 body.mode-game .avatar {
@@ -2850,26 +2861,26 @@ body.mode-game .avatar {
 }
 
 body.mode-game .plate {
-  padding: 1px 4px 2px !important;
-  max-width: 66px !important;
+  padding: 2px 5px 3px !important;
+  max-width: 72px !important;
   min-width: 0 !important;
   gap: 0 !important;
-  border-radius: 10px !important;
+  border-radius: 12px !important;
 }
 
 body.mode-game .player-name {
-  font-size: 8px !important;
+  font-size: 9px !important;
   font-weight: 700 !important;
 }
 
 body.mode-game .player-stack {
-  font-size: 9px !important;
+  font-size: 10px !important;
 }
 
 body.mode-game .player-bet,
 body.mode-game .player-action,
 body.mode-game .hand-tag {
-  font-size: 7px !important;
+  font-size: 7.5px !important;
   min-height: 8px !important;
 }
 
@@ -2893,14 +2904,35 @@ body.mode-game .chip-stack i {
 }
 
 body.mode-game .seat-cards .pcard {
-  width: 14px !important;
-  height: 21px !important;
+  width: 16px !important;
+  height: 24px !important;
   border-radius: 3px !important;
 }
 
 body.mode-game .seat.bottom-right .seat-cards .pcard {
-  width: 18px !important;
-  height: 27px !important;
+  width: 20px !important;
+  height: 30px !important;
+}
+
+/* Right-side players sit inward so actions don't cover them */
+body.mode-game .seat.right {
+  right: 3% !important;
+}
+
+body.mode-game .seat.top-right {
+  right: 18% !important;
+}
+
+body.mode-game .float-tools {
+  top: max(8px, env(safe-area-inset-top)) !important;
+  right: max(8px, env(safe-area-inset-right)) !important;
+  max-width: min(42vw, 200px) !important;
+}
+
+body.mode-game .action-bar {
+  right: max(6px, env(safe-area-inset-right)) !important;
+  bottom: max(6px, env(safe-area-inset-bottom)) !important;
+  width: min(38vw, 190px) !important;
 }
 
 body.mode-game .ai-tag {
