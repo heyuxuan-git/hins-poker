@@ -56,6 +56,7 @@ button:focus-visible {
 
 .app {
   min-height: 100%;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   max-width: 1200px;
@@ -64,31 +65,93 @@ button:focus-visible {
   box-shadow: 0 0 0 1px #e5e7eb;
 }
 
-/* Game shell always: topbar on top, then stage | action-bar */
+/* Forced horizontal UI: full-width table + floating actions */
 .game-layout {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(200px, 32%);
+  grid-template-columns: 1fr;
   grid-template-rows: minmax(0, 1fr);
   min-height: 0;
   width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .app:has(#game-app:not([hidden])) .topbar {
-  padding: 6px 10px;
-  min-height: 38px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: transparent;
+  border-bottom: none;
+  padding: 6px 8px;
+  min-height: 40px;
+  pointer-events: none;
+}
+
+.app:has(#game-app:not([hidden])) .topbar .brand,
+.app:has(#game-app:not([hidden])) .topbar .meta,
+.app:has(#game-app:not([hidden])) .topbar .btn-ghost {
+  pointer-events: auto;
+}
+
+.app:has(#game-app:not([hidden])) .topbar .brand {
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.app:has(#game-app:not([hidden])) .topbar .meta {
+  align-self: flex-start;
+  margin-left: auto;
+  padding-top: 2px;
 }
 
 .app:has(#game-app:not([hidden])) .stage {
-  padding: 6px 4px;
+  padding: 44px 8px 120px;
   min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.app:has(#game-app:not([hidden])) .table-wrap {
+  width: min(100%, 720px);
+  aspect-ratio: 21 / 10;
+  max-height: min(70vh, 480px);
+  margin: 0 auto;
+}
+
+.app:has(#game-app:not([hidden])) .action-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin-top: 0;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.92) 28%, #fff);
+  border-left: none;
+  border-top: 1px solid #e5e7eb;
+  overflow-y: auto;
+  max-height: 42vh;
+  gap: 4px;
+  justify-content: flex-end;
+  z-index: 16;
+}
+
+.app:has(#game-app:not([hidden])) .action-side {
+  display: none !important;
+}
+
+.app:has(#game-app:not([hidden])) .stage {
   overflow: hidden;
 }
 
 .app:has(#game-app:not([hidden])) .table-wrap {
   width: min(100%, 640px);
   aspect-ratio: 21 / 10;
-  max-height: calc(100% - 10px);
+  max-height: calc(100% - 20px);
   margin-top: 0;
 }
 
@@ -425,12 +488,11 @@ button:focus-visible {
 }
 
 @media (min-width: 960px) {
-  /* Desktop keeps action log on the right */
   .game-layout {
-    grid-template-columns: minmax(0, 1fr) minmax(240px, 280px) minmax(180px, 220px);
+    grid-template-columns: 1fr;
   }
   .action-side {
-    display: flex;
+    display: none !important;
   }
 }
 
@@ -1385,21 +1447,24 @@ button:focus-visible {
   order: -1;
 }
 
-/* ===== Action bar — right column when in game-layout ===== */
+/* ===== Action bar — floating bottom controls ===== */
 .action-bar {
   margin-top: 0;
   padding: 8px;
   background: #ffffff;
-  border-left: 1px solid #e5e7eb;
+  border-left: none;
+  border-top: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  position: relative;
-  bottom: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow-y: auto;
-  max-height: 100%;
+  max-height: 42vh;
   min-height: 0;
-  z-index: 15;
+  z-index: 16;
 }
 
 .action-timer {
@@ -1423,14 +1488,14 @@ button:focus-visible {
 }
 
 .action-btn {
-  min-height: 44px;
-  font-size: 13px;
+  min-height: 40px;
+  font-size: 12px;
   border-radius: 10px;
 }
 
 .btn-start {
   grid-column: 1 / -1;
-  min-height: 48px;
+  min-height: 44px;
 }
 
 .quick-raises {
@@ -1444,9 +1509,9 @@ button:focus-visible {
 }
 
 .quick-btn {
-  min-height: 28px;
-  padding: 4px 8px;
-  font-size: 11px;
+  min-height: 26px;
+  padding: 3px 8px;
+  font-size: 10px;
 }
 
 .raise-row {
