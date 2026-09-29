@@ -414,10 +414,12 @@ button:focus-visible {
 }
 
 /* ===== Game layout + side log ===== */
+/* Keep two columns: stage | action-bar (do not stack) */
 .game-layout {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 32%);
+  grid-template-rows: minmax(0, 1fr);
   min-height: 0;
   width: 100%;
 }
@@ -1780,10 +1782,11 @@ button:focus-visible {
   }
 
   .table-wrap {
-    aspect-ratio: 3 / 2;
-    max-height: min(48vh, 380px);
-    width: min(100%, 560px);
-    margin-top: 6px;
+    /* Left column: horizontal racetrack, not vertical portrait */
+    aspect-ratio: 21 / 10;
+    max-height: calc(100% - 8px);
+    width: min(100%, 420px);
+    margin-top: 0;
   }
 
   .table-rail {
@@ -1946,10 +1949,10 @@ button:focus-visible {
   }
 
   .table-wrap {
-    /* Smaller footprint; still tall enough to spread seats */
-    aspect-ratio: 10 / 22;
-    max-height: min(54vh, 620px);
-    width: min(100%, 340px);
+    /* Keep horizontal table inside left column */
+    aspect-ratio: 21 / 10;
+    max-height: calc(100% - 8px);
+    width: min(100%, 420px);
     margin-top: 0;
   }
 
@@ -2198,11 +2201,13 @@ button:focus-visible {
     height: 36px;
   }
 
-  /* Compact bottom controls */
+  /* Compact right-column controls */
   .action-bar {
-    padding: 5px 8px calc(6px + env(safe-area-inset-bottom));
+    padding: 6px;
     gap: 4px;
-    border-top: 1px solid #e5e7eb;
+    border-top: none;
+    border-left: 1px solid #e5e7eb;
+    overflow-y: auto;
   }
 
   .action-timer {
