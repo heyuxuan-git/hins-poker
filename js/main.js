@@ -649,11 +649,13 @@ function applyRemoteState(state) {
 function showGame() {
   document.getElementById('lobby').hidden = true;
   document.getElementById('game-app').hidden = false;
+  document.body.classList.add('mode-game');
 }
 
 function showLobby() {
   document.getElementById('lobby').hidden = false;
   document.getElementById('game-app').hidden = true;
+  document.body.classList.remove('mode-game');
   const badge = document.getElementById('room-badge');
   if (badge) badge.hidden = true;
 }
