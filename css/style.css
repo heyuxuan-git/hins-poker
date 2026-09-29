@@ -2651,3 +2651,426 @@ input[type="range"]::-moz-range-thumb {
   background: radial-gradient(circle at 35% 30%, #f0d78c, #c9a227);
   border: 1px solid #6a5620;
 }
+
+/* =========================================================
+   v6.0 — Game UI (wins over earlier media queries)
+   Layout: table left / tools top-right / actions bottom-right
+   ========================================================= */
+body.mode-game {
+  overflow: hidden;
+  background: #eef1f4;
+}
+
+body.mode-game .app {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  overflow: hidden !important;
+  background: #eef1f4 !important;
+  box-shadow: none !important;
+}
+
+body.mode-game .topbar {
+  display: none !important;
+}
+
+body.mode-game .game-layout {
+  flex: 1 !important;
+  display: block !important;
+  position: relative !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+body.mode-game .stage {
+  position: absolute !important;
+  inset: 0 !important;
+  padding: 10px 108px 10px 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+}
+
+body.mode-game .table-wrap {
+  position: relative !important;
+  width: 100% !important;
+  max-width: none !important;
+  aspect-ratio: 21 / 10 !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+}
+
+body.mode-game .table-rail {
+  padding: 18px 14px !important;
+}
+
+body.mode-game .table {
+  border-radius: 999px !important;
+}
+
+body.mode-game .board {
+  top: 48% !important;
+  gap: 3px !important;
+}
+
+body.mode-game .board .pcard,
+body.mode-game .board .card-slot {
+  width: clamp(22px, 3.2vw, 32px) !important;
+  height: clamp(32px, 4.8vw, 48px) !important;
+}
+
+body.mode-game .pot {
+  top: 62% !important;
+}
+
+body.mode-game .dealer-well {
+  width: clamp(40px, 6vw, 56px) !important;
+  height: clamp(36px, 5vw, 48px) !important;
+}
+
+body.mode-game .dealer-avatar {
+  width: 26px !important;
+  height: 36px !important;
+}
+
+/* Seats — compact, horizontal racetrack */
+body.mode-game .seat {
+  width: 70px !important;
+  gap: 2px !important;
+  z-index: 6 !important;
+}
+
+body.mode-game .seat.top-left {
+  left: 22% !important;
+  right: auto !important;
+  top: 1% !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+
+body.mode-game .seat.top-right {
+  left: auto !important;
+  right: 22% !important;
+  top: 1% !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+
+body.mode-game .seat.left {
+  left: 1% !important;
+  right: auto !important;
+  top: 48% !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
+}
+
+body.mode-game .seat.right {
+  right: 1% !important;
+  left: auto !important;
+  top: 48% !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
+}
+
+body.mode-game .seat.bottom-left {
+  left: 22% !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: 1% !important;
+  transform: none !important;
+}
+
+body.mode-game .seat.bottom-right {
+  left: auto !important;
+  right: 22% !important;
+  top: auto !important;
+  bottom: 1% !important;
+  transform: none !important;
+  z-index: 8 !important;
+}
+
+body.mode-game .avatar-wrap,
+body.mode-game .avatar {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+body.mode-game .avatar {
+  border-width: 2px !important;
+}
+
+body.mode-game .plate {
+  padding: 1px 4px 2px !important;
+  max-width: 66px !important;
+  min-width: 0 !important;
+  gap: 0 !important;
+  border-radius: 10px !important;
+}
+
+body.mode-game .player-name {
+  font-size: 8px !important;
+  font-weight: 700 !important;
+}
+
+body.mode-game .player-stack {
+  font-size: 9px !important;
+}
+
+body.mode-game .player-bet,
+body.mode-game .player-action,
+body.mode-game .hand-tag {
+  font-size: 7px !important;
+  min-height: 8px !important;
+}
+
+body.mode-game .bet-row {
+  height: 13px !important;
+  min-height: 13px !important;
+  max-height: 13px !important;
+  padding: 0 2px !important;
+  gap: 2px !important;
+}
+
+body.mode-game .chip-stack {
+  width: 11px !important;
+  height: 9px !important;
+}
+
+body.mode-game .chip-stack i {
+  width: 11px !important;
+  height: 4px !important;
+  margin-left: -5.5px !important;
+}
+
+body.mode-game .seat-cards .pcard {
+  width: 14px !important;
+  height: 21px !important;
+  border-radius: 3px !important;
+}
+
+body.mode-game .seat.bottom-right .seat-cards .pcard {
+  width: 18px !important;
+  height: 27px !important;
+}
+
+body.mode-game .ai-tag {
+  font-size: 6px !important;
+  padding: 0 2px !important;
+  margin-left: 2px !important;
+}
+
+body.mode-game .dealer-btn {
+  width: 14px !important;
+  height: 14px !important;
+  font-size: 8px !important;
+}
+
+body.mode-game .online-dot {
+  width: 7px !important;
+  height: 7px !important;
+}
+
+/* Float tools — top right */
+body.mode-game .float-tools {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  left: auto !important;
+  z-index: 40 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+  width: auto !important;
+  max-width: calc(100vw - 16px) !important;
+  pointer-events: none !important;
+}
+
+body.mode-game .float-tools > * {
+  pointer-events: auto !important;
+}
+
+body.mode-game .float-tools .btn-ghost {
+  min-height: 26px !important;
+  padding: 3px 7px !important;
+  font-size: 10px !important;
+  border-radius: 7px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08) !important;
+}
+
+body.mode-game .float-tools .room-meta {
+  font-size: 10px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 7px !important;
+  padding: 3px 6px !important;
+}
+
+body.mode-game .float-tools .meta-mini {
+  display: flex !important;
+  gap: 6px !important;
+}
+
+/* Action bar — bottom right, no panel */
+body.mode-game .action-bar {
+  position: absolute !important;
+  right: 8px !important;
+  bottom: 8px !important;
+  left: auto !important;
+  top: auto !important;
+  width: min(42vw, 210px) !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  overflow: visible !important;
+  z-index: 35 !important;
+  pointer-events: none !important;
+}
+
+body.mode-game .action-bar > * {
+  pointer-events: auto !important;
+}
+
+body.mode-game .action-timer {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  font-size: 10px !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 3px 6px !important;
+}
+
+body.mode-game .action-timer-num {
+  font-size: 12px !important;
+}
+
+body.mode-game .actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 4px !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+body.mode-game .action-btn {
+  min-height: 32px !important;
+  font-size: 11px !important;
+  border-radius: 8px !important;
+  padding: 0 2px !important;
+  letter-spacing: 0 !important;
+}
+
+body.mode-game .btn-start {
+  grid-column: 1 / -1 !important;
+  min-height: 36px !important;
+}
+
+body.mode-game .quick-raises {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 3px !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+body.mode-game .quick-btn {
+  min-height: 22px !important;
+  padding: 2px 5px !important;
+  font-size: 10px !important;
+  border-radius: 999px !important;
+}
+
+body.mode-game .raise-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+body.mode-game .raise-amount {
+  width: 100% !important;
+  font-size: 12px !important;
+  padding: 6px !important;
+}
+
+body.mode-game .action-side {
+  display: none !important;
+}
+
+body.mode-game .toast {
+  position: absolute !important;
+  left: 50% !important;
+  top: 8px !important;
+  transform: translateX(-50%) !important;
+  margin: 0 !important;
+  max-width: min(70vw, 280px) !important;
+  font-size: 10px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  z-index: 30 !important;
+}
+
+body.mode-game .coach-tip {
+  position: absolute !important;
+  left: 50% !important;
+  top: 36px !important;
+  transform: translateX(-50%) !important;
+  margin: 0 !important;
+  max-width: min(70vw, 280px) !important;
+  font-size: 10px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  z-index: 30 !important;
+}
+
+/* Small phones: tighter right rail */
+@media (max-width: 480px) {
+  body.mode-game .stage {
+    padding: 10px 92px 8px 8px !important;
+  }
+
+  body.mode-game .action-bar {
+    width: min(46vw, 180px) !important;
+  }
+
+  body.mode-game .avatar-wrap,
+  body.mode-game .avatar {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  body.mode-game .seat {
+    width: 62px !important;
+  }
+
+  body.mode-game .seat-cards .pcard {
+    width: 12px !important;
+    height: 18px !important;
+  }
+}
