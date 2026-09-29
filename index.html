@@ -9,11 +9,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="hin's poker" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <title>hin's poker · 德州扑克 v5.1</title>
+  <title>hin's poker · 德州扑克 v5.2</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="assets/icon-192.png" />
-  <link rel="stylesheet" href="css/style.css?v=v5.1" />
+  <link rel="stylesheet" href="css/style.css?v=v5.2" />
 </head>
 <body>
   <!-- Lobby -->
@@ -75,7 +75,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">H</div>
         <div class="brand-text">
-          <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v5.1</span></div>
+          <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v5.2</span></div>
           <div class="brand-sub" id="brand-sub">No-Limit Hold'em</div>
         </div>
       </div>
@@ -136,6 +136,38 @@
         <div class="coach-tip" id="coach-tip" hidden></div>
       </main>
 
+      <footer class="action-bar">
+        <div class="action-timer" id="action-timer" hidden>
+          <span class="action-timer-label">行动倒计时</span>
+          <span class="action-timer-num" id="action-timer-num">30</span>
+          <div class="action-timer-track"><div class="action-timer-fill" id="action-timer-fill"></div></div>
+        </div>
+        <div class="quick-raises" id="quick-raises" hidden></div>
+        <div class="raise-row" id="raise-row" hidden>
+          <input
+            type="range"
+            id="raise-slider"
+            min="0"
+            max="2000"
+            value="40"
+            aria-label="加注金额滑条"
+          />
+          <label class="raise-amount-wrap" for="raise-amount">
+            <input
+              type="number"
+              id="raise-amount"
+              class="raise-amount"
+              min="0"
+              max="2000"
+              value="40"
+              inputmode="numeric"
+              aria-label="加注金额"
+            />
+          </label>
+        </div>
+        <div class="actions" id="actions"></div>
+      </footer>
+
       <aside class="action-side" id="action-side" aria-label="行动日志">
         <div class="side-head">
           <span>行动日志</span>
@@ -154,41 +186,9 @@
         </details>
       </aside>
     </div>
-
-    <footer class="action-bar">
-      <div class="action-timer" id="action-timer" hidden>
-        <span class="action-timer-label">行动倒计时</span>
-        <span class="action-timer-num" id="action-timer-num">30</span>
-        <div class="action-timer-track"><div class="action-timer-fill" id="action-timer-fill"></div></div>
-      </div>
-      <div class="quick-raises" id="quick-raises" hidden></div>
-      <div class="raise-row" id="raise-row" hidden>
-        <input
-          type="range"
-          id="raise-slider"
-          min="0"
-          max="2000"
-          value="40"
-          aria-label="加注金额滑条"
-        />
-        <label class="raise-amount-wrap" for="raise-amount">
-          <input
-            type="number"
-            id="raise-amount"
-            class="raise-amount"
-            min="0"
-            max="2000"
-            value="40"
-            inputmode="numeric"
-            aria-label="加注金额"
-          />
-        </label>
-      </div>
-      <div class="actions" id="actions"></div>
-    </footer>
   </div>
 
-  <script type="module" src="js/main.js?v=v5.1"></script>
+  <script type="module" src="js/main.js?v=v5.2"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

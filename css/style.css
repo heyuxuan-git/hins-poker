@@ -64,47 +64,19 @@ button:focus-visible {
   box-shadow: 0 0 0 1px #e5e7eb;
 }
 
-/* Game shell: topbar + (table | actions) — always, any orientation */
-.app:has(#game-app:not([hidden])) {
+/* Game shell always: topbar on top, then stage | action-bar */
+.game-layout {
+  flex: 1;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  min-height: 100vh;
-  min-height: 100dvh;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 32%);
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  width: 100%;
 }
 
 .app:has(#game-app:not([hidden])) .topbar {
-  grid-row: 1;
   padding: 6px 10px;
   min-height: 38px;
-}
-
-.app:has(#game-app:not([hidden])) .game-layout {
-  grid-row: 2;
-  grid-column: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(200px, 32%);
-  min-height: 0;
-  height: 100%;
-}
-
-.app:has(#game-app:not([hidden])) .action-bar {
-  grid-row: 2;
-  grid-column: 2;
-  margin-top: 0;
-  position: relative;
-  bottom: auto;
-  padding: 8px;
-  border-top: none;
-  border-left: 1px solid #e5e7eb;
-  background: #fff;
-  overflow-y: auto;
-  max-height: 100%;
-  gap: 6px;
-  justify-content: flex-start;
-}
-
-.app:has(#game-app:not([hidden])) .action-side {
-  display: none !important;
 }
 
 .app:has(#game-app:not([hidden])) .stage {
@@ -118,53 +90,6 @@ button:focus-visible {
   aspect-ratio: 21 / 10;
   max-height: calc(100% - 10px);
   margin-top: 0;
-}
-
-.app:has(#game-app:not([hidden])) .action-timer {
-  max-width: none;
-}
-
-.app:has(#game-app:not([hidden])) .actions {
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.app:has(#game-app:not([hidden])) .action-btn {
-  min-height: 44px;
-  font-size: 13px;
-}
-
-.app:has(#game-app:not([hidden])) .btn-start {
-  min-height: 48px;
-  grid-column: 1 / -1;
-}
-
-.app:has(#game-app:not([hidden])) .quick-raises {
-  flex-wrap: wrap;
-  overflow: visible;
-}
-
-.app:has(#game-app:not([hidden])) .quick-btn {
-  min-height: 28px;
-}
-
-.app:has(#game-app:not([hidden])) .raise-row {
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.app:has(#game-app:not([hidden])) .raise-amount {
-  width: 100%;
-}
-
-.app:has(#game-app:not([hidden])) .toast {
-  margin-top: 2px;
-  font-size: 11px;
-}
-
-.app:has(#game-app:not([hidden])) .coach-tip {
-  font-size: 10px;
-  margin-top: 2px;
 }
 
 /* ===== Top bar ===== */
@@ -499,8 +424,11 @@ button:focus-visible {
 
 @media (min-width: 960px) {
   /* Desktop keeps action log on the right */
-  .app:has(#game-app:not([hidden])) .game-layout {
-    grid-template-columns: minmax(0, 1fr) minmax(240px, 260px);
+  .game-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 280px) minmax(180px, 220px);
+  }
+  .action-side {
+    display: flex;
   }
 }
 
@@ -509,8 +437,8 @@ button:focus-visible {
   flex-direction: column;
   gap: 8px;
   padding: 10px 12px 16px;
-  border-left: 1px solid rgba(212, 175, 55, 0.2);
-  background: rgba(8, 12, 18, 0.75);
+  border-left: 1px solid #e5e7eb;
+  background: #f8fafc;
   max-height: calc(100vh - 120px);
   overflow: auto;
 }
@@ -1455,18 +1383,82 @@ button:focus-visible {
   order: -1;
 }
 
-/* ===== Action bar ===== */
+/* ===== Action bar — right column when in game-layout ===== */
 .action-bar {
-  margin-top: auto;
-  padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+  margin-top: 0;
+  padding: 8px;
   background: #ffffff;
-  border-top: 1px solid #e5e7eb;
+  border-left: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  position: sticky;
-  bottom: 0;
+  gap: 6px;
+  position: relative;
+  bottom: auto;
+  overflow-y: auto;
+  max-height: 100%;
+  min-height: 0;
   z-index: 15;
+}
+
+.action-timer {
+  max-width: none;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  max-width: none;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.action-btn {
+  min-height: 44px;
+  font-size: 13px;
+  border-radius: 10px;
+}
+
+.btn-start {
+  grid-column: 1 / -1;
+  min-height: 48px;
+}
+
+.quick-raises {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: none;
+  width: 100%;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.quick-btn {
+  min-height: 28px;
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.raise-row {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  max-width: none;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.raise-amount {
+  width: 100%;
 }
 
 /* ===== Action timer ===== */
