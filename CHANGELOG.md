@@ -2,6 +2,19 @@
 
 All notable changes to **hin's poker**.
 
+## v6.5 — 2026-09-28
+
+### Added
+- Raise button label follows slider as `加注 xx bb`
+- Quick raises: 半池 / 全底池 / +3bb
+- Action timer visible while opponents act
+- Polished game homepage lobby
+- Desktop centered table + bottom-center actions
+
+### Fixed
+- Raise uses chip target after drag (no more default amount)
+- Opponent-turn countdown display
+
 ## v5.1 — 2026-09-28
 
 ### Added
