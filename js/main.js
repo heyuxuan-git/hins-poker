@@ -286,6 +286,13 @@ function renderSeat(el, player, state) {
   }
 
   if (cache.name.textContent !== player.name) cache.name.textContent = player.name;
+  if (player.isThinking) {
+    cache.action.textContent = '思考中…';
+    cache.action.style.color = '#0f766e';
+  } else if (cache.action.textContent === '思考中…') {
+    cache.action.textContent = player.lastAction || '';
+    cache.action.style.color = '';
+  }
   if (cache.dealer.hidden === !!player.isButton) cache.dealer.hidden = !player.isButton;
 
   const stackText = formatBb(player.stack, state.bigBlind);
@@ -527,7 +534,6 @@ function clearWinBanner() {
 function renderWinBanner(state) {
   const primary = state.phase === 'handover' && state.winners?.length ? state.winners[0] : null;
   if (!primary) {
-    // New hand / not showdown — always wipe leftover banner
     if (winBannerSlot && winBannerSlot.childElementCount) {
       winBannerSlot.innerHTML = '';
     }
@@ -561,6 +567,20 @@ function renderWinBanner(state) {
       row.appendChild(buildCardEl(c, { board: false }));
     }
     wrap.appendChild(row);
+  }
+
+  // Push into hand history panel
+  try {
+    const hist = document.getElementById('hand-history');
+    if (hist) {
+      const item = document.createElement('div');
+      item.className = 'hist-item';
+      item.textContent = `#${state.handNumber} ${label}`;
+      hist.prepend(item);
+      while (hist.childElementCount > 12) hist.removeChild(hist.lastChild);
+    }
+  } catch {
+    /* ignore */
   }
 
   winBannerSlot.appendChild(wrap);

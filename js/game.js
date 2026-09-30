@@ -131,7 +131,8 @@ export class PokerGame {
       if (player.folded || player.allIn) return;
       const toCall = this.currentBet - player.bet;
       const action = toCall <= 0 ? { type: 'check' } : { type: 'fold' };
-      this.message = `${player.name} 超时，自动${toCall <= 0 ? '过牌' : '弃牌'}`;
+      this.message = `⏰ ${player.name} 超时，自动${toCall <= 0 ? '过牌' : '弃牌'}！`;
+      this.pushLog(player.name, 'fold', `超时自动${toCall <= 0 ? '过牌' : '弃牌'}`);
       this.applyAction(player, action);
       this.emit();
       if (this.activePlayers().length === 1) {
@@ -327,14 +328,14 @@ export class PokerGame {
       for (const seat of seated) {
         this.players[seat].cards.push(this.deck.pop());
         this.emit();
-        await this.sleep(160);
+        await this.sleep(95);
       }
-      await this.sleep(120);
+      await this.sleep(80);
     }
 
     this.message = `第 ${this.handNumber} 局 · ${this.players[sbIndex].name} 小盲 ${SMALL_BLIND / BIG_BLIND}bb / ${this.players[bbIndex].name} 大盲 ${BIG_BLIND / BIG_BLIND}bb`;
     this.emit();
-    await this.sleep(650);
+    await this.sleep(400);
 
     // Preflop action starts after BB
     this.currentPlayer = this.nextOccupied(bbIndex);
@@ -657,28 +658,28 @@ export class PokerGame {
       for (let i = 0; i < 3; i++) {
         this.community.push(this.deck.pop());
         this.emit();
-        await this.sleep(320);
+        await this.sleep(180);
       }
       this.pushLog('牌桌', 'flop', `翻牌 Flop ${this.community.slice(0, 3).map((c) => c.rank + c.suit).join(' ')}`);
-      await this.sleep(500);
+      await this.sleep(400);
     } else if (this.phase === 'flop') {
       this.phase = 'turn';
       this.message = `转牌 · 底池 ${this.pot}`;
       this.emit();
-      await this.sleep(420);
+      await this.sleep(300);
       this.community.push(this.deck.pop());
       this.emit();
       this.pushLog('牌桌', 'turn', `转牌 Turn ${this.community[3].rank}${this.community[3].suit}`);
-      await this.sleep(650);
+      await this.sleep(450);
     } else if (this.phase === 'turn') {
       this.phase = 'river';
       this.message = `河牌 · 底池 ${this.pot}`;
       this.emit();
-      await this.sleep(420);
+      await this.sleep(300);
       this.community.push(this.deck.pop());
       this.emit();
       this.pushLog('牌桌', 'river', `河牌 River ${this.community[4].rank}${this.community[4].suit}`);
-      await this.sleep(650);
+      await this.sleep(450);
     } else if (this.phase === 'river') {
       await this.showdown();
       return;

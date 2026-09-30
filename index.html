@@ -9,18 +9,18 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="hin's poker" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <title>hin's poker · 德州扑克 v6.2</title>
+  <title>hin's poker · 德州扑克 v6.3</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="assets/icon-192.png" />
-  <link rel="stylesheet" href="css/style.css?v=v6.2.1" />
+  <link rel="stylesheet" href="css/style.css?v=v6.3" />
 </head>
 <body>
   <!-- Lobby -->
   <div class="lobby" id="lobby">
     <div class="lobby-card">
       <div class="brand-mark lobby-mark" aria-hidden="true">H</div>
-      <h1 class="lobby-title">hin's poker <span class="brand-ver">v6.2</span></h1>
+      <h1 class="lobby-title">hin's poker <span class="brand-ver">v6.3</span></h1>
       <p class="lobby-sub">No-Limit Hold'em · 6-max</p>
 
       <section class="lobby-block">
@@ -75,7 +75,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">H</div>
         <div class="brand-text">
-          <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v6.2</span></div>
+          <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v6.3</span></div>
         </div>
       </div>
     </header>
@@ -129,6 +129,10 @@
         <button class="btn-ghost" id="btn-rebuy" type="button" hidden>补码</button>
         <button class="btn-ghost" id="btn-reset" type="button">重置</button>
         <button class="btn-ghost" id="btn-leave" type="button">离开</button>
+        <details class="hist-details" id="hist-details">
+          <summary class="btn-ghost">记录</summary>
+          <div class="hist-list" id="hand-history"></div>
+        </details>
       </div>
 
       <footer class="action-bar">
@@ -164,7 +168,7 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=v6.2"></script>
+  <script type="module" src="js/main.js?v=v6.3"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

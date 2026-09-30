@@ -1,9 +1,9 @@
 {
   "name": "hins-poker",
-  "version": "6.0.0",
+  "version": "6.3.0",
   "private": true,
   "type": "module",
-  "description": "hin's poker v6.0 — clean mobile game layout",
+  "description": "hin's poker v6.3 — layout polish, timeout UX, hand history",
   "scripts": {
     "test": "node js/evaluator.test.mjs && node js/deal-bust.test.mjs && node js/rebuy.test.mjs",
     "start": "python3 -m http.server 5173",

@@ -2912,19 +2912,31 @@ body.mode-game .chip-stack i {
   margin-left: -5.5px !important;
 }
 
-/* Hole cards always above white stack/plate */
+/* Hole cards: stable structure — cards always above plate via flex order */
+body.mode-game .seat {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
 body.mode-game .seat-cards {
+  order: 1 !important;
   position: relative !important;
   z-index: 5 !important;
 }
 
 body.mode-game .seat-body {
+  order: 2 !important;
   position: relative !important;
   z-index: 2 !important;
+  flex-direction: column !important;
+  align-items: center !important;
 }
 
 body.mode-game .plate {
   z-index: 1 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12) !important;
+  margin-top: -2px !important;
 }
 
 body.mode-game .seat-cards .pcard {
@@ -2933,13 +2945,100 @@ body.mode-game .seat-cards .pcard {
   border-radius: 3px !important;
 }
 
-body.mode-game .seat.bottom-right .seat-cards {
-  margin-bottom: 2px !important;
-}
-
 body.mode-game .seat.bottom-right .seat-cards .pcard {
   width: 20px !important;
   height: 30px !important;
+}
+
+/* Slightly smaller action cluster so right player stays clear */
+body.mode-game .action-bar {
+  right: max(6px, env(safe-area-inset-right)) !important;
+  width: min(36vw, 170px) !important;
+}
+
+body.mode-game .float-tools {
+  right: max(8px, env(safe-area-inset-right)) !important;
+  max-width: min(40vw, 180px) !important;
+}
+
+/* Win panel larger / clearer */
+body.mode-game .win-panel {
+  top: 44% !important;
+}
+
+body.mode-game .win-banner {
+  font-size: clamp(12px, 2vw, 16px) !important;
+}
+
+/* Hand history in tools */
+.hist-details summary {
+  list-style: none;
+  cursor: pointer;
+  min-height: 26px;
+  font-size: 10px;
+  padding: 3px 7px;
+}
+
+.hist-details[open] summary {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+}
+
+.hist-list {
+  margin-top: 4px;
+  width: min(46vw, 200px);
+  max-height: 160px;
+  overflow: auto;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.hist-item {
+  padding: 3px 4px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #0f172a;
+}
+
+/* Desktop: keep corner UI but allow slightly wider table */
+@media (min-width: 960px) {
+  body.mode-game .stage {
+    padding: max(16px, env(safe-area-inset-top)) 200px max(16px, env(safe-area-inset-bottom)) 24px !important;
+  }
+
+  body.mode-game .table-wrap {
+    width: 88% !important;
+    max-width: 820px !important;
+  }
+
+  body.mode-game .action-bar {
+    width: min(28vw, 260px) !important;
+    right: 16px !important;
+  }
+
+  body.mode-game .float-tools {
+    right: 16px !important;
+    max-width: min(26vw, 280px) !important;
+  }
+
+  body.mode-game .action-btn {
+    min-height: 42px !important;
+    font-size: 14px !important;
+  }
+
+  body.mode-game .avatar-wrap,
+  body.mode-game .avatar {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  body.mode-game .seat {
+    width: 90px !important;
+  }
 }
 
 /* Right-side players sit inward so actions don't cover them */
