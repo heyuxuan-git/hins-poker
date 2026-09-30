@@ -604,7 +604,26 @@ export class PokerGame {
       return;
     }
 
-    this.currentPlayer = this.nextToAct(this.heroSeat);
+    if (this.isBettingComplete()) {
+      this.currentPlayer = null;
+      this.emit();
+      setTimeout(() => this.advanceStreet(), 220);
+      return;
+    }
+
+    let next = this.nextToAct(this.heroSeat);
+    if (next == null || next === this.heroSeat) {
+      // No one else to act right now — finish street
+      if (this.isBettingComplete() || this.playersCanAct().length <= 1) {
+        this.currentPlayer = null;
+        this.emit();
+        setTimeout(() => this.advanceStreet(), 220);
+        return;
+      }
+      next = this.nextToAct(this.heroSeat);
+    }
+    this.currentPlayer = next;
+    this.emit();
     setTimeout(() => {
       this.runBettingRound();
     }, 100);

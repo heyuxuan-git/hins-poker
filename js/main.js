@@ -433,6 +433,7 @@ function renderActions(state) {
     checkCall.className = 'action-btn btn-check';
     checkCall.textContent = '过牌';
     checkCall.setAttribute('aria-label', '过牌');
+    checkCall.disabled = !(state.heroTurn && toCall === 0);
     checkCall.addEventListener('click', () => doAction({ type: 'check' }));
   } else {
     checkCall.className = 'action-btn btn-call';
