@@ -145,6 +145,28 @@ function formatBb(n, bb) {
   return `${v.toFixed(1)}bb`;
 }
 
+function currentBbUnit() {
+  return lastState?.bigBlind || 20;
+}
+
+/** Show raise amount in bb chips (slider still stores chips). */
+function paintRaiseBb(chips) {
+  const unit = currentBbUnit();
+  const v = Number(chips) / unit;
+  if (!Number.isFinite(v)) {
+    raiseAmountEl.value = String(chips);
+    return;
+  }
+  raiseAmountEl.value = Number.isInteger(v) ? String(v) : v.toFixed(1);
+}
+
+function parseRaiseBbInput(raw) {
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return raiseTarget;
+  // Interpret as bb → chips
+  return clampRaise(n * currentBbUnit());
+}
+
 function cardKey(card) {
   if (!card) return 'empty';
   if (card.hidden) return 'back';
@@ -466,7 +488,7 @@ function renderActions(state) {
     raiseAmountEl.step = String(CHIP_UNIT);
     raiseTarget = Math.min(Math.max(sliderMin, sliderMax), sliderMin);
     raiseSlider.value = String(raiseTarget);
-    raiseAmountEl.value = String(raiseTarget);
+    paintRaiseBb(raiseTarget);
     raiseRow.hidden = false;
 
     // Quick presets: sizing rule → actual raise-to (deduped)
@@ -496,7 +518,7 @@ function renderActions(state) {
       b.addEventListener('click', () => {
         raiseTarget = clampRaise(amount);
         raiseSlider.value = String(raiseTarget);
-        raiseAmountEl.value = String(raiseTarget);
+        paintRaiseBb(raiseTarget);
         raiseBtn.textContent = `加注到 ${formatBb(raiseTarget, bb)}`;
       });
       quickRaisesEl.appendChild(b);
@@ -813,22 +835,24 @@ function clampRaise(n) {
 function syncRaiseFromSlider() {
   raiseTarget = clampRaise(Number(raiseSlider.value));
   raiseSlider.value = String(raiseTarget);
-  raiseAmountEl.value = String(raiseTarget);
+  paintRaiseBb(raiseTarget);
 }
 
 function syncRaiseFromInput() {
-  raiseTarget = clampRaise(Number(raiseAmountEl.value));
+  raiseTarget = parseRaiseBbInput(raiseAmountEl.value);
   raiseSlider.value = String(raiseTarget);
-  raiseAmountEl.value = String(raiseTarget);
+  paintRaiseBb(raiseTarget);
 }
 
 raiseSlider.addEventListener('input', syncRaiseFromSlider);
 
 raiseAmountEl.addEventListener('input', () => {
-  // live-clamp typed value without fighting the caret too hard
-  const raw = Number(raiseAmountEl.value);
-  if (raiseAmountEl.value === '' || Number.isNaN(raw)) return;
-  raiseTarget = clampRaise(raw);
+  const raw = raiseAmountEl.value.trim();
+  if (raw === '') return;
+  const n = Number(raw);
+  if (Number.isNaN(n)) return;
+  // User types in bb
+  raiseTarget = clampRaise(n * currentBbUnit());
   raiseSlider.value = String(raiseTarget);
 });
 
