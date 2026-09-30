@@ -610,21 +610,27 @@ function renderWinBanner(state) {
 }
 
 function updateActionTimer(state) {
-  if (!state.heroTurn || !state.actionDeadline) {
+  const show =
+    state.phase === 'preflop' ||
+    state.phase === 'flop' ||
+    state.phase === 'turn' ||
+    state.phase === 'river';
+  if (!show || !state.actionDeadline) {
     actionTimerEl.hidden = true;
     return;
   }
-  actionTimerEl.hidden = false;
   const left = Math.max(0, state.actionDeadline - Date.now());
   const secs = Math.ceil(left / 1000);
   if (actionTimerNum.textContent !== String(secs)) {
     actionTimerNum.textContent = String(secs);
   }
-  const ratio = left / 30000;
+  const total = state.actionTimeoutMs || 30000;
+  const ratio = left / total;
   actionTimerFill.style.transform = `scaleX(${Math.max(0, Math.min(1, ratio))})`;
   const urgent = secs <= 8;
   actionTimerNum.classList.toggle('urgent', urgent);
   actionTimerFill.classList.toggle('urgent', urgent);
+  actionTimerEl.hidden = false;
 }
 
 function render(state) {
@@ -658,10 +664,10 @@ function render(state) {
   renderCoach(state);
 }
 
-// Smooth countdown between state emits
-setInterval(() => {
-  if (lastState) updateActionTimer(lastState);
-}, 200);
+  // Smooth countdown between state emits — also when waiting on AI
+  setInterval(() => {
+    if (lastState) updateActionTimer(lastState);
+  }, 200);
 
 /* ===== Modes: solo | host | guest ===== */
 let mode = 'solo';

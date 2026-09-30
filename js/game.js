@@ -84,6 +84,7 @@ export class PokerGame {
     this.showdownReveal = false;
     this.message = '等待入座 · 开局时空位会自动补 AI';
     this.actionDeadline = null;
+    this.actionTimeoutMs = null;
     this._actionTimer = null;
   }
 
@@ -119,13 +120,27 @@ export class PokerGame {
       this._actionTimer = null;
     }
     this.actionDeadline = null;
+    this.actionTimeoutMs = null;
   }
 
   /** 30s auto check/fold for humans (hero or remote) */
-  armActionClock(player) {
+  armActionClock(player, opts = {}) {
     this.clearActionClock();
-    if (!player || player.isAI) return;
-    this.actionDeadline = Date.now() + ACTION_TIMEOUT_MS;
+    if (!player) return;
+    const isAi = !!player.isAI;
+    const timeout = opts.timeoutMs || (isAi ? AI_THINK_MIN + AI_THINK_VAR : ACTION_TIMEOUT_MS);
+    this.actionDeadline = Date.now() + timeout;
+    this.actionTimeoutMs = timeout;
+    // Auto check/fold only for human seats
+    if (isAi) {
+      this._actionTimer = setTimeout(() => {
+        // AI already acts via runBettingRound sleep; deadline is display-only
+        this.actionDeadline = null;
+        this.actionTimeoutMs = null;
+        this.emit();
+      }, timeout + 80);
+      return;
+    }
     this._actionTimer = setTimeout(() => {
       if (this.currentPlayer !== player.id) return;
       if (player.folded || player.allIn) return;
@@ -143,7 +158,7 @@ export class PokerGame {
       setTimeout(() => {
         this.runBettingRound();
       }, 80);
-    }, ACTION_TIMEOUT_MS + 80);
+    }, timeout + 80);
   }
 
   get bigBlind() {
@@ -223,6 +238,7 @@ export class PokerGame {
       currentPlayer: this.currentPlayer,
       heroTurn,
       actionDeadline: this.actionDeadline,
+      actionTimeoutMs: this.actionTimeoutMs || ACTION_TIMEOUT_MS,
       actionTimeLeft: this.actionDeadline
         ? Math.max(0, this.actionDeadline - Date.now())
         : 0,
@@ -416,11 +432,18 @@ export class PokerGame {
         return;
       }
 
-      // AI turn — show a short "thinking" beat before acting
+      // AI turn — thinking countdown for the table
       player.isThinking = true;
+      this.armActionClock(player);
       this.emit();
       await this.sleep(AI_THINK_MIN + Math.random() * AI_THINK_VAR);
       player.isThinking = false;
+      this.actionDeadline = null;
+      this.actionTimeoutMs = null;
+      if (this._actionTimer) {
+        clearTimeout(this._actionTimer);
+        this._actionTimer = null;
+      }
       const toCall = this.currentBet - player.bet;
       const action = decideAiAction(player.cards, {
         toCall,
