@@ -3005,41 +3005,6 @@ body.mode-game .win-banner {
 }
 
 /* Desktop: keep corner UI but allow slightly wider table */
-@media (min-width: 960px) {
-  body.mode-game .stage {
-    padding: max(16px, env(safe-area-inset-top)) 200px max(16px, env(safe-area-inset-bottom)) 24px !important;
-  }
-
-  body.mode-game .table-wrap {
-    width: 88% !important;
-    max-width: 820px !important;
-  }
-
-  body.mode-game .action-bar {
-    width: min(28vw, 260px) !important;
-    right: 16px !important;
-  }
-
-  body.mode-game .float-tools {
-    right: 16px !important;
-    max-width: min(26vw, 280px) !important;
-  }
-
-  body.mode-game .action-btn {
-    min-height: 42px !important;
-    font-size: 14px !important;
-  }
-
-  body.mode-game .avatar-wrap,
-  body.mode-game .avatar {
-    width: 44px !important;
-    height: 44px !important;
-  }
-
-  body.mode-game .seat {
-    width: 90px !important;
-  }
-}
 
 /* Right-side players sit inward so actions don't cover them */
 body.mode-game .seat.right {
@@ -3276,5 +3241,166 @@ body.mode-game .coach-tip {
   body.mode-game .seat-cards .pcard {
     width: 12px !important;
     height: 18px !important;
+  }
+}
+
+/* =========================================================
+   Desktop web (≥960px): centered table, actions bottom-center,
+   larger UI. Mobile keeps corner layout above.
+   ========================================================= */
+@media (min-width: 960px) {
+  body.mode-game .stage {
+    padding: 16px 24px 120px !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+
+  body.mode-game .table-wrap {
+    width: min(92%, 920px) !important;
+    max-width: 920px !important;
+    max-height: min(70vh, 560px) !important;
+  }
+
+  body.mode-game .float-tools {
+    top: 10px !important;
+    right: 12px !important;
+    flex-direction: row !important;
+    max-width: none !important;
+    width: auto !important;
+  }
+
+  body.mode-game .float-tools .btn-ghost {
+    min-height: 34px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+
+  body.mode-game .action-bar {
+    left: 50% !important;
+    right: auto !important;
+    bottom: 12px !important;
+    transform: translateX(-50%) !important;
+    width: min(720px, calc(100% - 48px)) !important;
+    max-width: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    z-index: 25 !important;
+  }
+
+  body.mode-game .actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  body.mode-game .action-btn {
+    min-height: 48px !important;
+    font-size: 15px !important;
+    border-radius: 12px !important;
+  }
+
+  body.mode-game .btn-start {
+    grid-column: 1 / -1 !important;
+    min-height: 52px !important;
+    font-size: 16px !important;
+  }
+
+  body.mode-game .quick-raises {
+    justify-content: center !important;
+  }
+
+  body.mode-game .quick-btn {
+    min-height: 30px !important;
+    padding: 4px 12px !important;
+    font-size: 12px !important;
+  }
+
+  body.mode-game .raise-row {
+    flex-direction: row !important;
+    align-items: center !important;
+    max-width: 720px !important;
+    margin: 0 auto !important;
+  }
+
+  body.mode-game .raise-amount {
+    width: 96px !important;
+  }
+
+  body.mode-game .action-timer {
+    max-width: 720px !important;
+    margin: 0 auto !important;
+    font-size: 12px !important;
+  }
+
+  body.mode-game .avatar-wrap,
+  body.mode-game .avatar {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  body.mode-game .plate {
+    max-width: 92px !important;
+  }
+
+  body.mode-game .player-name {
+    font-size: 11px !important;
+  }
+
+  body.mode-game .player-stack {
+    font-size: 12px !important;
+  }
+
+  body.mode-game .player-bet,
+  body.mode-game .player-action,
+  body.mode-game .hand-tag {
+    font-size: 9px !important;
+  }
+
+  body.mode-game .bet-row {
+    height: 16px !important;
+  }
+
+  body.mode-game .seat {
+    width: 96px !important;
+  }
+
+  body.mode-game .seat-cards .pcard {
+    width: 20px !important;
+    height: 30px !important;
+  }
+
+  body.mode-game .seat.bottom-right .seat-cards .pcard {
+    width: 24px !important;
+    height: 36px !important;
+  }
+
+  body.mode-game .board .pcard,
+  body.mode-game .board .card-slot {
+    width: 40px !important;
+    height: 58px !important;
+  }
+
+  body.mode-game .toast {
+    top: auto !important;
+    bottom: 170px !important;
+    max-width: 420px !important;
+    font-size: 13px !important;
+  }
+
+  body.mode-game .coach-tip {
+    top: auto !important;
+    bottom: 140px !important;
+    max-width: 420px !important;
+    font-size: 12px !important;
+  }
+
+  body.mode-game .action-bar {
+    right: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+
+  body.mode-game .win-panel {
+    top: 40% !important;
   }
 }
