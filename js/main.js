@@ -158,6 +158,11 @@ function paintRaiseBb(chips) {
     return;
   }
   raiseAmountEl.value = Number.isInteger(v) ? String(v) : v.toFixed(1);
+  // Keep raise button label in sync while dragging
+  const raiseBtn = document.querySelector('.action-btn.btn-raise');
+  if (raiseBtn && !raiseBtn.disabled) {
+    raiseBtn.textContent = `加注 ${formatBb(chips, unit)}`;
+  }
 }
 
 function parseRaiseBbInput(raw) {
@@ -474,6 +479,9 @@ function renderActions(state) {
   const raiseBtn = document.createElement('button');
   raiseBtn.type = 'button';
   raiseBtn.className = 'action-btn btn-raise';
+  raiseBtn.dataset.bb = String(bb);
+  raiseBtn.dataset.minTo = String(minTo);
+  raiseBtn.dataset.maxTo = String(maxTo);
   raiseBtn.textContent = canRaise ? `加注 ${formatBb(raiseTarget || minTo, bb)}` : '加注（不可）';
   raiseBtn.disabled = !canRaise;
 
@@ -483,23 +491,28 @@ function renderActions(state) {
     raiseSlider.min = String(sliderMin);
     raiseSlider.max = String(Math.max(sliderMin, sliderMax));
     raiseSlider.step = String(CHIP_UNIT);
-    raiseAmountEl.min = String(sliderMin);
-    raiseAmountEl.max = String(Math.max(sliderMin, sliderMax));
-    raiseAmountEl.step = String(CHIP_UNIT);
+    raiseAmountEl.min = String(sliderMin / bb);
+    raiseAmountEl.max = String(Math.max(sliderMin, sliderMax) / bb);
+    raiseAmountEl.step = String(CHIP_UNIT / bb);
     raiseTarget = Math.min(Math.max(sliderMin, sliderMax), sliderMin);
     raiseSlider.value = String(raiseTarget);
     paintRaiseBb(raiseTarget);
     raiseRow.hidden = false;
 
-    // Quick presets: sizing rule → actual raise-to (deduped)
     const pot = state.pot || 0;
+    const halfPot = clampRaise(state.currentBet + Math.round(pot * 0.5));
+    const fullPot = clampRaise(state.currentBet + pot);
     const presets = [
       { label: '最小', amount: minTo },
-      { label: '½底池', amount: state.currentBet + Math.round(pot * 0.5) },
-      { label: '⅔底池', amount: state.currentBet + Math.round(pot * 0.67) },
-      { label: '满底池', amount: state.currentBet + pot },
-      { label: '加3bb', amount: state.currentBet + bb * 3 },
-      { label: '加4bb', amount: state.currentBet + bb * 4 },
+      {
+        label: `加注 ${formatBb(halfPot, bb)}（半池）`,
+        amount: halfPot,
+      },
+      {
+        label: `加注 ${formatBb(fullPot, bb)}（全底池）`,
+        amount: fullPot,
+      },
+      { label: `加注 ${formatBb(clampRaise(state.currentBet + bb * 3), bb)}（+3bb）`, amount: state.currentBet + bb * 3 },
       { label: '全下', amount: maxTo },
     ];
     quickRaisesEl.hidden = false;
@@ -513,19 +526,20 @@ function renderActions(state) {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'quick-btn';
-      b.textContent = `${p.label}→${formatBb(amount, bb)}`;
-      b.title = `按「${p.label}」下注，共加注到 ${formatBb(amount, bb)}`;
+      b.textContent = p.label;
+      b.title = p.label;
       b.addEventListener('click', () => {
         raiseTarget = clampRaise(amount);
         raiseSlider.value = String(raiseTarget);
         paintRaiseBb(raiseTarget);
-        raiseBtn.textContent = `加注到 ${formatBb(raiseTarget, bb)}`;
+        raiseBtn.textContent = `加注 ${formatBb(raiseTarget, bb)}`;
       });
       quickRaisesEl.appendChild(b);
     }
 
     raiseBtn.addEventListener('click', () => {
-      const amount = clampRaise(Number(raiseAmountEl.value));
+      // Use raiseTarget (chips) — do not re-parse bb display text
+      const amount = clampRaise(raiseTarget);
       if (amount >= hero.stack + hero.bet) {
         doAction({ type: 'allin', amount: hero.stack });
       } else {
