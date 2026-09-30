@@ -3250,15 +3250,15 @@ body.mode-game .coach-tip {
    ========================================================= */
 @media (min-width: 960px) {
   body.mode-game .stage {
-    padding: 16px 24px 120px !important;
+    padding: 24px 24px 100px !important;
     align-items: center !important;
-    justify-content: flex-start !important;
+    justify-content: center !important;
   }
 
   body.mode-game .table-wrap {
-    width: min(92%, 920px) !important;
-    max-width: 920px !important;
-    max-height: min(70vh, 560px) !important;
+    width: min(90%, 900px) !important;
+    max-width: 900px !important;
+    max-height: min(72vh, 580px) !important;
   }
 
   body.mode-game .float-tools {
@@ -3332,6 +3332,38 @@ body.mode-game .coach-tip {
     font-size: 12px !important;
   }
 
+  body.mode-game .seat.top-left {
+    left: 24% !important;
+    top: 4% !important;
+  }
+
+  body.mode-game .seat.top-right {
+    left: auto !important;
+    right: 24% !important;
+    top: 4% !important;
+  }
+
+  body.mode-game .seat.left {
+    left: 6% !important;
+    top: 48% !important;
+  }
+
+  body.mode-game .seat.right {
+    right: 6% !important;
+    left: auto !important;
+    top: 48% !important;
+  }
+
+  body.mode-game .seat.bottom-left {
+    left: 24% !important;
+    bottom: 6% !important;
+  }
+
+  body.mode-game .seat.bottom-right {
+    right: 24% !important;
+    bottom: 6% !important;
+  }
+
   body.mode-game .avatar-wrap,
   body.mode-game .avatar {
     width: 48px !important;
@@ -3348,16 +3380,22 @@ body.mode-game .coach-tip {
 
   body.mode-game .player-stack {
     font-size: 12px !important;
+    color: #0f766e !important;
   }
 
   body.mode-game .player-bet,
   body.mode-game .player-action,
   body.mode-game .hand-tag {
     font-size: 9px !important;
+    color: #334155 !important;
   }
 
   body.mode-game .bet-row {
     height: 16px !important;
+  }
+
+  body.mode-game .bet-row .player-bet {
+    color: #0f766e !important;
   }
 
   body.mode-game .seat {
@@ -3380,27 +3418,71 @@ body.mode-game .coach-tip {
     height: 58px !important;
   }
 
+  /* Contrast: dark text on dark blocks */
+  body.mode-game .pot {
+    background: rgba(2, 20, 12, 0.78) !important;
+    border: 1px solid rgba(240, 215, 140, 0.45) !important;
+  }
+
+  body.mode-game .pot-label {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  body.mode-game .pot-amount {
+    color: #f0d78c !important;
+    font-weight: 700 !important;
+  }
+
   body.mode-game .toast {
     top: auto !important;
-    bottom: 170px !important;
+    bottom: 168px !important;
     max-width: 420px !important;
     font-size: 13px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    color: #0f172a !important;
+    border: 1px solid #e2e8f0 !important;
   }
 
   body.mode-game .coach-tip {
     top: auto !important;
-    bottom: 140px !important;
+    bottom: 136px !important;
     max-width: 420px !important;
     font-size: 12px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    color: #0f766e !important;
+    border: 1px solid #99f6e4 !important;
   }
 
   body.mode-game .action-bar {
     right: auto !important;
     left: 50% !important;
+    bottom: 12px !important;
     transform: translateX(-50%) !important;
   }
 
   body.mode-game .win-panel {
     top: 40% !important;
+  }
+
+  body.mode-game .win-banner {
+    color: #0f172a !important;
+  }
+
+  body.mode-game .ai-tag {
+    color: #fff !important;
+  }
+
+  body.mode-game .hand-tag {
+    color: #0f766e !important;
+  }
+
+  body.mode-game .pcard .corner .rank,
+  body.mode-game .pcard .corner .suit {
+    color: inherit !important;
+  }
+
+  body.mode-game .pcard.red .corner .rank,
+  body.mode-game .pcard.red .corner .suit {
+    color: #c1121f !important;
   }
 }
