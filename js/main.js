@@ -117,6 +117,8 @@ function renderCoach(state) {
 
 let lastState = null;
 let raiseTarget = 40;
+let currentRaiseBtn = null;
+let currentRaiseBb = 20;
 
 /** Cached DOM per seat so we never wipe/rebuild on every action */
 const seatCache = new Map();
@@ -146,7 +148,7 @@ function formatBb(n, bb) {
 }
 
 function currentBbUnit() {
-  return lastState?.bigBlind || 20;
+  return currentRaiseBb || lastState?.bigBlind || 20;
 }
 
 /** Show raise amount in bb chips (slider still stores chips). */
@@ -154,14 +156,18 @@ function paintRaiseBb(chips) {
   const unit = currentBbUnit();
   const v = Number(chips) / unit;
   if (!Number.isFinite(v)) {
-    raiseAmountEl.value = String(chips);
-    return;
+    if (raiseAmountEl) raiseAmountEl.value = String(chips);
+  } else {
+    raiseAmountEl.value = Number.isInteger(v) ? String(v) : v.toFixed(1);
   }
-  raiseAmountEl.value = Number.isInteger(v) ? String(v) : v.toFixed(1);
-  // Keep raise button label in sync while dragging
-  const raiseBtn = document.querySelector('.action-btn.btn-raise');
-  if (raiseBtn && !raiseBtn.disabled) {
-    raiseBtn.textContent = `加注 ${formatBb(chips, unit)}`;
+  const label = `加注 ${formatBb(chips, unit)}`;
+  if (currentRaiseBtn) {
+    currentRaiseBtn.textContent = label;
+    currentRaiseBtn.dataset.amount = String(chips);
+  }
+  // Keep slider in sync with chip value
+  if (raiseSlider && Number(raiseSlider.value) !== Number(chips)) {
+    raiseSlider.value = String(chips);
   }
 }
 
@@ -475,15 +481,18 @@ function renderActions(state) {
   const minTo = state.minRaiseTo || 0;
   const maxTo = state.maxRaiseTo || 0;
   const canRaise = maxTo > (state.currentBet || 0) && hero.stack > toCall;
+  const bbUnit = bb;
+  currentRaiseBb = bbUnit;
 
   const raiseBtn = document.createElement('button');
   raiseBtn.type = 'button';
   raiseBtn.className = 'action-btn btn-raise';
-  raiseBtn.dataset.bb = String(bb);
-  raiseBtn.dataset.minTo = String(minTo);
-  raiseBtn.dataset.maxTo = String(maxTo);
-  raiseBtn.textContent = canRaise ? `加注 ${formatBb(raiseTarget || minTo, bb)}` : '加注（不可）';
+  const initRaise = clampRaise(Math.max(minTo, state.currentBet + (state.bigBlind || 20)));
+  raiseTarget = initRaise;
+  raiseBtn.dataset.amount = String(raiseTarget);
+  raiseBtn.textContent = canRaise ? `加注 ${formatBb(raiseTarget, bbUnit)}` : '加注（不可）';
   raiseBtn.disabled = !canRaise;
+  currentRaiseBtn = canRaise ? raiseBtn : null;
 
   if (canRaise) {
     const sliderMin = Math.ceil(Math.min(minTo, maxTo) / CHIP_UNIT) * CHIP_UNIT;
@@ -491,9 +500,6 @@ function renderActions(state) {
     raiseSlider.min = String(sliderMin);
     raiseSlider.max = String(Math.max(sliderMin, sliderMax));
     raiseSlider.step = String(CHIP_UNIT);
-    raiseAmountEl.min = String(sliderMin / bb);
-    raiseAmountEl.max = String(Math.max(sliderMin, sliderMax) / bb);
-    raiseAmountEl.step = String(CHIP_UNIT / bb);
     raiseTarget = Math.min(Math.max(sliderMin, sliderMax), sliderMin);
     raiseSlider.value = String(raiseTarget);
     paintRaiseBb(raiseTarget);
@@ -504,15 +510,12 @@ function renderActions(state) {
     const fullPot = clampRaise(state.currentBet + pot);
     const presets = [
       { label: '最小', amount: minTo },
+      { label: `加注 ${formatBb(halfPot, bbUnit)}（半池）`, amount: halfPot },
+      { label: `加注 ${formatBb(fullPot, bbUnit)}（全底池）`, amount: fullPot },
       {
-        label: `加注 ${formatBb(halfPot, bb)}（半池）`,
-        amount: halfPot,
+        label: `加注 ${formatBb(clampRaise(state.currentBet + bbUnit * 3), bbUnit)}（+3bb）`,
+        amount: state.currentBet + bbUnit * 3,
       },
-      {
-        label: `加注 ${formatBb(fullPot, bb)}（全底池）`,
-        amount: fullPot,
-      },
-      { label: `加注 ${formatBb(clampRaise(state.currentBet + bb * 3), bb)}（+3bb）`, amount: state.currentBet + bb * 3 },
       { label: '全下', amount: maxTo },
     ];
     quickRaisesEl.hidden = false;
@@ -527,19 +530,17 @@ function renderActions(state) {
       b.type = 'button';
       b.className = 'quick-btn';
       b.textContent = p.label;
-      b.title = p.label;
       b.addEventListener('click', () => {
         raiseTarget = clampRaise(amount);
         raiseSlider.value = String(raiseTarget);
         paintRaiseBb(raiseTarget);
-        raiseBtn.textContent = `加注 ${formatBb(raiseTarget, bb)}`;
       });
       quickRaisesEl.appendChild(b);
     }
 
     raiseBtn.addEventListener('click', () => {
-      // Use raiseTarget (chips) — do not re-parse bb display text
       const amount = clampRaise(raiseTarget);
+      if (!Number.isFinite(amount) || amount < sliderMin) return;
       if (amount >= hero.stack + hero.bet) {
         doAction({ type: 'allin', amount: hero.stack });
       } else {
@@ -549,6 +550,7 @@ function renderActions(state) {
   } else {
     quickRaisesEl.hidden = true;
     quickRaisesEl.innerHTML = '';
+    currentRaiseBtn = null;
   }
 
   actionsEl.appendChild(raiseBtn);
