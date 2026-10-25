@@ -210,11 +210,14 @@ export class PokerGame {
         stack: p.stack,
         isHero: p.id === viewerSeat,
         isAI: !!p.isAI,
-        cards: p.id === viewerSeat || this.phase === 'showdown' || this.showdownReveal
+        // Never reveal folded players' hole cards (only yourself + showdown contenders)
+        cards: p.id === viewerSeat
           ? p.cards
           : p.folded
             ? []
-            : p.cards.map(() => ({ hidden: true })),
+            : (this.phase === 'showdown' || this.showdownReveal)
+              ? p.cards
+              : p.cards.map(() => ({ hidden: true })),
         bet: p.bet,
         totalBet: p.totalBet,
         folded: p.folded,
@@ -784,6 +787,8 @@ export class PokerGame {
       this.winners = [{ id: winner.id, name: winner.name, amount: this.pot, handName: null }];
       this.message = `${winner.name} 赢得底池 ${this.pot}（其余弃牌）`;
       this.phase = 'handover';
+      // Everyone folded — do not reveal hole cards
+      this.showdownReveal = false;
       this.emit();
       return;
     }
