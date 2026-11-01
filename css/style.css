@@ -4145,6 +4145,75 @@ body.mode-game .table,
     margin: 0 !important;
   }
 
+  /* Dealer: top-center of the table well */
+  body.mode-game .dealer-well {
+    left: 50% !important;
+    top: 0 !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: clamp(72px, 16vw, 96px) !important;
+    height: clamp(56px, 12vw, 72px) !important;
+    border-radius: 0 0 999px 999px !important;
+    border: 1px solid var(--border, #e6e7e8) !important;
+    border-top: none !important;
+    background: var(--surface-2, #f0f1f2) !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 2px 2px 4px !important;
+    z-index: 9 !important;
+    box-shadow: none !important;
+    writing-mode: horizontal-tb !important;
+  }
+
+  body.mode-game .dealer-avatar {
+    width: 36px !important;
+    height: 48px !important;
+    margin-top: 0 !important;
+    border-radius: 50% 50% 40% 40% !important;
+  }
+
+  body.mode-game .dealer-label {
+    writing-mode: horizontal-tb !important;
+    letter-spacing: 0.08em !important;
+    font-size: 8px !important;
+    color: var(--muted, #6b7280) !important;
+  }
+
+  body.mode-game .dealer-figure {
+    gap: 1px !important;
+  }
+
+  /* Seats stay on horizontal racetrack around 4:3 table */
+  body.mode-game .seat.top-left {
+    left: 18% !important;
+    top: 2% !important;
+  }
+
+  body.mode-game .seat.top-right {
+    right: 18% !important;
+    top: 2% !important;
+  }
+
+  body.mode-game .seat.bottom-left {
+    left: 18% !important;
+    bottom: 2% !important;
+  }
+
+  body.mode-game .seat.bottom-right {
+    right: 18% !important;
+    bottom: 2% !important;
+  }
+
+  body.mode-game .seat.left {
+    left: 2% !important;
+    top: 48% !important;
+  }
+
+  body.mode-game .seat.right {
+    right: 2% !important;
+    top: 48% !important;
+  }
+
   /* Compact seats for smaller table */
   body.mode-game .seat {
     width: 72px !important;
