@@ -4375,3 +4375,36 @@ body.mode-game .table,
     height: 38px !important;
   }
 }
+
+/* =========================================================
+   Final: dealer always top-center of table (wins all later rules)
+   ========================================================= */
+body.mode-game .dealer-well {
+  left: 50% !important;
+  right: auto !important;
+  top: 0 !important;
+  bottom: auto !important;
+  transform: translateX(-50%) !important;
+  width: clamp(72px, 14vw, 100px) !important;
+  height: clamp(56px, 11vw, 72px) !important;
+  border-radius: 0 0 999px 999px !important;
+  border: 1px solid #e6e7e8 !important;
+  border-top: none !important;
+  background: #f0f1f2 !important;
+  box-shadow: none !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  z-index: 12 !important;
+}
+
+body.mode-game .dealer-avatar {
+  width: 36px !important;
+  height: 48px !important;
+  margin-top: 0 !important;
+}
+
+body.mode-game .dealer-label {
+  writing-mode: horizontal-tb !important;
+  letter-spacing: 0.06em !important;
+  font-size: 8px !important;
+}
