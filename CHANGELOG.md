@@ -2,6 +2,13 @@
 
 All notable changes to **hin's poker**.
 
+## v6.7 — 2026-09-28
+
+### Changed
+- Mobile portrait: top tools strip → centered table → bottom action bar
+- Document-flow layout (no overlapping float panels)
+- Safe-area padding for notches; compact seat/table for readability
+
 ## v6.6 — 2026-09-28
 
 ### Changed
