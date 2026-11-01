@@ -124,6 +124,32 @@ export class PokerGame {
   }
 
   /** 30s auto check/fold for humans (hero or remote) */
+  /** Variable AI think time — personality + street + pressure */
+  aiThinkMs(player, ctx = {}) {
+    const persona = (player.personality || 'balanced');
+    const base = {
+      tight: 1600,
+      balanced: 1300,
+      aggressive: 1100,
+      maniac: 900,
+    }[persona] || 1300;
+
+    // Bigger pot / more to call → longer think
+    const pot = ctx.pot || 0;
+    const toCall = ctx.toCall || 0;
+    const pressure = Math.min(900, (pot / Math.max(BIG_BLIND, 1)) * 12 + (toCall / Math.max(BIG_BLIND, 1)) * 25);
+
+    // Street depth: later streets slightly longer
+    const streetBonus = this.phase === 'preflop' ? 0 : this.phase === 'flop' ? 150 : 300;
+
+    // Per-seat bias so the same player isn't always the same length
+    const seatBias = ((player.id * 97) % 400) - 200;
+
+    const jitter = Math.random() * 500 - 150;
+    return Math.max(500, Math.round(base + pressure + streetBonus + seatBias + jitter));
+  }
+
+  /** Variable AI thinking countdown for the table */
   armActionClock(player, opts = {}) {
     this.clearActionClock();
     if (!player) return;
@@ -437,9 +463,11 @@ export class PokerGame {
 
       // AI turn — thinking countdown for the table
       player.isThinking = true;
-      this.armActionClock(player);
+      const toCallEarly = this.currentBet - player.bet;
+      const thinkMs = this.aiThinkMs(player, { pot: this.pot, toCall: toCallEarly });
+      this.armActionClock(player, { timeoutMs: thinkMs });
       this.emit();
-      await this.sleep(AI_THINK_MIN + Math.random() * AI_THINK_VAR);
+      await this.sleep(thinkMs);
       player.isThinking = false;
       this.actionDeadline = null;
       this.actionTimeoutMs = null;
