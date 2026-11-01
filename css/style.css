@@ -1,22 +1,59 @@
-/* hin's poker v5 — white flat, mobile-first */
-
+/* hin's poker v6.6 — design system tokens
+   Grid: 8px base · 16/24/32/40/48
+   Saturation: shell ≤25% · accents ≤5% usage
+   Radius: 8–12px · shadows very light
+   Exceptions: card red/black, felt green, single warning
+*/
 :root {
-  --felt: #15803d;
-  --felt-deep: #14532d;
-  --felt-glow: #16a34a;
-  --gold: #0f766e;
-  --gold-hi: #14b8a6;
-  --gold-dim: #0f766e;
-  --ink: #0f172a;
-  --panel: #f8fafc;
-  --panel-2: #f1f5f9;
-  --cream: #0f172a;
-  --text: #0f172a;
-  --muted: #64748b;
-  --danger: #dc2626;
-  --win: #0f766e;
-  --shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
-  --radius: 14px;
+  /* Spacing (8px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 40px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  /* Shadows (blur ≤8, alpha ≤8%) */
+  --shadow-sm: 0 1px 4px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 2px 8px rgba(15, 23, 42, 0.08);
+  --shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+
+  /* Neutral scale — matte shell */
+  --bg: #f4f5f6;
+  --surface: #fafafa;
+  --surface-2: #f0f1f2;
+  --border: #e6e7e8;
+  --border-strong: #d5d7d9;
+  --ink: #1a1d21;
+  --text: #1a1d21;
+  --muted: #6b7280;
+  --cream: #1a1d21;
+
+  /* Low-sat accents (≤25% sat) — shell primary / data states */
+  --accent: #3d6b5a;
+  --accent-soft: #e8efec;
+  --accent-text: #2f5244;
+  --warn: #a65d4e;
+  --warn-soft: #f5ebe8;
+
+  /* Poker table exceptions (not shell tokens) */
+  --felt: #1f4d38;
+  --felt-deep: #16382a;
+  --felt-glow: #2a6349;
+  --gold: #3d6b5a;
+  --gold-hi: #4a7d6a;
+  --gold-dim: #3d6b5a;
+  --win: #3d6b5a;
+  --danger: #a65d4e;
+
   --font-body: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
   --font-display: "SF Pro Display", "PingFang SC", system-ui, sans-serif;
 }
@@ -3676,4 +3713,313 @@ body.mode-game .coach-tip {
   body.mode-game .pcard.red .corner .suit {
     color: #c1121f !important;
   }
+}
+
+/* =========================================================
+   v6.6 — Design system enforcement (shell matte + exceptions)
+   ========================================================= */
+
+/* --- Buttons: matte, no glow --- */
+.action-btn,
+.btn-ghost,
+.hero-cta,
+.quick-btn {
+  border-radius: var(--radius-md, 10px) !important;
+  box-shadow: none !important;
+  letter-spacing: 0 !important;
+}
+
+.btn-raise {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.btn-start {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  border-radius: var(--radius-lg, 12px) !important;
+}
+
+.btn-check {
+  background: var(--accent-soft) !important;
+  border-color: var(--border) !important;
+  color: var(--accent-text) !important;
+}
+
+.btn-call {
+  background: var(--surface-2) !important;
+  border-color: var(--border-strong) !important;
+  color: var(--ink) !important;
+}
+
+.btn-fold {
+  background: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--muted) !important;
+}
+
+.btn-allin {
+  background: var(--warn-soft) !important;
+  border-color: #e4cfc9 !important;
+  color: var(--warn) !important;
+}
+
+.hero-cta {
+  background: var(--accent) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+/* --- Lobby matte --- */
+.lobby {
+  background: var(--bg) !important;
+}
+
+.lobby-hero {
+  background: #1e2420 !important;
+  box-shadow: none !important;
+  border: 1px solid #2a322c !important;
+  border-radius: var(--radius-lg, 12px) !important;
+}
+
+.hero-badge {
+  background: var(--accent) !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  border-radius: var(--radius-md, 10px) !important;
+}
+
+.stat b {
+  color: #a8c4b6 !important;
+}
+
+.hero-cta {
+  background: var(--accent) !important;
+}
+
+.lobby-card,
+.feat {
+  border-radius: var(--radius-md, 10px) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border-color: var(--border) !important;
+}
+
+.avatar-opt.is-on {
+  border-color: var(--accent) !important;
+  box-shadow: none !important;
+}
+
+/* --- Player plate: matte, low contrast shell --- */
+.plate,
+body.mode-game .plate {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md, 10px) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.player-stack {
+  color: var(--accent-text) !important;
+}
+
+.player-bet {
+  color: var(--accent-text) !important;
+}
+
+/* --- Turn indicator: state block, no neon --- */
+.seat.current .avatar,
+body.mode-game .seat.current .avatar {
+  border-color: var(--border-strong) !important;
+  box-shadow: var(--shadow-md) !important;
+  animation: none !important;
+}
+
+.seat.current .avatar-glow {
+  opacity: 1 !important;
+  background: rgba(61, 107, 90, 0.18) !important;
+}
+
+.seat.current .plate,
+body.mode-game .seat.current .plate {
+  border-color: var(--accent) !important;
+  background: var(--accent-soft) !important;
+  box-shadow: none !important;
+}
+
+@keyframes turnGlow {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.04); }
+}
+
+.seat.thinking .avatar {
+  border-color: var(--border-strong) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.seat.thinking .avatar-glow {
+  background: rgba(61, 107, 90, 0.12) !important;
+}
+
+/* --- Timer / coach / toast: matte data states --- */
+.action-timer,
+body.mode-game .action-timer {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm, 8px) !important;
+  color: var(--muted) !important;
+}
+
+.action-timer-num {
+  color: var(--ink) !important;
+}
+
+.action-timer-fill {
+  background: var(--accent) !important;
+}
+
+.action-timer-fill.urgent,
+.action-timer-num.urgent {
+  color: var(--warn) !important;
+}
+
+.action-timer-fill.urgent {
+  background: var(--warn) !important;
+}
+
+.coach-box {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm, 8px) !important;
+  color: var(--text) !important;
+}
+
+.coach-title {
+  color: var(--muted) !important;
+}
+
+.coach-action {
+  color: var(--ink) !important;
+}
+
+.coach-term {
+  color: var(--accent-text) !important;
+}
+
+.toast,
+body.mode-game .toast {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border-radius: var(--radius-sm, 8px) !important;
+}
+
+/* --- Raise input --- */
+.raise-amount {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm, 8px) !important;
+  color: var(--ink) !important;
+}
+
+.raise-amount:focus {
+  border-color: var(--accent) !important;
+  box-shadow: none !important;
+}
+
+/* --- Pot / win: data accent only --- */
+.pot {
+  background: rgba(30, 36, 32, 0.88) !important;
+  border: 1px solid rgba(212, 180, 120, 0.25) !important;
+  border-radius: var(--radius-pill, 999px) !important;
+}
+
+.pot-amount {
+  color: #e8dcc8 !important;
+}
+
+.win-banner {
+  background: #2a322c !important;
+  color: #e8dcc8 !important;
+  border: 1px solid #3d4a42 !important;
+  border-radius: var(--radius-md, 10px) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* --- Dealer well --- */
+.dealer-well {
+  background: var(--surface-2) !important;
+  border-color: var(--border) !important;
+}
+
+.dealer-label {
+  color: var(--muted) !important;
+}
+
+/* --- Card: exception — keep readable rank/suit --- */
+.pcard {
+  border-radius: var(--radius-sm, 8px) !important;
+}
+
+/* Felt: controlled exception, slightly desaturated */
+body.mode-game .table,
+.table {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), transparent 28%),
+    linear-gradient(90deg, var(--felt-deep) 0%, var(--felt) 18%, var(--felt-glow) 50%, var(--felt) 82%, var(--felt-deep) 100%) !important;
+}
+
+.table-rail {
+  background: linear-gradient(180deg, #e8e9ea 0%, #d0d2d4 45%, #b8bbbe 100%) !important;
+}
+
+/* --- Action side log --- */
+.action-side {
+  background: var(--surface-2) !important;
+  border-color: var(--border) !important;
+}
+
+.log-item {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-left-width: 2px !important;
+  border-radius: var(--radius-sm, 8px) !important;
+}
+
+.log-item.raise { border-left-color: var(--accent) !important; }
+.log-item.call { border-left-color: var(--muted) !important; }
+.log-item.fold { border-left-color: var(--border-strong) !important; }
+.log-item.allin { border-left-color: var(--warn) !important; }
+.log-item.flop,
+.log-item.turn,
+.log-item.river {
+  border-left-color: var(--accent) !important;
+  color: var(--accent-text) !important;
+}
+
+/* Quick raise pills */
+.quick-btn {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+.quick-btn:hover {
+  background: var(--accent-soft) !important;
+  border-color: var(--accent) !important;
+}
+
+/* Online / AI tags: data only */
+.ai-tag {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+
+.online-dot {
+  background: var(--accent) !important;
+  box-shadow: none !important;
 }

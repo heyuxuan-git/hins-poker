@@ -2,6 +2,15 @@
 
 All notable changes to **hin's poker**.
 
+## v6.6 — 2026-09-28
+
+### Changed
+- Design tokens: 8px grid (16/24/32/40/48), radius 8–12px, light shadows
+- Shell UI desaturated; no neon outlines; accent used for data/state only
+- Turn indicator: state plate + soft avatar ring (no neon glow)
+- Matte lobby, buttons, plates, timer, toast, action log
+- Felt/cards remain controlled exceptions for readability
+
 ## v6.5 — 2026-09-28
 
 ### Added

@@ -1,9 +1,9 @@
 {
   "name": "hins-poker",
-  "version": "6.5.0",
+  "version": "6.6.0",
   "private": true,
   "type": "module",
-  "description": "hin's poker v6.5 — raise UI, countdown, polished lobby",
+  "description": "hin's poker v6.6 — design system: 8px grid, matte shell",
   "scripts": {
     "test": "node js/evaluator.test.mjs && node js/deal-bust.test.mjs && node js/rebuy.test.mjs",
     "start": "python3 -m http.server 5173",
