@@ -1,10 +1,12 @@
-/* hin's poker PWA service worker */
-const CACHE = 'hin-poker-v671';
+/* hin's poker PWA service worker — v6.7.2
+   Navigations: network-first (always fresh HTML)
+   Static assets: cache-first with background update */
+const CACHE = 'hin-poker-v672';
 const ASSETS = [
   './',
   './index.html',
-  './css/style.css?v=v6.7.1',
-  './js/main.js?v=v6.5.1',
+  './css/style.css?v=v6.7.2',
+  './js/main.js?v=v6.7.2',
   './js/game.js',
   './js/deck.js',
   './js/evaluator.js',
@@ -42,6 +44,26 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
 
+  // HTML / navigation: network-first so users never get stuck on a bad cache
+  const isNavigation = e.request.mode === 'navigate' || e.request.destination === 'document';
+  if (isNavigation) {
+    e.respondWith(
+      fetch(e.request)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(e.request, copy));
+          }
+          return res;
+        })
+        .catch(() =>
+          caches.match(e.request).then((cached) => cached || caches.match('./index.html')),
+        ),
+    );
+    return;
+  }
+
+  // Static assets: cache-first, refresh in background
   e.respondWith(
     caches.match(e.request).then((cached) => {
       const fetched = fetch(e.request)
