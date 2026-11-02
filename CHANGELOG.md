@@ -8,6 +8,9 @@ All notable changes to **hin's poker**.
 - Mobile portrait: top tools strip → centered table → bottom action bar
 - Document-flow layout (no overlapping float panels)
 - Safe-area padding for notches; compact seat/table for readability
+- Dealer button pinned top-center of table on mobile portrait
+- Service worker: navigations are network-first; static assets cache-first
+- Cache bust `?v=v6.7.2` so stale CSS/JS cannot stick after deploy
 
 ## v6.6 — 2026-09-28
 
