@@ -44,10 +44,10 @@
   --warn: #a65d4e;
   --warn-soft: #f5ebe8;
 
-  /* Poker table exceptions (not shell tokens) */
-  --felt: #1f4d38;
-  --felt-deep: #16382a;
-  --felt-glow: #2a6349;
+  /* Poker table exceptions — deep casino green (WePoker-style full felt) */
+  --felt: #1a6b4a;
+  --felt-deep: #0e4530;
+  --felt-glow: #1f7d56;
   --gold: #3d6b5a;
   --gold-hi: #4a7d6a;
   --gold-dim: #3d6b5a;
@@ -4407,4 +4407,348 @@ body.mode-game .dealer-label {
   writing-mode: horizontal-tb !important;
   letter-spacing: 0.06em !important;
   font-size: 8px !important;
+}
+
+/* =========================================================
+   v6.8 — Full-bleed felt + WePoker-style controls
+   Lobby stays light; only game stage becomes casino felt.
+   ========================================================= */
+
+/* Deep casino green stage background (no oval rail) */
+body.mode-game .stage {
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 42%, var(--felt-glow) 0%, var(--felt) 48%, var(--felt-deep) 100%),
+    var(--felt) !important;
+  background-color: var(--felt) !important;
+}
+
+body.mode-game .game-layout {
+  background: var(--felt-deep) !important;
+}
+
+/* Kill table shape — seats sit on full felt */
+body.mode-game .table-rail {
+  display: none !important;
+}
+
+body.mode-game .table {
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+body.mode-game .table::before {
+  display: none !important;
+}
+
+body.mode-game .table::after {
+  content: "HIN'S POKER" !important;
+  color: rgba(255, 255, 255, 0.08) !important;
+  font-size: clamp(16px, 3vw, 28px) !important;
+  letter-spacing: 0.4em !important;
+  top: 46% !important;
+}
+
+body.mode-game .felt-pattern {
+  opacity: 0.18 !important;
+  border-radius: 0 !important;
+  background-image:
+    repeating-linear-gradient(
+      -18deg,
+      transparent,
+      transparent 3px,
+      rgba(255, 255, 255, 0.04) 3px,
+      rgba(255, 255, 255, 0.04) 4px
+    ) !important;
+}
+
+/* Dealer well: slim top-center cutout on felt (keeps prior fix) */
+body.mode-game .dealer-well {
+  background: linear-gradient(180deg, rgba(8, 20, 14, 0.92), rgba(12, 28, 20, 0.88)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-top: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28) !important;
+}
+
+body.mode-game .dealer-label {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+/* Table meta: semi-transparent overlay on felt */
+.felt-meta {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.42);
+  pointer-events: none;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.felt-dot {
+  opacity: 0.6;
+}
+
+body.mode-game .pot {
+  top: 68% !important;
+  background: rgba(6, 28, 18, 0.55) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+body.mode-game .pot-amount {
+  color: #f0f7f3 !important;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45) !important;
+}
+
+body.mode-game .pot-label {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+/* Seat plates on felt — dark glass */
+body.mode-game .plate {
+  background: rgba(8, 18, 14, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f3f7f5 !important;
+}
+
+body.mode-game .player-name {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+body.mode-game .player-stack {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+body.mode-game .player-bet {
+  color: #d8ebe3 !important;
+}
+
+body.mode-game .seat.folded {
+  opacity: 0.45 !important;
+}
+
+/* Action status pills on seats */
+body.mode-game .player-action {
+  display: inline-block;
+  min-height: 0 !important;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  width: fit-content;
+  max-width: 100%;
+}
+
+body.mode-game .player-action:empty {
+  display: none;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+body.mode-game .player-action.is-fold {
+  background: #b54a3f;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.mode-game .player-action.is-call {
+  background: #2f6fed;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.mode-game .player-action.is-raise {
+  background: #e89a1c;
+  color: #1a1205;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+body.mode-game .player-action.is-allin {
+  background: #d92b2b;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+body.mode-game .player-action.is-think {
+  background: rgba(255, 255, 255, 0.22);
+  color: #e8efec;
+}
+
+body.mode-game .player-action.is-neutral {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* Permanent hand-strength tag under plate */
+body.mode-game .hand-tag {
+  color: #c8e6d8 !important;
+  font-size: 8px !important;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+body.mode-game .hand-tag:empty {
+  display: none;
+}
+
+/* Quick raise chips — short labels */
+body.mode-game .quick-raises {
+  gap: 6px !important;
+}
+
+body.mode-game .quick-btn {
+  min-height: 30px !important;
+  min-width: 44px;
+  padding: 4px 10px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid #d5d7d9 !important;
+  color: var(--text) !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08) !important;
+}
+
+body.mode-game .quick-btn:active {
+  background: var(--accent-soft) !important;
+}
+
+/* Raise row on light action bar */
+body.mode-game .raise-row {
+  background: transparent !important;
+}
+
+body.mode-game .raise-amount {
+  border-radius: 8px !important;
+  border: 1px solid var(--border) !important;
+  background: var(--surface) !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+}
+
+/* Circular action buttons — fold red / call blue / raise amber */
+body.mode-game .actions {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 14px !important;
+  grid-template-columns: none !important;
+}
+
+body.mode-game .action-btn {
+  min-height: 64px !important;
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: none !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em !important;
+  line-height: 1.15 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18) !important;
+  white-space: normal !important;
+}
+
+body.mode-game .btn-fold {
+  background: #e2574c !important;
+  color: #fff !important;
+}
+
+body.mode-game .btn-call,
+body.mode-game .btn-check {
+  background: #2f6fd0 !important;
+  color: #fff !important;
+}
+
+body.mode-game .btn-raise {
+  background: #f0a202 !important;
+  color: #1a1205 !important;
+}
+
+body.mode-game .btn-allin {
+  background: #c9a227 !important;
+  color: #1a1205 !important;
+}
+
+body.mode-game .btn-start {
+  width: auto !important;
+  min-width: 160px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  border-radius: 999px !important;
+  padding: 0 28px !important;
+  background: #2f6fd0 !important;
+  color: #fff !important;
+  grid-column: auto !important;
+}
+
+body.mode-game .waiting {
+  color: rgba(255, 255, 255, 0.7) !important;
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 10px;
+  min-height: 48px;
+}
+
+/* Action bar: light shell (lobby language) under felt stage */
+@media (max-width: 820px) and (orientation: portrait) {
+  body.mode-game .action-bar {
+    background: #f7f8f8 !important;
+  }
+
+  body.mode-game .action-btn {
+    min-height: 68px !important;
+    width: 68px !important;
+    height: 68px !important;
+    min-width: 68px !important;
+    font-size: 14px !important;
+  }
+
+  body.mode-game .actions {
+    gap: 16px !important;
+  }
+
+  body.mode-game .btn-start {
+    width: auto !important;
+    min-width: 180px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+  }
+
+  body.mode-game .felt-meta {
+    top: 56%;
+    font-size: 10px;
+  }
+
+  body.mode-game .table::after {
+    font-size: 14px !important;
+    letter-spacing: 0.28em !important;
+  }
+}
+
+/* Desktop stage still full felt */
+body.mode-game .table-wrap {
+  /* positioning context only — no visible table chrome */
+  isolation: isolate;
+}
+
+/* Soften seat cards contrast on green */
+body.mode-game .seat-cards .pcard {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
 }
