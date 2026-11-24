@@ -2,6 +2,17 @@
 
 All notable changes to **hin's poker**.
 
+## v6.8 — 2026-11-24
+
+### Changed
+- Game stage: full-bleed deep casino felt (no oval table/rail); lobby stays light
+- Action buttons: large circular fold red / call blue / raise amber
+- Quick raises: short chips 1/3 · 1/2 · 2/3 · 底池 · 全下
+- Seat action status pills (弃牌 / 跟注 / 加注 / ALL IN / 思考中)
+- Live hand-strength tag under plate (pair preflop; made hands postflop)
+- Table blinds/hand number as semi-transparent felt overlay
+- Cache bust `?v=v6.8`
+
 ## v6.7 — 2026-09-28
 
 ### Changed
