@@ -1,5 +1,6 @@
 import { PokerGame } from './game.js';
 import { cardDisplay } from './deck.js';
+import { evaluateHand } from './evaluator.js';
 import { NetClient, buildSeatPlan, defaultWsUrl, AVATAR_CHOICES } from './net.js';
 import { setMuted, isMuted } from './audio.js';
 import { recommendHeroAction, POKER_TERMS } from './coach.js';
@@ -19,6 +20,8 @@ const raiseSlider = document.getElementById('raise-slider');
 const raiseAmountEl = document.getElementById('raise-amount');
 const handNumEl = document.getElementById('hand-num');
 const blindsEl = document.getElementById('blinds');
+const feltHandEl = document.getElementById('felt-hand');
+const feltBlindsEl = document.getElementById('felt-blinds');
 const winBannerSlot = document.getElementById('win-banner-slot');
 const btnReset = document.getElementById('btn-reset');
 const actionTimerEl = document.getElementById('action-timer');
@@ -149,6 +152,35 @@ function formatBb(n, bb) {
 
 function currentBbUnit() {
   return currentRaiseBb || lastState?.bigBlind || 20;
+}
+
+/** Seat action badge class from lastAction text (WePoker-style pills). */
+function actionBadgeClass(label) {
+  const t = String(label || '');
+  if (!t || t === '思考中…') return t === '思考中…' ? 'is-think' : '';
+  if (t.includes('全下') || t.toUpperCase().includes('ALL')) return 'is-allin';
+  if (t.includes('弃牌') || t.includes('断线')) return 'is-fold';
+  if (t.includes('加注') || t.includes('raise')) return 'is-raise';
+  if (t.includes('跟注') || t.includes('过牌') || t.includes('check') || t.includes('call')) return 'is-call';
+  if (t.includes('补码')) return 'is-think';
+  return 'is-neutral';
+}
+
+/** Live hand strength for visible hole cards (showdown name wins if set). */
+function liveHandName(player, community) {
+  if (player.handName) return player.handName;
+  const hole = player.cards || [];
+  if (hole.length < 2) return '';
+  const all = [...hole, ...(community || [])];
+  if (all.length >= 5) {
+    try {
+      return evaluateHand(all).name;
+    } catch {
+      return '';
+    }
+  }
+  if (hole[0].rank === hole[1].rank) return `对${hole[0].rank}`;
+  return '';
 }
 
 /** Show raise amount in bb chips (slider still stores chips). */
@@ -319,13 +351,20 @@ function renderSeat(el, player, state) {
   }
 
   if (cache.name.textContent !== player.name) cache.name.textContent = player.name;
-  if (player.isThinking) {
-    cache.action.textContent = '思考中…';
-    cache.action.style.color = '#0f766e';
-  } else if (cache.action.textContent === '思考中…') {
-    cache.action.textContent = player.lastAction || '';
-    cache.action.style.color = '';
+
+  const rawAction = player.isThinking ? '思考中…' : player.lastAction || '';
+  const actionText = rawAction.replace(/\s+\d+(\.\d+)?$/, (m) => {
+    const n = Number(m.trim());
+    if (!Number.isFinite(n) || n <= 0) return m;
+    return ` ${formatBb(n, state.bigBlind)}`;
+  });
+  if (cache.action.textContent !== actionText) cache.action.textContent = actionText;
+  const badge = actionBadgeClass(rawAction);
+  if (cache.action.dataset.badge !== badge) {
+    cache.action.dataset.badge = badge;
+    cache.action.className = `player-action${badge ? ` ${badge}` : ''}`;
   }
+
   if (cache.dealer.hidden === !!player.isButton) cache.dealer.hidden = !player.isButton;
 
   const stackText = formatBb(player.stack, state.bigBlind);
@@ -345,15 +384,8 @@ function renderSeat(el, player, state) {
     if (cache.chipStack.dataset.tier !== '0') cache.chipStack.dataset.tier = '0';
   }
 
-  const actionText = (player.lastAction || '').replace(/\s+\d+(\.\d+)?$/, (m) => {
-    // convert trailing chip number in action labels to bb when possible
-    const n = Number(m.trim());
-    if (!Number.isFinite(n) || n <= 0) return m;
-    return ` ${formatBb(n, state.bigBlind)}`;
-  });
-  if (cache.action.textContent !== actionText) cache.action.textContent = actionText;
-
-  const handText = player.handName || '';
+  // Prefer live strength while hand is running; showdown handName wins when set
+  const handText = liveHandName(player, state.community || []);
   if (cache.hand.textContent !== handText) cache.hand.textContent = handText;
 }
 
@@ -506,16 +538,15 @@ function renderActions(state) {
     raiseRow.hidden = false;
 
     const pot = state.pot || 0;
-    const halfPot = clampRaise(state.currentBet + Math.round(pot * 0.5));
+    const thirdPot = clampRaise(state.currentBet + Math.round(pot / 3));
+    const halfPot = clampRaise(state.currentBet + Math.round(pot / 2));
+    const twoThirdPot = clampRaise(state.currentBet + Math.round((pot * 2) / 3));
     const fullPot = clampRaise(state.currentBet + pot);
     const presets = [
-      { label: '最小', amount: minTo },
-      { label: `加注 ${formatBb(halfPot, bbUnit)}（半池）`, amount: halfPot },
-      { label: `加注 ${formatBb(fullPot, bbUnit)}（全底池）`, amount: fullPot },
-      {
-        label: `加注 ${formatBb(clampRaise(state.currentBet + bbUnit * 3), bbUnit)}（+3bb）`,
-        amount: state.currentBet + bbUnit * 3,
-      },
+      { label: '1/3', amount: thirdPot },
+      { label: '1/2', amount: halfPot },
+      { label: '2/3', amount: twoThirdPot },
+      { label: '底池', amount: fullPot },
       { label: '全下', amount: maxTo },
     ];
     quickRaisesEl.hidden = false;
@@ -657,11 +688,13 @@ function render(state) {
 
   const handText = state.handNumber > 0 ? String(state.handNumber) : '—';
   if (handNumEl.textContent !== handText) handNumEl.textContent = handText;
+  if (feltHandEl && feltHandEl.textContent !== handText) feltHandEl.textContent = handText;
 
   const bb = state.bigBlind || 20;
   const sb = state.smallBlind || Math.round(bb / 2);
   const blindsText = `${formatBb(sb, bb)} / ${formatBb(bb, bb)}`;
   if (blindsEl && blindsEl.textContent !== blindsText) blindsEl.textContent = blindsText;
+  if (feltBlindsEl && feltBlindsEl.textContent !== blindsText) feltBlindsEl.textContent = blindsText;
 
   const msg = state.message || '';
   if (toastEl.textContent !== msg) toastEl.textContent = msg;
