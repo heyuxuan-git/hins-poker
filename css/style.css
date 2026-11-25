@@ -4764,11 +4764,11 @@ body.mode-game .seat-cards .pcard {
   place-items: center;
   border-radius: 50%;
   object-fit: unset;
-  background: #5b8def;
-  border: 3px solid rgba(255, 255, 255, 0.22);
+  background: #6b7280;
+  border: 3px solid rgba(255, 255, 255, 0.18);
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.2),
-    0 4px 12px rgba(0, 0, 0, 0.28);
+    0 0 0 1px rgba(0, 0, 0, 0.18),
+    0 4px 12px rgba(0, 0, 0, 0.22);
   color: #fff;
   font-family: var(--font-body);
   font-weight: 700;
@@ -4783,14 +4783,21 @@ body.mode-game .seat-cards .pcard {
   letter-spacing: 0.02em;
   text-transform: none;
   pointer-events: none;
+  color: #fff;
 }
 
-.avatar-letter[data-tone="0"] { background: linear-gradient(160deg, #6b9bff, #4a7de0); }
-.avatar-letter[data-tone="1"] { background: linear-gradient(160deg, #3ecf8e, #1f9d62); }
-.avatar-letter[data-tone="2"] { background: linear-gradient(160deg, #f0b27a, #d9822b); }
-.avatar-letter[data-tone="3"] { background: linear-gradient(160deg, #b794f4, #805ad5); }
-.avatar-letter[data-tone="4"] { background: linear-gradient(160deg, #4fd1c5, #0f9d8f); }
-.avatar-letter[data-tone="5"] { background: linear-gradient(160deg, #fc8181, #e53e3e); }
+/* Uniform gray circle + white initial (all tones identical) */
+.avatar-letter[data-tone],
+.avatar-letter[data-tone="0"],
+.avatar-letter[data-tone="1"],
+.avatar-letter[data-tone="2"],
+.avatar-letter[data-tone="3"],
+.avatar-letter[data-tone="4"],
+.avatar-letter[data-tone="5"] {
+  background: #6b7280;
+  color: #fff;
+}
+
 .avatar-letter[data-tone="empty"] {
   background: rgba(255, 255, 255, 0.08);
   border: 2px dashed rgba(255, 255, 255, 0.35);
@@ -4798,14 +4805,18 @@ body.mode-game .seat-cards .pcard {
   box-shadow: none;
 }
 
-body.mode-game .avatar.avatar-letter {
+body.mode-game .avatar.avatar-letter,
+body.mode-game .avatar-letter[data-tone] {
+  background: #6b7280 !important;
+  color: #fff !important;
   border-color: rgba(255, 255, 255, 0.28);
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.25),
     0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-body.mode-game .avatar.avatar-letter .avatar-initial {
+body.mode-game .avatar.avatar-letter .avatar-initial,
+body.mode-game .avatar-letter .avatar-initial {
   font-size: clamp(13px, 2vw, 18px);
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
