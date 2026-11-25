@@ -9,11 +9,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="hin's poker" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <title>hin's poker · 德州扑克 v6.8</title>
+  <title>hin's poker · 德州扑克 v6.9</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="assets/icon-192.png" />
-  <link rel="stylesheet" href="css/style.css?v=v6.8" />
+  <link rel="stylesheet" href="css/style.css?v=v6.9" />
 </head>
 <body>
   <!-- Lobby -->
@@ -25,7 +25,7 @@
           <span>♠</span><span>♥</span><span>♦</span><span>♣</span>
         </div>
         <div class="hero-badge" aria-hidden="true">H</div>
-        <h1 class="lobby-title">hin's poker <span class="brand-ver">v6.8</span></h1>
+        <h1 class="lobby-title">hin's poker <span class="brand-ver">v6.9</span></h1>
         <p class="lobby-tagline">No-Limit Hold'em · 与 AI 或朋友同桌较量</p>
         <div class="hero-stats">
           <div class="stat"><b>6</b><span>人桌</span></div>
@@ -41,7 +41,7 @@
       <div class="lobby-features">
         <div class="feat"><strong>训练模式</strong><span>行动日志 + 教练提示</span></div>
         <div class="feat"><strong>联机开黑</strong><span>房间码 · 邀请链接</span></div>
-        <div class="feat"><strong>手机友好</strong><span>横屏牌桌 · 浮动操作</span></div>
+        <div class="feat"><strong>手机友好</strong><span>竖屏牌桌 · 底部操作</span></div>
       </div>
 
       <section class="lobby-card lobby-multi">
@@ -51,8 +51,8 @@
           <input type="text" id="lobby-name" maxlength="12" placeholder="你的名字" autocomplete="nickname" />
         </label>
         <div class="lobby-field">
-          <span>头像</span>
-          <div class="avatar-picker" id="avatar-picker" role="listbox" aria-label="选择头像"></div>
+          <span>头像色</span>
+          <div class="avatar-picker" id="avatar-picker" role="listbox" aria-label="选择头像颜色"></div>
         </div>
         <label class="lobby-check">
           <input type="checkbox" id="fill-ai" checked />
@@ -84,7 +84,7 @@
         </div>
       </section>
 
-      <p class="lobby-foot">hin's poker · 仅供娱乐练习 · v6.8</p>
+      <p class="lobby-foot">hin's poker · 仅供娱乐练习 · v6.9</p>
     </div>
   </div>
 
@@ -93,7 +93,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">H</div>
         <div class="brand-text">
-          <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v6.8</span></div>
+          <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v6.9</span></div>
         </div>
       </div>
     </header>
@@ -108,7 +108,7 @@
           </div>
           <div class="dealer-well" aria-hidden="true">
             <div class="dealer-figure">
-              <img class="dealer-avatar" src="assets/dealer.png" alt="" width="64" height="64" draggable="false" />
+              <div class="dealer-avatar dealer-letter">D</div>
               <span class="dealer-label">DEALER</span>
             </div>
           </div>
@@ -191,7 +191,7 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=v6.8"></script>
+  <script type="module" src="js/main.js?v=v6.9"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
