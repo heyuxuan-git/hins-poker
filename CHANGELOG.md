@@ -6,11 +6,12 @@ All notable changes to **hin's poker**.
 
 ### Changed
 - Letter avatars (Apple Contacts style): circle + name initial; no seat/dealer PNG
-- Lobby avatar picker → color/letter swatches
+- Avatar fill: gray background + white initial (all seats)
+- Lobby avatar picker → gray letter swatches
 - Dealer badge is CSS letter “D” (no dealer.png)
 - Felt polish: current-player amber ring, readable plate/toast/coach/win banner
 - Lobby copy: 竖屏牌桌 · 底部操作
-- Cache bust `?v=v6.9`
+- Cache bust `?v=gray` for avatar color fix
 
 ## v6.8 — 2026-11-24
 
