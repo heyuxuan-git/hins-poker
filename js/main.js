@@ -246,7 +246,9 @@ function ensureSeatScaffold(el) {
     <div class="seat-body">
       <div class="avatar-wrap">
         <div class="avatar-glow"></div>
-        <img class="avatar" alt="" width="72" height="72" draggable="false" />
+        <div class="avatar avatar-letter" data-tone="0" role="img" aria-label="">
+          <span class="avatar-initial"></span>
+        </div>
         <span class="online-dot" title="在线" hidden></span>
         <span class="dealer-btn" title="庄家" hidden>D</span>
       </div>
@@ -271,6 +273,7 @@ function ensureSeatScaffold(el) {
   cache = {
     cards: el.querySelector('.seat-cards'),
     avatar: el.querySelector('.avatar'),
+    initial: el.querySelector('.avatar-initial'),
     onlineDot: el.querySelector('.online-dot'),
     name: el.querySelector('.player-name-text'),
     aiTag: el.querySelector('.ai-tag'),
@@ -306,6 +309,21 @@ function syncCards(container, cache, cards) {
   });
 }
 
+/** Apple Contacts-style initial from display name (CJK first char or A–Z). */
+function avatarInitial(name) {
+  const s = String(name || '').trim();
+  if (!s) return '?';
+  return s[0];
+}
+
+/** Stable tone 0–5 from avatar key / name so seats stay recognizable. */
+function avatarTone(key, name) {
+  const s = String(key || name || 'x');
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h % 6;
+}
+
 function renderSeat(el, player, state) {
   if (!el) return;
   const cache = ensureSeatScaffold(el);
@@ -333,12 +351,16 @@ function renderSeat(el, player, state) {
 
   syncCards(cache.cards, cache, player.cards);
 
-  const avatarKey = player.avatar || (player.isEmpty ? null : 'hero');
-  if (avatarKey && cache.avatarKey !== avatarKey) {
-    cache.avatarKey = avatarKey;
-    cache.avatar.src = `assets/avatar-${avatarKey}.png`;
+  // Letter avatar — no PNG dependency (Apple Contacts style)
+  const initial = player.isEmpty ? '+' : avatarInitial(player.name);
+  const tone = player.isEmpty ? 'empty' : String(avatarTone(player.avatar || player.name, player.name));
+  if (cache.initial && cache.initial.textContent !== initial) {
+    cache.initial.textContent = initial;
+    if (cache.avatar) cache.avatar.setAttribute('aria-label', player.isEmpty ? '空位' : player.name || '');
   }
-  if (cache.avatar) cache.avatar.style.visibility = player.isEmpty ? 'hidden' : 'visible';
+  if (cache.avatar && cache.avatar.dataset.tone !== tone) {
+    cache.avatar.dataset.tone = tone;
+  }
 
   if (cache.aiTag) {
     const showAi = !!player.isAI;
@@ -1003,14 +1025,15 @@ fillAiEl?.addEventListener('change', () => {
 function buildAvatarPicker() {
   if (!avatarPicker) return;
   avatarPicker.innerHTML = '';
-  for (const a of AVATAR_CHOICES) {
+  AVATAR_CHOICES.forEach((a, i) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'avatar-opt' + (a.id === selectedAvatar ? ' is-on' : '');
     b.setAttribute('role', 'option');
     b.setAttribute('aria-selected', a.id === selectedAvatar ? 'true' : 'false');
     b.title = a.label;
-    b.innerHTML = `<img src="assets/avatar-${a.id}.png" alt="${a.label}" width="40" height="40" />`;
+    const letter = avatarInitial(a.label);
+    b.innerHTML = `<span class="avatar-letter picker-letter" data-tone="${i % 6}"><span class="avatar-initial">${letter}</span></span>`;
     b.addEventListener('click', () => {
       selectedAvatar = a.id;
       try {
@@ -1021,7 +1044,7 @@ function buildAvatarPicker() {
       buildAvatarPicker();
     });
     avatarPicker.appendChild(b);
-  }
+  });
 }
 buildAvatarPicker();
 
