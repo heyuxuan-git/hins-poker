@@ -1,12 +1,12 @@
-/* hin's poker PWA service worker — v6.8
+/* hin's poker PWA service worker — v6.9
    Navigations: network-first (always fresh HTML)
    Static assets: cache-first with background update */
-const CACHE = 'hin-poker-v68';
+const CACHE = 'hin-poker-v69';
 const ASSETS = [
   './',
   './index.html',
-  './css/style.css?v=v6.8',
-  './js/main.js?v=v6.8',
+  './css/style.css?v=v6.9',
+  './js/main.js?v=v6.9',
   './js/game.js',
   './js/deck.js',
   './js/evaluator.js',
@@ -16,13 +16,6 @@ const ASSETS = [
   './js/coach.js',
   './manifest.webmanifest',
   './assets/favicon.svg',
-  './assets/dealer.png',
-  './assets/avatar-hero.png',
-  './assets/avatar-chen.png',
-  './assets/avatar-mei.png',
-  './assets/avatar-zhou.png',
-  './assets/avatar-lin.png',
-  './assets/avatar-kai.png',
   './assets/icon-192.png',
   './assets/icon-512.png',
 ];
@@ -44,7 +37,6 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
 
-  // HTML / navigation: network-first so users never get stuck on a bad cache
   const isNavigation = e.request.mode === 'navigate' || e.request.destination === 'document';
   if (isNavigation) {
     e.respondWith(
@@ -63,7 +55,6 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Static assets: cache-first, refresh in background
   e.respondWith(
     caches.match(e.request).then((cached) => {
       const fetched = fetch(e.request)
