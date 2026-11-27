@@ -491,6 +491,7 @@ function renderActions(state) {
     actionTimerEl.hidden = true;
     quickRaisesEl.hidden = true;
     quickRaisesEl.innerHTML = '';
+    raiseRow.hidden = true;
     const wait = document.createElement('div');
     wait.className = 'waiting';
     const thinkingName = state.players.find((p) => p.isThinking)?.name;
