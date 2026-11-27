@@ -5394,3 +5394,62 @@ body.mode-game .plate {
     display: none !important;
   }
 }
+
+/* =========================================================
+   v7.1 — Remove dealer well; toast takes top-center slot
+   ========================================================= */
+.dealer-well,
+.dealer-figure,
+.dealer-avatar,
+.dealer-letter,
+.dealer-label {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+@media (max-width: 820px) and (orientation: portrait) {
+  /* Toast: top-center where dealer used to sit */
+  body.mode-game .toast {
+    position: absolute !important;
+    left: 50% !important;
+    top: 4px !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+    width: max-content !important;
+    max-width: min(88%, 340px) !important;
+    margin: 0 !important;
+    padding: 6px 14px !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+    text-align: center !important;
+    background: rgba(8, 18, 14, 0.82) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    color: #f3f7f5 !important;
+    border-radius: 999px !important;
+    z-index: 14 !important;
+    pointer-events: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Top seats drop slightly so they clear the toast pill */
+  body.mode-game .seat.top-left,
+  body.mode-game .seat.top-right {
+    top: 9% !important;
+  }
+
+  /* Felt meta moves down a bit (was under dealer) */
+  body.mode-game .felt-meta {
+    top: 32% !important;
+  }
+}
+
+/* Desktop: hide dealer, toast top-center of table */
+body.mode-game .toast {
+  top: 10px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  max-width: min(70%, 420px) !important;
+}
