@@ -2,6 +2,13 @@
 
 All notable changes to **hin's poker**.
 
+## v7.7 — 2026-11-25
+
+### Changed
+- Immersive status bar: dynamic `theme-color` (lobby light / game Macau green)
+- `black-translucent` + safe-area strip paints notch area to match screen
+- Manifest theme/background aligned with lobby & felt
+
 ## v7.6 — 2026-11-25
 
 ### Fixed
