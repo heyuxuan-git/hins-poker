@@ -2,6 +2,14 @@
 
 All notable changes to **hin's poker**.
 
+## v7.10 — 2026-11-25
+
+### Changed
+- Rollback v7.9 overcrowded seats / mid-table toast
+- Toast fixed above action dock (clear of board and all seats)
+- Calmer seat scale; tools stay centered without 记录
+- Keep: board dims on win reveal
+
 ## v7.9 — 2026-11-25
 
 ### Changed
