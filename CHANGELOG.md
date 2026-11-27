@@ -2,6 +2,13 @@
 
 All notable changes to **hin's poker**.
 
+## v7.1 — 2026-11-25
+
+### Changed
+- Remove dealer well cutout from table top
+- Opening/status toast sits at top-center (former dealer slot)
+- Top seats nudged down to clear the toast pill
+
 ## v7.0 — 2026-11-25
 
 ### Changed
