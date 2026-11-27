@@ -6007,3 +6007,66 @@ body.mode-game .toast {
     min-height: 50px !important;
   }
 }
+
+/* =========================================================
+   v7.6 — Lobby dock visibility + letter avatar optical center
+   ========================================================= */
+.dock-room[hidden],
+#btn-solo[hidden],
+#dock-room[hidden],
+#fill-ai-wrap[hidden],
+#room-code-wrap[hidden],
+.lobby-invite[hidden],
+.lobby-status[hidden],
+.lobby-error[hidden],
+.lobby-hint[hidden] {
+  display: none !important;
+}
+
+/* Also kill grid/flex display that would beat [hidden] */
+.dock-room[hidden],
+.dock-actions > [hidden] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Letter avatars: true optical center for CJK + Latin */
+.avatar-letter,
+.avatar.avatar-letter,
+.avatar-opt .avatar-letter {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+}
+
+.avatar-letter .avatar-initial,
+.avatar-opt .avatar-letter .avatar-initial,
+.avatar-opt .avatar-initial {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  /* CJK glyphs sit high in many fonts — nudge down slightly */
+  transform: translateY(0.06em);
+  font-weight: 700;
+}
+
+.avatar-opt {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+.avatar-opt .avatar-letter.picker-letter {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+}
