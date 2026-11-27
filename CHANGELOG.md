@@ -2,6 +2,14 @@
 
 All notable changes to **hin's poker**.
 
+## v7.9 — 2026-11-25
+
+### Changed
+- Toast sits below top seats (no longer covers 老/林 cards)
+- Tools row: remove 记录; remaining buttons centered
+- Larger seats/avatars/plates with separated positions (no overlap)
+- Hand-over: community board dims so winner five cards stand out
+
 ## v7.8 — 2026-11-25
 
 ### Fixed
