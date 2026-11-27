@@ -2,6 +2,12 @@
 
 All notable changes to **hin's poker**.
 
+## v7.6 — 2026-11-25
+
+### Fixed
+- Solo mode no longer shows 创建/加入 (`[hidden]` was beaten by `display:grid`)
+- Letter avatars: optical vertical center for CJK initials
+
 ## v7.5 — 2026-11-25
 
 ### Changed
