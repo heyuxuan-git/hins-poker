@@ -9,11 +9,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="hin's poker" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <title>hin's poker · 德州扑克 v7.8</title>
+  <title>hin's poker · 德州扑克 v7.9</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="assets/icon-192.png" />
-  <link rel="stylesheet" href="css/style.css?v=v7.8" />
+  <link rel="stylesheet" href="css/style.css?v=v7.9" />
 </head>
 <body>
   <!-- Lobby: single-screen game home (no scroll) -->
@@ -23,7 +23,7 @@
         <div class="hero-badge" aria-hidden="true">H</div>
         <div class="brand-row">
           <h1 class="lobby-title">hin's poker</h1>
-          <span class="brand-ver">v7.8</span>
+          <span class="brand-ver">v7.9</span>
         </div>
       </header>
 
@@ -93,7 +93,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">H</div>
         <div class="brand-text">
-          <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v7.8</span></div>
+          <div class="brand-title">hin's poker <span class="brand-ver" id="brand-ver">v7.9</span></div>
         </div>
       </div>
     </header>
@@ -145,10 +145,7 @@
         <button class="btn-ghost" id="btn-rebuy" type="button" hidden>补码</button>
         <button class="btn-ghost" id="btn-reset" type="button">重置</button>
         <button class="btn-ghost" id="btn-leave" type="button">离开</button>
-        <details class="hist-details" id="hist-details">
-          <summary class="btn-ghost">记录</summary>
-          <div class="hist-list" id="hand-history"></div>
-        </details>
+        <div class="hist-list" id="hand-history" hidden></div>
       </div>
 
       <footer class="action-bar">
@@ -184,7 +181,7 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=v7.8"></script>
+  <script type="module" src="js/main.js?v=v7.9"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
