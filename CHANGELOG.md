@@ -2,6 +2,12 @@
 
 All notable changes to **hin's poker**.
 
+## v7.8 — 2026-11-25
+
+### Fixed
+- iOS home-screen PWA: force `<html>`/`body` green under translucent status bar (no white fallback)
+- Re-apply status bar chrome on lobby↔game switch
+
 ## v7.7 — 2026-11-25
 
 ### Changed
