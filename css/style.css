@@ -5140,11 +5140,11 @@ body.mode-game .plate {
   }
 
   body.mode-game .felt-meta {
-    top: 36% !important;
+    top: 34% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     font-size: 11px !important;
-    opacity: 0.9;
+    opacity: 0.85;
   }
 
   body.mode-game .table::after {
@@ -5159,27 +5159,27 @@ body.mode-game .plate {
     z-index: 12 !important;
   }
 
-  /* Toast: compact overlay on felt, not a full-width white slab */
+  /* Toast: slim pill in the gap below top seats (not over nameplates) */
   body.mode-game .toast {
     position: absolute !important;
     left: 50% !important;
-    top: 18% !important;
+    top: 27% !important;
     right: auto !important;
     bottom: auto !important;
     transform: translateX(-50%) !important;
     width: max-content !important;
-    max-width: min(92%, 360px) !important;
+    max-width: min(78%, 300px) !important;
     margin: 0 !important;
-    padding: 6px 12px !important;
-    font-size: 12px !important;
+    padding: 5px 12px !important;
+    font-size: 11px !important;
     line-height: 1.35 !important;
     white-space: normal !important;
     text-align: center !important;
-    background: rgba(8, 18, 14, 0.72) !important;
+    background: rgba(8, 18, 14, 0.78) !important;
     border: 1px solid rgba(255, 255, 255, 0.16) !important;
     color: #f3f7f5 !important;
     border-radius: 999px !important;
-    z-index: 8 !important;
+    z-index: 7 !important;
     pointer-events: none !important;
     box-shadow: none !important;
   }
@@ -5357,5 +5357,40 @@ body.mode-game .plate {
     min-width: 64px !important;
     min-height: 64px !important;
     font-size: 13px !important;
+  }
+}
+
+/* =========================================================
+   v7.0.1 — Center topbar · toast clear of seat plates
+   ========================================================= */
+@media (max-width: 820px) and (orientation: portrait) {
+  body.mode-game .topbar {
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  body.mode-game .topbar .brand {
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  body.mode-game .topbar .brand-text {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+
+  /* Push top seats slightly up; toast sits in the clear band at 27% */
+  body.mode-game .seat.top-left,
+  body.mode-game .seat.top-right {
+    top: 5% !important;
+  }
+
+  /* Only hero (or revealed) shows live hand tag — others empty via JS */
+  body.mode-game .hand-tag:empty {
+    display: none !important;
   }
 }
