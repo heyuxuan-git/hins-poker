@@ -171,7 +171,10 @@ function liveHandName(player, community) {
   if (player.handName) return player.handName;
   const hole = player.cards || [];
   if (hole.length < 2) return '';
+  // Face-down snapshots are {hidden:true} — never invent a hand name
+  if (!hole[0]?.rank || !hole[1]?.rank) return '';
   const all = [...hole, ...(community || [])];
+  if (all.some((c) => !c?.rank || !c?.suit)) return '';
   if (all.length >= 5) {
     try {
       return evaluateHand(all).name;
