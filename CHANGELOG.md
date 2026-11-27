@@ -2,6 +2,15 @@
 
 All notable changes to **hin's poker**.
 
+## v7.3 — 2026-11-25
+
+### Fixed
+- Call then stuck on dead “过牌” button (engine advanced before UI; timeout skipped street-end)
+- `doAction` re-renders from live game snapshot, not stale `lastState`
+- Double-scheduled street advance / betting loop guarded by timers
+- Auto-timeout uses the same completion rules as `actHero`
+- Regression: `js/call-check.test.mjs`
+
 ## v7.2 — 2026-11-25
 
 ### Changed
