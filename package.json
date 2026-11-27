@@ -1,11 +1,11 @@
 {
   "name": "hins-poker",
-  "version": "6.7.0",
+  "version": "7.3.0",
   "private": true,
   "type": "module",
-  "description": "hin's poker v6.7 — mobile portrait stack layout",
+  "description": "hin's poker v7.3 — fix call/check action lock",
   "scripts": {
-    "test": "node js/evaluator.test.mjs && node js/deal-bust.test.mjs && node js/rebuy.test.mjs",
+    "test": "node js/evaluator.test.mjs && node js/deal-bust.test.mjs && node js/rebuy.test.mjs && node js/call-check.test.mjs",
     "start": "python3 -m http.server 5173",
     "server": "node server/index.js"
   },
