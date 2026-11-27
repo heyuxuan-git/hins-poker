@@ -2,6 +2,11 @@
 
 All notable changes to **hin's poker**.
 
+## v7.2 — 2026-11-25
+
+### Changed
+- Felt palette → Macau casino green (`#046a38` / deep `#024a28` / glow `#0a7f4a`)
+
 ## v7.1 — 2026-11-25
 
 ### Changed
