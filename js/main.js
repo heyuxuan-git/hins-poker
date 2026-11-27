@@ -1146,16 +1146,53 @@ function showInvite(code) {
   const url = buildInviteUrl(code);
   lobbyInvite.hidden = false;
   inviteLinkEl.value = url;
-  lobbyHint.textContent = `房间 ${code}。把整条链接发给朋友即可自动填好服务器和房间码。`;
+  setLobbyStatus(`房间 ${code} · 链接已备好`);
 }
+
+/* Single-screen lobby: solo / room mode switch */
+const modeSoloBtn = document.getElementById('mode-solo');
+const modeRoomBtn = document.getElementById('mode-room');
+const dockMode = document.getElementById('dock-mode');
+const dockSub = document.getElementById('dock-sub');
+const dockRoom = document.getElementById('dock-room');
+const fillAiWrap = document.getElementById('fill-ai-wrap');
+const roomCodeWrap = document.getElementById('room-code-wrap');
+let lobbyMode = 'solo';
+
+function applyLobbyMode(next) {
+  lobbyMode = next === 'room' ? 'room' : 'solo';
+  const isSolo = lobbyMode === 'solo';
+  modeSoloBtn?.classList.toggle('is-on', isSolo);
+  modeRoomBtn?.classList.toggle('is-on', !isSolo);
+  modeSoloBtn?.setAttribute('aria-selected', isSolo ? 'true' : 'false');
+  modeRoomBtn?.setAttribute('aria-selected', isSolo ? 'false' : 'true');
+  if (btnSolo) btnSolo.hidden = !isSolo;
+  if (dockRoom) dockRoom.hidden = isSolo;
+  if (fillAiWrap) fillAiWrap.hidden = !isSolo;
+  if (roomCodeWrap) roomCodeWrap.hidden = isSolo;
+  if (dockMode) dockMode.textContent = isSolo ? '单机' : '房间';
+  if (dockSub) dockSub.textContent = isSolo ? (currentFillAi() ? '5 AI' : '空位') : '联机';
+  if (isSolo) {
+    lobbyInvite.hidden = true;
+    showLobbyError('');
+  }
+}
+
+modeSoloBtn?.addEventListener('click', () => applyLobbyMode('solo'));
+modeRoomBtn?.addEventListener('click', () => applyLobbyMode('room'));
+fillAiEl?.addEventListener('change', () => {
+  if (lobbyMode === 'solo' && dockSub) {
+    dockSub.textContent = currentFillAi() ? '5 AI' : '空位';
+  }
+});
 
 document.getElementById('btn-copy-invite').addEventListener('click', async () => {
   try {
     await navigator.clipboard.writeText(inviteLinkEl.value);
-    lobbyHint.textContent = '邀请链接已复制';
+    setLobbyStatus('邀请链接已复制');
   } catch {
     inviteLinkEl.select();
-    lobbyHint.textContent = '请手动全选复制';
+    setLobbyStatus('请手动全选复制');
   }
 });
 
@@ -1417,3 +1454,5 @@ function refreshRebuyBtn(state) {
 
 initBoardSlots();
 showLobby();
+applyLobbyMode('solo');
+if (autoJoinCode) applyLobbyMode('room');
