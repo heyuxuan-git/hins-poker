@@ -2,6 +2,13 @@
 
 All notable changes to **hin's poker**.
 
+## v7.11 — 2026-11-25
+
+### Fixed
+- Toast back at top under tools (not mid-table / bottom)
+- Top seats positioned below toast via calc (no card overlap)
+- Re-lock portrait overlay: app/stage/table absolute full-viewport; action-bar height cannot squash table or bounce page
+
 ## v7.10 — 2026-11-25
 
 ### Changed
