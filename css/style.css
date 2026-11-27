@@ -6070,3 +6070,53 @@ body.mode-game .toast {
   height: 40px;
   flex: 0 0 auto;
 }
+
+/* =========================================================
+   v7.7 — Immersive status bar
+   Paint safe-area strip to match lobby / Macau felt.
+   ========================================================= */
+:root {
+  --status-bar-bg: #f3f5f4;
+}
+
+html {
+  background: var(--status-bar-bg, #f3f5f4);
+}
+
+body {
+  background: var(--status-bar-bg, #f3f5f4);
+}
+
+/* Solid strip under notch/status bar (works with black-translucent) */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top, 0px);
+  min-height: 0;
+  background: var(--status-bar-bg, #f3f5f4);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+body.mode-game {
+  --status-bar-bg: #046a38;
+  background: #046a38 !important;
+}
+
+body.mode-game::before {
+  background: #046a38;
+}
+
+/* Frosted topbar sits below the painted strip */
+body.mode-game .topbar {
+  /* ensure content never hides under notch when translucent */
+  padding-top: max(8px, env(safe-area-inset-top, 0px)) !important;
+}
+
+/* Lobby already pads with safe-area; reinforce shell top */
+.lobby-shell {
+  padding-top: max(16px, env(safe-area-inset-top, 0px)) !important;
+}
