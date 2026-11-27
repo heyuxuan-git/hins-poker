@@ -816,7 +816,12 @@ function doAction(action) {
   }
   game.actHero(action);
   actionsSignature = '';
-  if (lastState) render(lastState);
+  // Always re-render from the live engine snapshot (not a possibly stale lastState)
+  try {
+    render(game.snapshot());
+  } catch {
+    if (lastState) render(lastState);
+  }
 }
 
 document.getElementById('room-code').addEventListener('click', async () => {
