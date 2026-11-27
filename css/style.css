@@ -6120,3 +6120,48 @@ body.mode-game .topbar {
 .lobby-shell {
   padding-top: max(16px, env(safe-area-inset-top, 0px)) !important;
 }
+
+/* =========================================================
+   v7.8 — Force translucent status bar never shows white
+   ========================================================= */
+html,
+html body {
+  background-color: var(--status-bar-bg, #f3f5f4) !important;
+}
+
+html.mode-game,
+html.mode-game body,
+body.mode-game {
+  --status-bar-bg: #046a38 !important;
+  background-color: #046a38 !important;
+}
+
+/* Paint top band: full notch + a little extra so iOS never sees white */
+body::before {
+  height: max(env(safe-area-inset-top, 0px), env(safe-area-inset-top, 0px)) !important;
+  min-height: env(safe-area-inset-top, 0px) !important;
+  background-color: var(--status-bar-bg, #f3f5f4) !important;
+}
+
+body.mode-game::before,
+html.mode-game body::before {
+  background-color: #046a38 !important;
+  /* Notch devices: always paint at least the classic 44–47px band */
+  height: max(env(safe-area-inset-top, 0px), 0px) !important;
+}
+
+/* If iOS reports 0 inset but still overlays a status bar (translucent),
+   extend a solid green cap from the top of the layout. */
+body.mode-game .topbar {
+  box-shadow: 0 calc(-1 * max(env(safe-area-inset-top, 0px), 0px)) 0 0 #046a38 !important;
+}
+
+/* Game app root fills under translucent bar */
+body.mode-game .app {
+  background: transparent !important;
+}
+
+body.mode-game .stage {
+  /* felt already paints; ensure it reaches under status bar via absolute inset */
+  background-color: #046a38 !important;
+}
