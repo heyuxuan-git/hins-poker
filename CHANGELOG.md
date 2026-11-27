@@ -2,6 +2,13 @@
 
 All notable changes to **hin's poker**.
 
+## v7.4 — 2026-11-25
+
+### Changed
+- Mobile chrome: top title + tools + bottom action dock use frosted glass (semi-transparent blur)
+- Table is full-viewport under the glass; action-bar height no longer squashes/jumps the felt
+- Seats/toast/coach repositioned into the glass-safe band
+
 ## v7.3 — 2026-11-25
 
 ### Fixed
