@@ -625,6 +625,8 @@ function renderActions(state) {
 function clearWinBanner() {
   winBannerKey = '';
   if (winBannerSlot) winBannerSlot.innerHTML = '';
+  document.body.classList.remove('win-reveal');
+  if (boardEl) boardEl.classList.remove('board-dim');
 }
 
 function renderWinBanner(state) {
@@ -633,12 +635,17 @@ function renderWinBanner(state) {
     if (winBannerSlot && winBannerSlot.childElementCount) {
       winBannerSlot.innerHTML = '';
     }
+    document.body.classList.remove('win-reveal');
+    if (boardEl) boardEl.classList.remove('board-dim');
     winBannerKey = '';
     return;
   }
 
   const cardsKey = (primary.bestCards || []).map((c) => c.id).join(',');
   const key = `${primary.id}:${primary.amount}:${primary.handName || ''}:${cardsKey}`;
+  // Always ensure board dim while winner panel is up (even if key unchanged)
+  document.body.classList.add('win-reveal');
+  if (boardEl) boardEl.classList.add('board-dim');
   if (key === winBannerKey) return;
   winBannerKey = key;
   winBannerSlot.innerHTML = '';
