@@ -119,6 +119,14 @@ export class PokerGame {
       clearTimeout(this._actionTimer);
       this._actionTimer = null;
     }
+    if (this._streetTimer) {
+      clearTimeout(this._streetTimer);
+      this._streetTimer = null;
+    }
+    if (this._bettingTimer) {
+      clearTimeout(this._bettingTimer);
+      this._bettingTimer = null;
+    }
     this.actionDeadline = null;
     this.actionTimeoutMs = null;
   }
@@ -175,12 +183,30 @@ export class PokerGame {
       this.message = `⏰ ${player.name} 超时，自动${toCall <= 0 ? '过牌' : '弃牌'}！`;
       this.pushLog(player.name, 'fold', `超时自动${toCall <= 0 ? '过牌' : '弃牌'}`);
       this.applyAction(player, action);
-      this.emit();
       if (this.activePlayers().length === 1) {
+        this.emit();
         this.finishHand();
         return;
       }
-      this.currentPlayer = this.nextToAct(player.id);
+      // Same completion rules as actHero — never leave hero stuck on a dead check
+      if (this.isBettingComplete()) {
+        this.currentPlayer = null;
+        this.emit();
+        setTimeout(() => this.advanceStreet(), 120);
+        return;
+      }
+      let next = this.nextToAct(player.id);
+      if (next == null || next === player.id) {
+        if (this.isBettingComplete() || this.playersCanAct().length <= 1) {
+          this.currentPlayer = null;
+          this.emit();
+          setTimeout(() => this.advanceStreet(), 120);
+          return;
+        }
+        next = this.nextToAct(player.id);
+      }
+      this.currentPlayer = next;
+      this.emit();
       setTimeout(() => {
         this.runBettingRound();
       }, 80);
@@ -427,6 +453,12 @@ export class PokerGame {
   }
 
   async runBettingRound() {
+    // NOTE: no re-entrancy lock here — advanceStreet() awaits this method
+    // nested inside an outer runBettingRound; a lock would strand the new street.
+    await this.runBettingRoundInner();
+  }
+
+  async runBettingRoundInner() {
     const actors = this.playersCanAct();
     if (actors.length === 0) {
       await this.advanceStreet();
@@ -456,6 +488,8 @@ export class PokerGame {
 
       // Local hero or remote human — wait for their action
       if (!player.isAI) {
+        // If the street can already end, do not block forever on a dead check
+        if (this.isBettingComplete()) break;
         this.armActionClock(player);
         this.emit();
         return;
@@ -638,6 +672,8 @@ export class PokerGame {
   actHero(action) {
     if (!this.isHeroTurn()) {
       console.warn('[poker] actHero ignored, not hero turn', action, this.currentPlayer, this.phase);
+      // Force a fresh snapshot so a stale "check" button cannot sit forever
+      this.emit();
       return;
     }
     const hero = this.hero();
@@ -650,37 +686,74 @@ export class PokerGame {
       this.emit();
       return;
     }
-    this.emit();
-    actionsSignatureReset();
 
     if (this.activePlayers().length === 1) {
+      this.emit();
       this.finishHand();
       return;
     }
 
+    // Decide street end / next actor BEFORE the first emit so UI never
+    // freezes on a post-call "过牌" button while the engine has moved on.
     if (this.isBettingComplete()) {
       this.currentPlayer = null;
       this.emit();
-      setTimeout(() => this.advanceStreet(), 220);
+      this.scheduleAdvanceStreet(220);
       return;
     }
 
     let next = this.nextToAct(this.heroSeat);
     if (next == null || next === this.heroSeat) {
-      // No one else to act right now — finish street
       if (this.isBettingComplete() || this.playersCanAct().length <= 1) {
         this.currentPlayer = null;
         this.emit();
-        setTimeout(() => this.advanceStreet(), 220);
+        this.scheduleAdvanceStreet(220);
         return;
       }
       next = this.nextToAct(this.heroSeat);
     }
+    if (next == null) {
+      this.currentPlayer = null;
+      this.emit();
+      this.scheduleAdvanceStreet(120);
+      return;
+    }
+
     this.currentPlayer = next;
     this.emit();
-    setTimeout(() => {
-      this.runBettingRound();
-    }, 100);
+    this.scheduleRunBetting(100);
+  }
+
+  /** Guard against double-scheduled street advances / betting loops */
+  scheduleAdvanceStreet(delayMs) {
+    if (this._streetTimer) clearTimeout(this._streetTimer);
+    this._bettingTimer && clearTimeout(this._bettingTimer);
+    this._bettingTimer = null;
+    this._streetTimer = setTimeout(() => {
+      this._streetTimer = null;
+      this.advanceStreet().catch((e) => {
+        console.error('[poker] advanceStreet failed', e);
+        this.phase = 'handover';
+        this.currentPlayer = null;
+        this.message = '牌局异常，已结束本局';
+        this.emit();
+      });
+    }, delayMs);
+  }
+
+  scheduleRunBetting(delayMs) {
+    if (this._bettingTimer) clearTimeout(this._bettingTimer);
+    if (this._streetTimer) {
+      clearTimeout(this._streetTimer);
+      this._streetTimer = null;
+    }
+    this._bettingTimer = setTimeout(() => {
+      this._bettingTimer = null;
+      this.runBettingRound().catch((e) => {
+        console.error('[poker] runBettingRound failed', e);
+        this.emit();
+      });
+    }, delayMs);
   }
 
   /** Host receives a remote human action */
