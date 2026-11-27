@@ -772,16 +772,34 @@ function applyRemoteState(state) {
   render(state);
 }
 
+/** iOS/Android status bar: match lobby light / game felt (immersive). */
+function setStatusBarChrome(screen) {
+  const isGame = screen === 'game';
+  const color = isGame ? '#046a38' : '#f3f5f4';
+  let theme = document.querySelector('meta[name="theme-color"]');
+  if (!theme) {
+    theme = document.createElement('meta');
+    theme.setAttribute('name', 'theme-color');
+    document.head.appendChild(theme);
+  }
+  theme.setAttribute('content', color);
+  // Helps some Android WebViews / installed PWAs
+  document.documentElement.style.backgroundColor = color;
+  document.body.style.setProperty('--status-bar-bg', color);
+}
+
 function showGame() {
   document.getElementById('lobby').hidden = true;
   document.getElementById('game-app').hidden = false;
   document.body.classList.add('mode-game');
+  setStatusBarChrome('game');
 }
 
 function showLobby() {
   document.getElementById('lobby').hidden = false;
   document.getElementById('game-app').hidden = true;
   document.body.classList.remove('mode-game');
+  setStatusBarChrome('lobby');
   const badge = document.getElementById('room-badge');
   if (badge) badge.hidden = true;
 }
