@@ -783,9 +783,12 @@ function setStatusBarChrome(screen) {
     document.head.appendChild(theme);
   }
   theme.setAttribute('content', color);
-  // Helps some Android WebViews / installed PWAs
-  document.documentElement.style.backgroundColor = color;
+  // Also paint <html> so translucent status bar never falls back to white
+  const root = document.documentElement;
+  root.classList.toggle('mode-game', isGame);
+  root.style.backgroundColor = color;
   document.body.style.setProperty('--status-bar-bg', color);
+  document.body.style.backgroundColor = color;
 }
 
 function showGame() {
