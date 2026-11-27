@@ -1,12 +1,12 @@
-/* hin's poker PWA service worker — v7.8
+/* hin's poker PWA service worker — v7.9
    Navigations: network-first (always fresh HTML)
    Static assets: cache-first with background update */
-const CACHE = 'hin-poker-v78';
+const CACHE = 'hin-poker-v79';
 const ASSETS = [
   './',
   './index.html',
-  './css/style.css?v=v7.8',
-  './js/main.js?v=v7.8',
+  './css/style.css?v=v7.9',
+  './js/main.js?v=v7.9',
   './js/game.js',
   './js/deck.js',
   './js/evaluator.js',
