@@ -2,6 +2,13 @@
 
 All notable changes to **hin's poker**.
 
+## v7.5 — 2026-11-25
+
+### Changed
+- Lobby → single-screen game home (no scroll, no marketing copy)
+- Bottom dock: current mode + primary CTA (开始游戏 / 创建·加入)
+- Mode tabs 单机 / 房间; compact name, avatar, optional room code
+
 ## v7.4 — 2026-11-25
 
 ### Changed
