@@ -1166,14 +1166,31 @@ function applyLobbyMode(next) {
   modeRoomBtn?.classList.toggle('is-on', !isSolo);
   modeSoloBtn?.setAttribute('aria-selected', isSolo ? 'true' : 'false');
   modeRoomBtn?.setAttribute('aria-selected', isSolo ? 'false' : 'true');
-  if (btnSolo) btnSolo.hidden = !isSolo;
-  if (dockRoom) dockRoom.hidden = isSolo;
-  if (fillAiWrap) fillAiWrap.hidden = !isSolo;
-  if (roomCodeWrap) roomCodeWrap.hidden = isSolo;
+
+  // Force display via property — CSS display:grid must not beat [hidden]
+  if (btnSolo) {
+    btnSolo.hidden = !isSolo;
+    btnSolo.style.display = isSolo ? '' : 'none';
+  }
+  if (dockRoom) {
+    dockRoom.hidden = isSolo;
+    dockRoom.style.display = isSolo ? 'none' : '';
+  }
+  if (fillAiWrap) {
+    fillAiWrap.hidden = !isSolo;
+    fillAiWrap.style.display = isSolo ? '' : 'none';
+  }
+  if (roomCodeWrap) {
+    roomCodeWrap.hidden = isSolo;
+    roomCodeWrap.style.display = isSolo ? 'none' : '';
+  }
   if (dockMode) dockMode.textContent = isSolo ? '单机' : '房间';
   if (dockSub) dockSub.textContent = isSolo ? (currentFillAi() ? '5 AI' : '空位') : '联机';
   if (isSolo) {
-    lobbyInvite.hidden = true;
+    if (lobbyInvite) {
+      lobbyInvite.hidden = true;
+      lobbyInvite.style.display = 'none';
+    }
     showLobbyError('');
   }
 }
