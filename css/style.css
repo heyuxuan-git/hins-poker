@@ -5648,3 +5648,362 @@ body.mode-game .toast {
     top: 74% !important;
   }
 }
+
+/* =========================================================
+   v7.5 — Single-screen mature game lobby
+   No marketing copy · no scroll · bottom mode + start dock
+   ========================================================= */
+.lobby {
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  place-items: stretch !important;
+  padding: 0 !important;
+  background:
+    radial-gradient(1200px 500px at 50% -10%, rgba(4, 106, 56, 0.18), transparent 55%),
+    linear-gradient(180deg, #f3f5f4 0%, #e8ecea 100%) !important;
+}
+
+.lobby-shell {
+  width: min(480px, 100%) !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  padding:
+    max(16px, env(safe-area-inset-top))
+    16px
+    calc(12px + env(safe-area-inset-bottom))
+    16px !important;
+  box-sizing: border-box !important;
+}
+
+/* Brand header */
+.lobby-brand {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 0 4px !important;
+  text-align: center !important;
+}
+
+.lobby-brand .hero-badge {
+  width: 52px !important;
+  height: 52px !important;
+  margin: 0 !important;
+  font-size: 24px !important;
+  border-radius: 14px !important;
+  background: linear-gradient(160deg, #0a7f4a, #046a38) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 20px rgba(4, 106, 56, 0.28) !important;
+}
+
+.lobby-brand .brand-row {
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.lobby-title {
+  margin: 0 !important;
+  font-size: clamp(26px, 7vw, 32px) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.01em !important;
+  color: var(--ink, #1a1d21) !important;
+}
+
+.lobby-brand .brand-ver {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  padding: 2px 8px !important;
+  border-radius: 999px !important;
+  background: var(--accent-soft, #e8efec) !important;
+  color: var(--accent-text, #2f5244) !important;
+}
+
+/* Mode tabs */
+.lobby-modes {
+  flex: 0 0 auto !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  margin: 14px 0 12px !important;
+  padding: 4px !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid var(--border, #e6e7e8) !important;
+  border-radius: 999px !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.mode-chip {
+  min-height: 40px !important;
+  border-radius: 999px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: var(--muted, #6b7280) !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.mode-chip.is-on {
+  background: var(--accent, #046a38) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(4, 106, 56, 0.25) !important;
+}
+
+/* Controls block — fills middle, no marketing cards */
+.lobby-main {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+}
+
+.lobby-controls {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  padding: 14px !important;
+  background: #fff !important;
+  border: 1px solid var(--border, #e6e7e8) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow-sm, 0 1px 4px rgba(15, 23, 42, 0.06)) !important;
+}
+
+.lobby-field {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+
+.lobby-field .field-label,
+.lobby-field > span:first-child {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--muted, #6b7280) !important;
+}
+
+.lobby-field input {
+  width: 100% !important;
+  min-height: 44px !important;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--border, #e6e7e8) !important;
+  background: var(--surface-2, #f0f1f2) !important;
+  font-size: 15px !important;
+  color: var(--ink, #1a1d21) !important;
+}
+
+.lobby-field input:focus {
+  outline: none !important;
+  border-color: var(--accent, #046a38) !important;
+  background: #fff !important;
+}
+
+.lobby-check {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  color: var(--text, #1a1d21) !important;
+  min-height: 28px !important;
+}
+
+.lobby-check input {
+  width: 18px !important;
+  height: 18px !important;
+  accent-color: var(--accent, #046a38) !important;
+}
+
+.avatar-picker {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+.avatar-opt {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.lobby-status,
+.lobby-error {
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  padding: 8px 10px !important;
+  border-radius: 10px !important;
+}
+
+.lobby-status:not([hidden]) {
+  background: var(--accent-soft, #e8efec) !important;
+  color: var(--accent-text, #2f5244) !important;
+}
+
+.lobby-error:not([hidden]) {
+  background: var(--warn-soft, #f5ebe8) !important;
+  color: var(--warn, #a65d4e) !important;
+}
+
+.lobby-invite {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.lobby-invite textarea {
+  width: 100% !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--border) !important;
+  background: var(--surface-2) !important;
+  padding: 8px 10px !important;
+  font-size: 12px !important;
+  resize: none !important;
+}
+
+.lobby-adv {
+  font-size: 12px !important;
+  color: var(--muted) !important;
+}
+
+.lobby-adv summary {
+  cursor: pointer !important;
+  padding: 4px 0 !important;
+}
+
+.lobby-adv .lobby-field {
+  margin-top: 6px !important;
+}
+
+/* Bottom dock — mode + primary CTA, always visible */
+.lobby-dock {
+  flex: 0 0 auto !important;
+  margin-top: auto !important;
+  padding-top: 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.dock-meta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 4px !important;
+}
+
+.dock-mode {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: var(--ink, #1a1d21) !important;
+}
+
+.dock-sub {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--muted, #6b7280) !important;
+}
+
+.dock-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.dock-start {
+  width: 100% !important;
+  min-height: 56px !important;
+  border-radius: 16px !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  color: #fff !important;
+  background: linear-gradient(180deg, #0a7f4a 0%, #046a38 100%) !important;
+  border: none !important;
+  box-shadow: 0 10px 24px rgba(4, 106, 56, 0.28) !important;
+}
+
+.dock-start:active {
+  transform: translateY(1px) !important;
+  filter: brightness(0.96) !important;
+}
+
+.dock-start:disabled {
+  opacity: 0.55 !important;
+}
+
+.dock-room {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+.dock-room .action-btn {
+  min-height: 52px !important;
+  border-radius: 14px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+.dock-room .btn-raise {
+  background: linear-gradient(180deg, #0a7f4a, #046a38) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.dock-room .btn-call {
+  background: #fff !important;
+  color: var(--accent-text, #2f5244) !important;
+  border: 1.5px solid var(--accent, #046a38) !important;
+}
+
+/* Kill legacy lobby copy blocks if any remain in cascade */
+.lobby-tagline,
+.lobby-features,
+.lobby-foot,
+.lobby-multi,
+.lobby-hero,
+.lobby-card,
+.hero-stats,
+.hero-cta {
+  display: none !important;
+}
+
+/* Short viewports: keep dock + controls without scroll */
+@media (max-height: 700px) {
+  .lobby-shell {
+    padding-top: max(8px, env(safe-area-inset-top)) !important;
+  }
+
+  .lobby-brand .hero-badge {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 20px !important;
+  }
+
+  .lobby-modes {
+    margin: 8px 0 !important;
+  }
+
+  .lobby-controls {
+    padding: 10px !important;
+    gap: 8px !important;
+  }
+
+  .dock-start {
+    min-height: 50px !important;
+  }
+}
