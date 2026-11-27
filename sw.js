@@ -1,12 +1,12 @@
-/* hin's poker PWA service worker — gray letter avatars
+/* hin's poker PWA service worker — v7.0
    Navigations: network-first (always fresh HTML)
    Static assets: cache-first with background update */
-const CACHE = 'hin-poker-gray-avatar';
+const CACHE = 'hin-poker-v70';
 const ASSETS = [
   './',
   './index.html',
-  './css/style.css?v=gray',
-  './js/main.js?v=v6.9',
+  './css/style.css?v=v7.0',
+  './js/main.js?v=v7.0',
   './js/game.js',
   './js/deck.js',
   './js/evaluator.js',
