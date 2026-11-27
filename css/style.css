@@ -44,10 +44,10 @@
   --warn: #a65d4e;
   --warn-soft: #f5ebe8;
 
-  /* Poker table exceptions — deep casino green (WePoker-style full felt) */
-  --felt: #1a6b4a;
-  --felt-deep: #0e4530;
-  --felt-glow: #1f7d56;
+  /* Poker table exceptions — Macau casino green */
+  --felt: #046a38;
+  --felt-deep: #024a28;
+  --felt-glow: #0a7f4a;
   --gold: #3d6b5a;
   --gold-hi: #4a7d6a;
   --gold-dim: #3d6b5a;
