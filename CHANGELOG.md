@@ -2,6 +2,16 @@
 
 All notable changes to **hin's poker**.
 
+## v7.0 — 2026-11-25
+
+### Changed
+- Mobile portrait: table fills full stage height (no empty felt letterbox)
+- Seats spread around full-height felt; board/pot centered
+- Tools row above table; room-meta blinds hidden (shown on felt)
+- Toast/coach as compact overlays on felt
+- Tighter action bar; hide raise slider when not hero turn
+- Larger board cards and action buttons on tall phones
+
 ## v6.9 — 2026-11-24
 
 ### Changed
